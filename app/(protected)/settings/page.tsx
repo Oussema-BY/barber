@@ -1,22 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, Clock, Store } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, Clock, Store, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_WORKING_HOURS } from '@/lib/constants';
 import { WorkingHours } from '@/lib/types';
+import { getSettings, updateSettings } from '@/lib/actions/settings.actions';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
   const tDays = useTranslations('days');
   const tCommon = useTranslations('common');
 
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'hours' | 'business'>('hours');
-  const [workingHours, setWorkingHours] = useState<WorkingHours[]>(DEFAULT_WORKING_HOURS);
-  const [businessName, setBusinessName] = useState('BarberPro Shop');
-  const [businessPhone, setBusinessPhone] = useState('+1 (555) 123-4567');
+  const [workingHours, setWorkingHours] = useState<WorkingHours[]>([]);
+  const [businessName, setBusinessName] = useState('');
+  const [businessPhone, setBusinessPhone] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const settings = await getSettings();
+        setWorkingHours(settings.workingHours || []);
+        setBusinessName(settings.businessName || '');
+        setBusinessPhone(settings.businessPhone || '');
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSettings();
+  }, []);
 
   const handleWorkingHoursChange = (day: string, field: 'open' | 'close' | 'isClosed', value: string | boolean) => {
     setWorkingHours((prev) =>
@@ -26,10 +44,30 @@ export default function SettingsPage() {
     );
   };
 
-  const handleSave = () => {
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await updateSettings({
+        businessName,
+        businessPhone,
+        workingHours,
+      });
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 lg:space-y-8">
@@ -156,6 +194,7 @@ export default function SettingsPage() {
       {/* Save Button */}
       <Button
         onClick={handleSave}
+        disabled={saving}
         size="lg"
         className="w-full text-lg font-semibold"
       >
@@ -163,6 +202,11 @@ export default function SettingsPage() {
           <>
             <Check className="w-5 h-5" />
             {tCommon('saved')}
+          </>
+        ) : saving ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            {tCommon('saving')}
           </>
         ) : (
           t('saveSettings')

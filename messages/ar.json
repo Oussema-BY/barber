@@ -14,7 +14,8 @@
     "today": "اليوم",
     "tomorrow": "غداً",
     "minutes": "د",
-    "saved": "تم الحفظ!"
+    "saved": "تم الحفظ!",
+    "saving": "جاري الحفظ..."
   },
   "nav": {
     "dashboard": "الرئيسية",

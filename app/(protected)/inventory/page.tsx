@@ -1,25 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Minus, Plus, AlertCircle, Package } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Minus, Plus, AlertCircle, Package, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MOCK_PRODUCTS } from '@/lib/constants';
 import { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+import { getProducts, updateProductQuantity } from '@/lib/actions/product.actions';
 
 export default function InventoryPage() {
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadProducts = useCallback(async () => {
+    try {
+      const data = await getProducts();
+      setProducts(data);
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const lowStockProducts = products.filter((p) => p.quantity <= p.minQuantity);
   const totalInventoryValue = products.reduce((sum, p) => sum + p.quantity * p.costPrice, 0);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const handleUpdateQuantity = async (id: string, newQuantity: number) => {
     if (newQuantity < 0) return;
-    setProducts(
-      products.map((p) => (p.id === id ? { ...p, quantity: newQuantity } : p))
-    );
+    setProducts(products.map((p) => (p.id === id ? { ...p, quantity: newQuantity } : p)));
+    try {
+      await updateProductQuantity(id, newQuantity);
+    } catch (err) {
+      console.error('Failed to update quantity:', err);
+      loadProducts();
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
@@ -94,7 +122,7 @@ export default function InventoryPage() {
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => updateQuantity(product.id, product.quantity - 1)}
+                        onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
                         className="p-1.5 hover:bg-secondary rounded-lg transition-colors text-foreground-secondary"
                       >
                         <Minus className="w-4 h-4" />
@@ -103,7 +131,7 @@ export default function InventoryPage() {
                         {product.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(product.id, product.quantity + 1)}
+                        onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
                         className="p-1.5 hover:bg-secondary rounded-lg transition-colors text-foreground-secondary"
                       >
                         <Plus className="w-4 h-4" />
@@ -174,7 +202,7 @@ export default function InventoryPage() {
                       <td className="py-3 px-3">
                         <div className="flex items-center justify-center gap-2">
                           <button
-                            onClick={() => updateQuantity(product.id, product.quantity - 1)}
+                            onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
                             className="p-1.5 hover:bg-secondary rounded-lg transition-colors text-foreground-secondary"
                           >
                             <Minus className="w-4 h-4" />
@@ -183,7 +211,7 @@ export default function InventoryPage() {
                             {product.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(product.id, product.quantity + 1)}
+                            onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
                             className="p-1.5 hover:bg-secondary rounded-lg transition-colors text-foreground-secondary"
                           >
                             <Plus className="w-4 h-4" />

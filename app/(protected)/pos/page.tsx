@@ -1,20 +1,39 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, RotateCcw, Scissors } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Check, RotateCcw, Scissors, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { MOCK_SERVICES, CATEGORY_COLORS } from '@/lib/constants';
+import { CATEGORY_COLORS } from '@/lib/constants';
 import { Service } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+import { getServices } from '@/lib/actions/service.actions';
+import { createTransaction } from '@/lib/actions/transaction.actions';
 
 export default function POSPage() {
   const t = useTranslations('pos');
   const tServices = useTranslations('services');
 
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [cashReceived, setCashReceived] = useState('');
   const [isComplete, setIsComplete] = useState(false);
+
+  const loadServices = useCallback(async () => {
+    try {
+      const data = await getServices();
+      setServices(data);
+    } catch (err) {
+      console.error('Failed to load services:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
 
   // Calculate total (no tax for simplicity)
   const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
@@ -32,8 +51,32 @@ export default function POSPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedServices.length === 0) return;
+
+    const now = new Date();
+    try {
+      await createTransaction({
+        items: selectedServices.map((s) => ({
+          name: s.name,
+          price: s.price,
+          quantity: 1,
+          type: 'service',
+          serviceId: s.id,
+        })),
+        subtotal: total,
+        tax: 0,
+        total,
+        amountPaid: cashAmount > 0 ? cashAmount : total,
+        change: change > 0 ? change : 0,
+        paymentMethod: 'cash',
+        date: now.toISOString().split('T')[0],
+        time: now.toTimeString().slice(0, 5),
+      });
+    } catch (err) {
+      console.error('Failed to save transaction:', err);
+    }
+
     setIsComplete(true);
   };
 
@@ -42,6 +85,14 @@ export default function POSPage() {
     setCashReceived('');
     setIsComplete(false);
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   // Success screen after completing sale
   if (isComplete) {
@@ -77,7 +128,7 @@ export default function POSPage() {
 
       {/* Services Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {MOCK_SERVICES.map((service) => {
+        {services.map((service) => {
           const isSelected = selectedServices.some((s) => s.id === service.id);
           const categoryColor = CATEGORY_COLORS[service.category] || CATEGORY_COLORS.other;
 

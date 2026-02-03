@@ -14,7 +14,8 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "minutes": "min",
-    "saved": "Saved!"
+    "saved": "Saved!",
+    "saving": "Saving..."
   },
   "nav": {
     "dashboard": "Dashboard",

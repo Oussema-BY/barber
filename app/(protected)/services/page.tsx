@@ -1,28 +1,43 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Plus, Scissors, Search } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Plus, Scissors, Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ServiceCard } from '@/components/services/service-card';
 import { AddServiceModal } from '@/components/services/add-service-modal';
-import { MOCK_SERVICES, SERVICE_CATEGORIES } from '@/lib/constants';
+import { SERVICE_CATEGORIES } from '@/lib/constants';
 import { Service, ServiceCategory } from '@/lib/types';
+import { getServices, deleteService } from '@/lib/actions/service.actions';
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>(MOCK_SERVICES);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const loadServices = useCallback(async () => {
+    try {
+      const data = await getServices();
+      setServices(data);
+    } catch (err) {
+      console.error('Failed to load services:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
+
   const filteredServices = useMemo(() => {
     let result = services;
 
-    // Filter by category
     if (selectedCategory !== 'all') {
       result = result.filter((s) => s.category === selectedCategory);
     }
 
-    // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter((s) =>
@@ -34,13 +49,22 @@ export default function ServicesPage() {
     return result;
   }, [services, selectedCategory, searchTerm]);
 
-  const handleAddService = (service: Service) => {
-    setServices([...services, service]);
+  const handleDeleteService = async (id: string) => {
+    try {
+      await deleteService(id);
+      setServices(services.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error('Failed to delete service:', err);
+    }
   };
 
-  const handleDeleteService = (id: string) => {
-    setServices(services.filter((s) => s.id !== id));
-  };
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 lg:space-y-8">
@@ -61,7 +85,6 @@ export default function ServicesPage() {
 
       {/* Filters */}
       <div className="space-y-3">
-        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
           <input
@@ -73,7 +96,6 @@ export default function ServicesPage() {
           />
         </div>
 
-        {/* Category Filter */}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedCategory('all')}
@@ -137,7 +159,7 @@ export default function ServicesPage() {
       <AddServiceModal
         open={addServiceModalOpen}
         onOpenChange={setAddServiceModalOpen}
-        onAdd={handleAddService}
+        onServiceAdded={loadServices}
       />
     </div>
   );

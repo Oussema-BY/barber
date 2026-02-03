@@ -4,20 +4,20 @@ import React, { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Input, Select, Textarea } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Service, ServiceCategory } from '@/lib/types';
-import { generateId } from '@/lib/utils';
+import { ServiceCategory } from '@/lib/types';
 import { SERVICE_CATEGORIES } from '@/lib/constants';
+import { createService } from '@/lib/actions/service.actions';
 
 interface AddServiceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (service: Service) => void;
+  onServiceAdded: () => void;
 }
 
 export function AddServiceModal({
   open,
   onOpenChange,
-  onAdd,
+  onServiceAdded,
 }: AddServiceModalProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -26,8 +26,9 @@ export function AddServiceModal({
     duration: '',
     description: '',
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.price || !formData.duration) {
@@ -35,26 +36,30 @@ export function AddServiceModal({
       return;
     }
 
-    const service: Service = {
-      id: generateId(),
-      name: formData.name,
-      category: formData.category,
-      price: parseFloat(formData.price),
-      duration: parseInt(formData.duration, 10),
-      description: formData.description || undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    setLoading(true);
+    try {
+      await createService({
+        name: formData.name,
+        category: formData.category,
+        price: parseFloat(formData.price),
+        duration: parseInt(formData.duration, 10),
+        description: formData.description || undefined,
+      });
 
-    onAdd(service);
-    setFormData({
-      name: '',
-      category: 'hair',
-      price: '',
-      duration: '',
-      description: '',
-    });
-    onOpenChange(false);
+      setFormData({
+        name: '',
+        category: 'hair',
+        price: '',
+        duration: '',
+        description: '',
+      });
+      onOpenChange(false);
+      onServiceAdded();
+    } catch {
+      alert('Failed to create service');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -129,11 +134,12 @@ export function AddServiceModal({
             variant="secondary"
             onClick={() => onOpenChange(false)}
             className="flex-1"
+            disabled={loading}
           >
             Cancel
           </Button>
-          <Button type="submit" className="flex-1">
-            Add Service
+          <Button type="submit" className="flex-1" disabled={loading}>
+            {loading ? 'Adding...' : 'Add Service'}
           </Button>
         </div>
       </form>

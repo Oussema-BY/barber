@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { MOCK_SERVICES, MOCK_APPOINTMENTS, CATEGORY_COLORS } from '@/lib/constants';
+import { CATEGORY_COLORS } from '@/lib/constants';
 import { Appointment, Service } from '@/lib/types';
-import { formatCurrency, generateId } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
+import { getServices } from '@/lib/actions/service.actions';
+import { getAppointmentsByDate, createAppointment, deleteAppointment } from '@/lib/actions/appointment.actions';
 
 const TIME_SLOTS = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -24,7 +26,9 @@ export default function AppointmentsPage() {
   const tCommon = useTranslations('common');
   const locale = useLocale();
 
-  const [appointments, setAppointments] = useState<Appointment[]>(MOCK_APPOINTMENTS);
+  const [services, setServices] = useState<Service[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [isBooking, setIsBooking] = useState(false);
 
@@ -33,11 +37,40 @@ export default function AppointmentsPage() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedTime, setSelectedTime] = useState('');
 
-  // Filter appointments for selected date
-  const dayAppointments = appointments.filter((apt) => apt.date === selectedDate);
+  const loadAppointments = useCallback(async (date: string) => {
+    try {
+      const data = await getAppointmentsByDate(date);
+      setAppointments(data);
+    } catch (err) {
+      console.error('Failed to load appointments:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    async function init() {
+      try {
+        const [servicesData] = await Promise.all([
+          getServices(),
+          loadAppointments(selectedDate),
+        ]);
+        setServices(servicesData);
+      } catch (err) {
+        console.error('Failed to initialize:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!loading) {
+      loadAppointments(selectedDate);
+    }
+  }, [selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Get booked times for the selected date
-  const bookedTimes = dayAppointments.map((apt) => apt.time);
+  const bookedTimes = appointments.map((apt) => apt.time);
 
   const formatDateDisplay = (dateString: string) => {
     const date = new Date(dateString);
@@ -60,34 +93,38 @@ export default function AppointmentsPage() {
     setSelectedDate(date.toISOString().split('T')[0]);
   };
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (!clientName.trim() || !selectedService || !selectedTime) return;
 
-    const newAppointment: Appointment = {
-      id: generateId(),
-      clientName: clientName.trim(),
-      serviceId: selectedService.id,
-      serviceName: selectedService.name,
-      date: selectedDate,
-      time: selectedTime,
-      duration: selectedService.duration,
-      price: selectedService.price,
-      status: 'confirmed',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const newAppointment = await createAppointment({
+        clientName: clientName.trim(),
+        serviceId: selectedService.id,
+        serviceName: selectedService.name,
+        date: selectedDate,
+        time: selectedTime,
+        duration: selectedService.duration,
+        price: selectedService.price,
+        status: 'confirmed',
+      });
 
-    setAppointments([...appointments, newAppointment]);
-
-    // Reset form
-    setClientName('');
-    setSelectedService(null);
-    setSelectedTime('');
-    setIsBooking(false);
+      setAppointments([...appointments, newAppointment]);
+      setClientName('');
+      setSelectedService(null);
+      setSelectedTime('');
+      setIsBooking(false);
+    } catch (err) {
+      console.error('Failed to book appointment:', err);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setAppointments(appointments.filter((apt) => apt.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteAppointment(id);
+      setAppointments(appointments.filter((apt) => apt.id !== id));
+    } catch (err) {
+      console.error('Failed to delete appointment:', err);
+    }
   };
 
   const cancelBooking = () => {
@@ -97,9 +134,17 @@ export default function AppointmentsPage() {
     setIsBooking(false);
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 lg:space-y-8">
-      {/* Header with Date Navigation */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('title')}</h1>
@@ -116,13 +161,9 @@ export default function AppointmentsPage() {
 
       {/* Date Selector */}
       <div className="flex items-center justify-between bg-card rounded-xl border border-border p-3">
-        <button
-          onClick={() => handleDateChange('prev')}
-          className="p-2 hover:bg-secondary rounded-lg transition-colors"
-        >
+        <button onClick={() => handleDateChange('prev')} className="p-2 hover:bg-secondary rounded-lg transition-colors">
           <ChevronLeft className="w-5 h-5 text-foreground-secondary rtl:rotate-180" />
         </button>
-
         <div className="flex items-center gap-3">
           <Calendar className="w-5 h-5 text-primary" />
           <div className="text-center">
@@ -130,11 +171,7 @@ export default function AppointmentsPage() {
             <p className="text-xs text-foreground-secondary">{selectedDate}</p>
           </div>
         </div>
-
-        <button
-          onClick={() => handleDateChange('next')}
-          className="p-2 hover:bg-secondary rounded-lg transition-colors"
-        >
+        <button onClick={() => handleDateChange('next')} className="p-2 hover:bg-secondary rounded-lg transition-colors">
           <ChevronRight className="w-5 h-5 text-foreground-secondary rtl:rotate-180" />
         </button>
       </div>
@@ -144,19 +181,13 @@ export default function AppointmentsPage() {
         <div className="bg-card rounded-xl border-2 border-primary p-4 space-y-4 animate-fade-in">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-foreground">{t('quickBooking')}</h2>
-            <button
-              onClick={cancelBooking}
-              className="text-sm text-foreground-secondary hover:text-foreground"
-            >
+            <button onClick={cancelBooking} className="text-sm text-foreground-secondary hover:text-foreground">
               {tCommon('cancel')}
             </button>
           </div>
 
-          {/* Step 1: Client Name */}
           <div>
-            <label className="text-sm font-medium text-foreground-secondary block mb-2">
-              {t('clientName')}
-            </label>
+            <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('clientName')}</label>
             <input
               type="text"
               placeholder={t('enterClientName')}
@@ -167,29 +198,21 @@ export default function AppointmentsPage() {
             />
           </div>
 
-          {/* Step 2: Select Service */}
           <div>
-            <label className="text-sm font-medium text-foreground-secondary block mb-2">
-              {t('selectService')}
-            </label>
+            <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectService')}</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {MOCK_SERVICES.map((service) => {
+              {services.map((service) => {
                 const isSelected = selectedService?.id === service.id;
                 const categoryColor = CATEGORY_COLORS[service.category] || CATEGORY_COLORS.other;
-
                 return (
                   <button
                     key={service.id}
                     onClick={() => setSelectedService(service)}
                     className={`p-3 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${
-                      isSelected
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border bg-secondary hover:border-primary/50'
+                      isSelected ? 'border-primary bg-primary/10' : 'border-border bg-secondary hover:border-primary/50'
                     }`}
                   >
-                    <p className="font-semibold text-foreground text-sm line-clamp-1">
-                      {service.name}
-                    </p>
+                    <p className="font-semibold text-foreground text-sm line-clamp-1">{service.name}</p>
                     <div className="flex items-center justify-between mt-1">
                       <span className={`text-xs ${categoryColor.text}`}>{service.duration}{tCommon('minutes')}</span>
                       <span className="font-bold text-primary text-sm">{formatCurrency(service.price)}</span>
@@ -200,16 +223,12 @@ export default function AppointmentsPage() {
             </div>
           </div>
 
-          {/* Step 3: Select Time */}
           <div>
-            <label className="text-sm font-medium text-foreground-secondary block mb-2">
-              {t('selectTime')}
-            </label>
+            <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectTime')}</label>
             <div className="flex flex-wrap gap-2">
               {TIME_SLOTS.map((time) => {
                 const isBooked = bookedTimes.includes(time);
                 const isSelected = selectedTime === time;
-
                 return (
                   <button
                     key={time}
@@ -230,7 +249,6 @@ export default function AppointmentsPage() {
             </div>
           </div>
 
-          {/* Book Button */}
           <Button
             onClick={handleBook}
             disabled={!clientName.trim() || !selectedService || !selectedTime}
@@ -243,13 +261,13 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      {/* Today's Appointments */}
+      {/* Appointments List */}
       <div>
         <h2 className="font-bold text-foreground mb-3">
-          {t('appointmentsFor', { day: formatDateDisplay(selectedDate), count: dayAppointments.length })}
+          {t('appointmentsFor', { day: formatDateDisplay(selectedDate), count: appointments.length })}
         </h2>
 
-        {dayAppointments.length === 0 ? (
+        {appointments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center bg-card rounded-xl border border-border">
             <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
               <Calendar className="w-8 h-8 text-foreground-muted" />
@@ -261,20 +279,14 @@ export default function AppointmentsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {dayAppointments
+            {appointments
               .sort((a, b) => a.time.localeCompare(b.time))
               .map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="p-4 rounded-xl bg-card border border-border flex items-center gap-4"
-                >
-                  {/* Time */}
+                <div key={appointment.id} className="p-4 rounded-xl bg-card border border-border flex items-center gap-4">
                   <div className="w-16 h-16 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
                     <span className="text-xl font-bold text-primary">{appointment.time.split(':')[0]}</span>
                     <span className="text-xs text-primary">{appointment.time.split(':')[1]}</span>
                   </div>
-
-                  {/* Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-foreground-secondary" />
@@ -289,12 +301,7 @@ export default function AppointmentsPage() {
                       <span className="font-bold text-foreground">{formatCurrency(appointment.price)}</span>
                     </div>
                   </div>
-
-                  {/* Actions */}
-                  <button
-                    onClick={() => handleDelete(appointment.id)}
-                    className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
-                  >
+                  <button onClick={() => handleDelete(appointment.id)} className="p-2 hover:bg-destructive/10 rounded-lg transition-colors">
                     <Trash2 className="w-5 h-5 text-destructive" />
                   </button>
                 </div>

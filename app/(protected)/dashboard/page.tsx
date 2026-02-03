@@ -1,19 +1,56 @@
 'use client';
 
-import React from 'react';
-import { Calendar, DollarSign, AlertCircle, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, DollarSign, AlertCircle, TrendingUp, Loader2 } from 'lucide-react';
 import { KPICard } from '@/components/dashboard/kpi-card';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { TodaySchedule } from '@/components/dashboard/today-schedule';
-import { MOCK_APPOINTMENTS, MOCK_PRODUCTS } from '@/lib/constants';
+import { Appointment } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+import { getDashboardStats } from '@/lib/actions/dashboard.actions';
+import { getAppointmentsByDate } from '@/lib/actions/appointment.actions';
 
 export default function DashboardPage() {
-  // Mock calculations
-  const todayAppointments = MOCK_APPOINTMENTS.length;
-  const dailyRevenue = MOCK_APPOINTMENTS.reduce((sum, apt) => sum + apt.price, 0);
-  const lowStockProducts = MOCK_PRODUCTS.filter((p) => p.quantity <= p.minQuantity).length;
-  const thisMonthRevenue = dailyRevenue * 25; // Mock: 25 business days
+  const [stats, setStats] = useState({
+    todayAppointments: 0,
+    dailyRevenue: 0,
+    lowStockProducts: 0,
+    monthRevenue: 0,
+  });
+  const [todaySchedule, setTodaySchedule] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const [dashboardStats, appointments] = await Promise.all([
+          getDashboardStats(),
+          getAppointmentsByDate(today),
+        ]);
+        setStats({
+          todayAppointments: dashboardStats.todayAppointments,
+          dailyRevenue: dashboardStats.dailyRevenue,
+          lowStockProducts: dashboardStats.lowStockProducts,
+          monthRevenue: dashboardStats.monthRevenue,
+        });
+        setTodaySchedule(appointments);
+      } catch (err) {
+        console.error('Failed to load dashboard:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 lg:p-8 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 lg:space-y-8">
@@ -27,31 +64,27 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <KPICard
           title="Today's Appointments"
-          value={todayAppointments}
+          value={stats.todayAppointments}
           icon={Calendar}
           color="blue"
-          change={{ value: 12, isPositive: true }}
         />
         <KPICard
           title="Daily Revenue"
-          value={formatCurrency(dailyRevenue)}
+          value={formatCurrency(stats.dailyRevenue)}
           icon={DollarSign}
           color="emerald"
-          change={{ value: 8, isPositive: true }}
         />
         <KPICard
           title="Low Stock Items"
-          value={lowStockProducts}
+          value={stats.lowStockProducts}
           icon={AlertCircle}
           color="amber"
-          change={{ value: 3, isPositive: false }}
         />
         <KPICard
           title="This Month Revenue"
-          value={formatCurrency(thisMonthRevenue)}
+          value={formatCurrency(stats.monthRevenue)}
           icon={TrendingUp}
           color="purple"
-          change={{ value: 15, isPositive: true }}
         />
       </div>
 
@@ -64,7 +97,7 @@ export default function DashboardPage() {
       {/* Today's Schedule */}
       <section>
         <h2 className="text-lg font-bold text-foreground mb-4">Today's Schedule</h2>
-        <TodaySchedule appointments={MOCK_APPOINTMENTS} />
+        <TodaySchedule appointments={todaySchedule} />
       </section>
     </div>
   );

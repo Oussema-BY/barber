@@ -14,7 +14,8 @@
     "today": "Aujourd'hui",
     "tomorrow": "Demain",
     "minutes": "min",
-    "saved": "Enregistré !"
+    "saved": "Enregistré !",
+    "saving": "Enregistrement..."
   },
   "nav": {
     "dashboard": "Tableau de bord",
