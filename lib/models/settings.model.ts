@@ -22,6 +22,10 @@ const SettingsSchema = new Schema(
     currency: { type: String, default: 'EUR' },
     timezone: { type: String, default: 'Europe/Paris' },
     taxRate: { type: Number, default: 0 },
+    salonMode: { type: String, enum: ['solo', 'multi'], default: 'solo' },
+    numberOfChairs: { type: Number, default: 1 },
+    ownerId: { type: String, default: '' },
+    isOnboarded: { type: Boolean, default: false },
   },
   {
     timestamps: true,

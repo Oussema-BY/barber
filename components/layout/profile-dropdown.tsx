@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { User, Settings, Clock, LogOut } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 
 interface ProfileDropdownProps {
   userName: string;
@@ -12,6 +14,7 @@ interface ProfileDropdownProps {
 
 export function ProfileDropdown({ userName, userInitial }: ProfileDropdownProps) {
   const t = useTranslations('profile');
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -79,9 +82,10 @@ export function ProfileDropdown({ userName, userInitial }: ProfileDropdownProps)
           {/* Logout */}
           <div className="border-t border-border pt-1">
             <button
-              onClick={() => {
+              onClick={async () => {
                 setIsOpen(false);
-                alert('Logged out');
+                await authClient.signOut();
+                router.push('/sign-in');
               }}
               className="flex items-center gap-3 px-4 py-2.5 text-destructive hover:bg-destructive/10 transition-colors w-full"
             >

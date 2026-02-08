@@ -31,6 +31,44 @@
     "search": "Search appointments, clients...",
     "brandName": "BarberPro"
   },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signInSubtitle": "Welcome back to BarberPro",
+    "signUpSubtitle": "Create your account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password",
+    "enterName": "Enter your name",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "onboarding": {
+    "welcome": "Welcome to BarberPro!",
+    "letsGetStarted": "Let's set up your shop",
+    "shopNameLabel": "Shop Name",
+    "shopNameDescription": "What's the name of your barber shop?",
+    "shopNamePlaceholder": "e.g., King's Barbershop",
+    "salonModeLabel": "Salon Mode",
+    "salonModeDescription": "How does your shop operate?",
+    "solo": "Solo",
+    "soloDescription": "Just you, one chair",
+    "multi": "Multi-Chair",
+    "multiDescription": "Multiple barbers",
+    "addBarbers": "Add Barbers",
+    "addBarbersDescription": "Enter the names of your barbers",
+    "barberName": "Barber name",
+    "addAnotherBarber": "Add another barber",
+    "workingHoursLabel": "Working Hours",
+    "workingHoursDescription": "Set your opening and closing times",
+    "closed": "Closed",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Get Started"
+  },
   "profile": {
     "title": "My Profile",
     "subtitle": "Manage your personal information",
@@ -55,7 +93,9 @@
     "lowStockItems": "Low Stock Items",
     "monthRevenue": "This Month Revenue",
     "quickActions": "Quick Actions",
-    "todaySchedule": "Today's Schedule"
+    "todaySchedule": "Today's Schedule",
+    "noAppointmentsToday": "No appointments today",
+    "scheduleIsClear": "Your schedule is clear"
   },
   "appointments": {
     "title": "Appointments",
@@ -66,11 +106,14 @@
     "enterClientName": "Enter client name",
     "selectService": "Select Service",
     "selectTime": "Select Time",
+    "selectBarber": "Select Barber",
     "bookAppointment": "Book Appointment",
     "noAppointments": "No appointments",
     "fillFormAbove": "Fill the form above to book",
     "tapNewBooking": "Tap \"New Booking\" to add one",
-    "appointmentsFor": "{day}'s Appointments ({count})"
+    "appointmentsFor": "{day}'s Appointments ({count})",
+    "noSlotsAvailable": "No slots available for this day",
+    "selectServiceFirst": "Select a service to see available times"
   },
   "services": {
     "title": "Services",
@@ -116,7 +159,14 @@
     "opens": "Opens",
     "closes": "Closes",
     "language": "Language",
-    "selectLanguage": "Select Language"
+    "selectLanguage": "Select Language",
+    "salonMode": "Salon Mode",
+    "soloMode": "Solo",
+    "multiMode": "Multi-Chair",
+    "staff": "Staff",
+    "addBarber": "Add Barber",
+    "barberName": "Barber name",
+    "noStaff": "No staff members yet"
   },
   "days": {
     "monday": "Monday",

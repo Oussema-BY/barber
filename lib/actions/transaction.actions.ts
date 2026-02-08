@@ -14,6 +14,7 @@ export async function createTransaction(data: {
   paymentMethod: string;
   date: string;
   time: string;
+  completedBy?: string;
 }): Promise<POSTransaction> {
   await dbConnect();
   const transaction = await Transaction.create(data);

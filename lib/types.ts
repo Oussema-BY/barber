@@ -125,8 +125,20 @@ export interface WorkingHours {
   isClosed: boolean;
 }
 
+// Staff Types
+export interface StaffMember {
+  id: string;
+  name: string;
+  phone?: string;
+  color: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Business Settings Types
 export interface BusinessSettings {
+  id?: string;
   businessName: string;
   businessPhone: string;
   businessEmail: string;
@@ -137,4 +149,8 @@ export interface BusinessSettings {
   currency: string;
   timezone: string;
   taxRate: number;
+  salonMode: 'solo' | 'multi';
+  numberOfChairs: number;
+  ownerId: string;
+  isOnboarded: boolean;
 }

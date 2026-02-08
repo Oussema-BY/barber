@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Clock, Phone } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Appointment } from '@/lib/types';
@@ -12,12 +13,13 @@ interface TodayScheduleProps {
 }
 
 export function TodaySchedule({ appointments }: TodayScheduleProps) {
+  const t = useTranslations('dashboard');
   const todayAppointments = appointments.slice(0, 5);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Today's Schedule</CardTitle>
+        <CardTitle>{t('todaySchedule')}</CardTitle>
       </CardHeader>
       <CardContent>
         {todayAppointments.length === 0 ? (
@@ -25,8 +27,8 @@ export function TodaySchedule({ appointments }: TodayScheduleProps) {
             <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
               <Clock className="w-8 h-8 text-foreground-muted" />
             </div>
-            <p className="text-foreground-secondary font-medium">No appointments today</p>
-            <p className="text-foreground-muted text-sm mt-1">Your schedule is clear</p>
+            <p className="text-foreground-secondary font-medium">{t('noAppointmentsToday')}</p>
+            <p className="text-foreground-muted text-sm mt-1">{t('scheduleIsClear')}</p>
           </div>
         ) : (
           <div className="space-y-3">

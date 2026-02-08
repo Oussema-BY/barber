@@ -5,20 +5,21 @@ import { useTranslations, useLocale } from 'next-intl';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { ProfileDropdown } from './profile-dropdown';
+import { useUser } from '@/lib/user-context';
 import { cn } from '@/lib/utils';
 
 export function Topbar() {
   const t = useTranslations('topbar');
   const locale = useLocale();
+  const user = useUser();
 
-  // This would come from auth/context in a real app
-  const userName = 'Admin';
+  const userName = user.name || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
 
   return (
     <header className="sticky top-0 z-40 bg-card/90 backdrop-blur-xl border-b border-border">
       <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 md:px-6">
-        {/* Mobile: Page title area (can be used for back button) */}
+        {/* Mobile: Page title area */}
         <div className="md:hidden flex-1">
           <h1 className="text-lg font-bold text-foreground">{t('brandName')}</h1>
         </div>
@@ -43,19 +44,12 @@ export function Topbar() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Language Switcher */}
           <LanguageSwitcher currentLocale={locale} />
-
-          {/* Theme Toggle */}
           <ThemeToggle />
-
-          {/* Notifications */}
           <button className="relative p-2 text-foreground-secondary hover:text-foreground hover:bg-secondary rounded-xl transition-colors">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-card rtl:right-auto rtl:left-1.5" />
           </button>
-
-          {/* User Profile Dropdown */}
           <ProfileDropdown userName={userName} userInitial={userInitial} />
         </div>
       </div>

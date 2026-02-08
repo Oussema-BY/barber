@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -15,22 +15,22 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-} from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatCurrency } from '@/lib/utils';
+} from "recharts";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/utils";
 import {
   TrendingUp,
   TrendingDown,
   DollarSign,
   PieChart as PieChartIcon,
   Loader2,
-} from 'lucide-react';
-import { Service, Expense, Product, Appointment } from '@/lib/types';
-import { getServices } from '@/lib/actions/service.actions';
-import { getExpenses } from '@/lib/actions/expense.actions';
-import { getProducts } from '@/lib/actions/product.actions';
-import { getAllAppointments } from '@/lib/actions/appointment.actions';
+} from "lucide-react";
+import { Service, Expense, Product, Appointment } from "@/lib/types";
+import { getServices } from "@/lib/actions/service.actions";
+import { getExpenses } from "@/lib/actions/expense.actions";
+import { getProducts } from "@/lib/actions/product.actions";
+import { getAllAppointments } from "@/lib/actions/appointment.actions";
 
 export default function FinancePage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -42,18 +42,19 @@ export default function FinancePage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [servicesData, expensesData, productsData, appointmentsData] = await Promise.all([
-          getServices(),
-          getExpenses(),
-          getProducts(),
-          getAllAppointments(),
-        ]);
+        const [servicesData, expensesData, productsData, appointmentsData] =
+          await Promise.all([
+            getServices(),
+            getExpenses(),
+            getProducts(),
+            getAllAppointments(),
+          ]);
         setServices(servicesData);
         setExpenses(expensesData);
         setProducts(productsData);
         setAppointments(appointmentsData);
       } catch (err) {
-        console.error('Failed to load finance data:', err);
+        console.error("Failed to load finance data:", err);
       } finally {
         setLoading(false);
       }
@@ -71,11 +72,16 @@ export default function FinancePage() {
 
   const totalRevenue = appointments.reduce((sum, apt) => sum + apt.price, 0);
   const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  const inventoryValue = products.reduce((sum, p) => sum + p.quantity * p.costPrice, 0);
+  const inventoryValue = products.reduce(
+    (sum, p) => sum + p.quantity * p.costPrice,
+    0,
+  );
   const netProfit = totalRevenue - totalExpenses;
 
   const revenueByService = services.map((service) => {
-    const appointmentsCount = appointments.filter((apt) => apt.serviceId === service.id).length;
+    const appointmentsCount = appointments.filter(
+      (apt) => apt.serviceId === service.id,
+    ).length;
     return {
       name: service.name,
       revenue: service.price * appointmentsCount,
@@ -86,14 +92,16 @@ export default function FinancePage() {
     expenses.reduce((acc: Record<string, number>, exp) => {
       acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
       return acc;
-    }, {})
+    }, {}),
   ).map(([category, amount]) => ({
     name: category.charAt(0).toUpperCase() + category.slice(1),
     value: amount,
   }));
 
   const monthlyTrend = Array.from({ length: 12 }, (_, i) => {
-    const month = new Date(2024, i, 1).toLocaleString('en-US', { month: 'short' });
+    const month = new Date(2024, i, 1).toLocaleString("en-US", {
+      month: "short",
+    });
     return {
       name: month,
       revenue: totalRevenue / 12,
@@ -101,14 +109,25 @@ export default function FinancePage() {
     };
   });
 
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4'];
+  const COLORS = [
+    "#6366f1",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#a855f7",
+    "#06b6d4",
+  ];
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Finance & Reports</h1>
-        <p className="text-foreground-secondary mt-1">Business analytics and financial overview</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          Finance & Reports
+        </h1>
+        <p className="text-foreground-secondary mt-1">
+          Business analytics and financial overview
+        </p>
       </div>
 
       {/* KPI Cards */}
@@ -117,8 +136,12 @@ export default function FinancePage() {
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs md:text-sm font-medium text-foreground-secondary">Total Revenue</p>
-                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">{formatCurrency(totalRevenue)}</p>
+                <p className="text-xs md:text-sm font-medium text-foreground-secondary">
+                  Total Revenue
+                </p>
+                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
+                  {formatCurrency(totalRevenue)}
+                </p>
               </div>
               <div className="p-2 bg-success-light rounded-lg hidden sm:block">
                 <DollarSign className="w-5 h-5 text-success" />
@@ -131,8 +154,12 @@ export default function FinancePage() {
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs md:text-sm font-medium text-foreground-secondary">Total Expenses</p>
-                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">{formatCurrency(totalExpenses)}</p>
+                <p className="text-xs md:text-sm font-medium text-foreground-secondary">
+                  Total Expenses
+                </p>
+                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
+                  {formatCurrency(totalExpenses)}
+                </p>
               </div>
               <div className="p-2 bg-destructive-light rounded-lg hidden sm:block">
                 <TrendingDown className="w-5 h-5 text-destructive" />
@@ -145,10 +172,17 @@ export default function FinancePage() {
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs md:text-sm font-medium text-foreground-secondary">Net Profit</p>
-                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">{formatCurrency(netProfit)}</p>
+                <p className="text-xs md:text-sm font-medium text-foreground-secondary">
+                  Net Profit
+                </p>
+                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
+                  {formatCurrency(netProfit)}
+                </p>
                 <p className="text-xs md:text-sm text-success font-medium mt-1">
-                  {totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '0.0'}% margin
+                  {totalRevenue > 0
+                    ? ((netProfit / totalRevenue) * 100).toFixed(1)
+                    : "0.0"}
+                  % margin
                 </p>
               </div>
               <div className="p-2 bg-primary-light rounded-lg hidden sm:block">
@@ -162,8 +196,12 @@ export default function FinancePage() {
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs md:text-sm font-medium text-foreground-secondary">Inventory Value</p>
-                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">{formatCurrency(inventoryValue)}</p>
+                <p className="text-xs md:text-sm font-medium text-foreground-secondary">
+                  Inventory Value
+                </p>
+                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
+                  {formatCurrency(inventoryValue)}
+                </p>
                 <p className="text-xs md:text-sm text-foreground-tertiary font-medium mt-1">
                   {products.length} products
                 </p>
@@ -187,11 +225,34 @@ export default function FinancePage() {
             <div className="h-64 md:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueByService} margin={{ bottom: 60 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" tick={{ fontSize: 11 }} className="fill-foreground-secondary" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-foreground-secondary" />
-                  <Tooltip formatter={(value) => formatCurrency(value as number)} contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }} />
-                  <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-border"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    tick={{ fontSize: 11 }}
+                    className="fill-foreground-secondary"
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    className="fill-foreground-secondary"
+                  />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(value as number)}
+                    contentStyle={{
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Bar
+                    dataKey="revenue"
+                    fill="var(--primary)"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -212,16 +273,28 @@ export default function FinancePage() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
                     {expenseBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(value as number)} contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }} />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(value as number)}
+                    contentStyle={{
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -238,13 +311,44 @@ export default function FinancePage() {
           <div className="h-64 md:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyTrend}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} className="fill-foreground-secondary" />
-                <YAxis tick={{ fontSize: 11 }} className="fill-foreground-secondary" />
-                <Tooltip formatter={(value) => formatCurrency(value as number)} contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px' }} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-border"
+                />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11 }}
+                  className="fill-foreground-secondary"
+                />
+                <YAxis
+                  tick={{ fontSize: 11 }}
+                  className="fill-foreground-secondary"
+                />
+                <Tooltip
+                  formatter={(value) => formatCurrency(value as number)}
+                  contentStyle={{
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                  }}
+                />
                 <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="var(--success)" strokeWidth={2} name="Revenue" dot={{ fill: 'var(--success)' }} />
-                <Line type="monotone" dataKey="expenses" stroke="var(--destructive)" strokeWidth={2} name="Expenses" dot={{ fill: 'var(--destructive)' }} />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="var(--success)"
+                  strokeWidth={2}
+                  name="Revenue"
+                  dot={{ fill: "var(--success)" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="expenses"
+                  stroke="var(--destructive)"
+                  strokeWidth={2}
+                  name="Expenses"
+                  dot={{ fill: "var(--destructive)" }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -258,7 +362,9 @@ export default function FinancePage() {
         </CardHeader>
         <CardContent>
           {expenses.length === 0 ? (
-            <p className="text-foreground-secondary text-center py-8">No expenses recorded yet</p>
+            <p className="text-foreground-secondary text-center py-8">
+              No expenses recorded yet
+            </p>
           ) : (
             <div className="space-y-3">
               {expenses.map((expense) => (
@@ -267,10 +373,16 @@ export default function FinancePage() {
                   className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-background-secondary border border-border"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground">{expense.title}</p>
+                    <p className="font-semibold text-foreground">
+                      {expense.title}
+                    </p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <Badge size="sm" variant="default">{expense.category}</Badge>
-                      <p className="text-sm text-foreground-tertiary">{expense.date}</p>
+                      <Badge size="sm" variant="default">
+                        {expense.category}
+                      </Badge>
+                      <p className="text-sm text-foreground-tertiary">
+                        {expense.date}
+                      </p>
                     </div>
                   </div>
                   <p className="text-base md:text-lg font-bold text-foreground ml-4">

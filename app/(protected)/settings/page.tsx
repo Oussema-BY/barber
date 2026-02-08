@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Check, Clock, Store, Loader2 } from 'lucide-react';
+import { Check, Clock, Store, Loader2, Users, Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { WorkingHours } from '@/lib/types';
+import { WorkingHours, StaffMember } from '@/lib/types';
 import { getSettings, updateSettings } from '@/lib/actions/settings.actions';
+import { getStaffMembers, createStaffMember, deleteStaffMember } from '@/lib/actions/staff.actions';
+import { STAFF_COLORS } from '@/lib/constants';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
@@ -13,20 +15,31 @@ export default function SettingsPage() {
   const tCommon = useTranslations('common');
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'hours' | 'business'>('hours');
+  const [activeTab, setActiveTab] = useState<'hours' | 'business' | 'staff'>('hours');
   const [workingHours, setWorkingHours] = useState<WorkingHours[]>([]);
   const [businessName, setBusinessName] = useState('');
   const [businessPhone, setBusinessPhone] = useState('');
+  const [salonMode, setSalonMode] = useState<'solo' | 'multi'>('solo');
+  const [numberOfChairs, setNumberOfChairs] = useState(1);
+  const [staff, setStaff] = useState<StaffMember[]>([]);
+  const [newBarberName, setNewBarberName] = useState('');
+  const [addingStaff, setAddingStaff] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function loadSettings() {
       try {
-        const settings = await getSettings();
+        const [settings, staffMembers] = await Promise.all([
+          getSettings(),
+          getStaffMembers(),
+        ]);
         setWorkingHours(settings.workingHours || []);
         setBusinessName(settings.businessName || '');
         setBusinessPhone(settings.businessPhone || '');
+        setSalonMode(settings.salonMode || 'solo');
+        setNumberOfChairs(settings.numberOfChairs || 1);
+        setStaff(staffMembers);
       } catch (err) {
         console.error('Failed to load settings:', err);
       } finally {
@@ -51,6 +64,8 @@ export default function SettingsPage() {
         businessName,
         businessPhone,
         workingHours,
+        salonMode,
+        numberOfChairs,
       });
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
@@ -58,6 +73,36 @@ export default function SettingsPage() {
       console.error('Failed to save settings:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAddStaff = async () => {
+    if (!newBarberName.trim()) return;
+    setAddingStaff(true);
+    try {
+      const colorIndex = staff.length % STAFF_COLORS.length;
+      const member = await createStaffMember({
+        name: newBarberName.trim(),
+        color: STAFF_COLORS[colorIndex],
+      });
+      setStaff([...staff, member]);
+      setNewBarberName('');
+      setNumberOfChairs(staff.length + 1);
+    } catch (err) {
+      console.error('Failed to add staff:', err);
+    } finally {
+      setAddingStaff(false);
+    }
+  };
+
+  const handleDeleteStaff = async (id: string) => {
+    try {
+      await deleteStaffMember(id);
+      const updated = staff.filter((s) => s.id !== id);
+      setStaff(updated);
+      setNumberOfChairs(Math.max(1, updated.length));
+    } catch (err) {
+      console.error('Failed to delete staff:', err);
     }
   };
 
@@ -101,6 +146,19 @@ export default function SettingsPage() {
           <Store className="w-4 h-4" />
           {t('businessInfo')}
         </button>
+        {salonMode === 'multi' && (
+          <button
+            onClick={() => setActiveTab('staff')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-medium transition-all ${
+              activeTab === 'staff'
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            {t('staff')}
+          </button>
+        )}
       </div>
 
       {/* Working Hours Tab */}
@@ -188,6 +246,103 @@ export default function SettingsPage() {
               placeholder={t('enterPhone')}
             />
           </div>
+
+          {/* Salon Mode Toggle */}
+          <div>
+            <label className="text-sm font-medium text-foreground-secondary block mb-2">
+              {t('salonMode')}
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  setSalonMode('solo');
+                  setActiveTab('business');
+                }}
+                className={`p-3 rounded-xl border-2 text-center transition-all ${
+                  salonMode === 'solo'
+                    ? 'border-primary bg-primary/5 text-foreground'
+                    : 'border-border text-foreground-secondary hover:border-primary/50'
+                }`}
+              >
+                <span className="font-medium">{t('soloMode')}</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSalonMode('multi');
+                }}
+                className={`p-3 rounded-xl border-2 text-center transition-all ${
+                  salonMode === 'multi'
+                    ? 'border-primary bg-primary/5 text-foreground'
+                    : 'border-border text-foreground-secondary hover:border-primary/50'
+                }`}
+              >
+                <span className="font-medium">{t('multiMode')}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Staff Tab */}
+      {activeTab === 'staff' && salonMode === 'multi' && (
+        <div className="bg-card rounded-xl border border-border p-4 space-y-4">
+          <h2 className="font-bold text-foreground">{t('staff')}</h2>
+
+          {/* Add new barber */}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newBarberName}
+              onChange={(e) => setNewBarberName(e.target.value)}
+              placeholder={t('barberName')}
+              className="flex-1 px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none"
+              onKeyDown={(e) => e.key === 'Enter' && handleAddStaff()}
+            />
+            <Button
+              onClick={handleAddStaff}
+              disabled={addingStaff || !newBarberName.trim()}
+            >
+              {addingStaff ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
+              {t('addBarber')}
+            </Button>
+          </div>
+
+          {/* Staff list */}
+          {staff.length === 0 ? (
+            <div className="text-center py-8 text-foreground-secondary">
+              <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>{t('noStaff')}</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {staff.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-3 p-3 rounded-xl border border-border"
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    style={{ backgroundColor: member.color }}
+                  >
+                    {member.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="flex-1 font-medium text-foreground">
+                    {member.name}
+                  </span>
+                  <button
+                    onClick={() => handleDeleteStaff(member.id)}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-secondary hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

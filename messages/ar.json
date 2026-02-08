@@ -31,6 +31,44 @@
     "search": "البحث عن المواعيد والعملاء...",
     "brandName": "باربر برو"
   },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signInSubtitle": "مرحباً بعودتك إلى باربر برو",
+    "signUpSubtitle": "أنشئ حسابك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم الكامل",
+    "enterEmail": "أدخل بريدك الإلكتروني",
+    "enterPassword": "أدخل كلمة المرور",
+    "enterName": "أدخل اسمك",
+    "noAccount": "ليس لديك حساب؟",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  },
+  "onboarding": {
+    "welcome": "مرحباً بك في باربر برو!",
+    "letsGetStarted": "لنقم بإعداد صالونك",
+    "shopNameLabel": "اسم الصالون",
+    "shopNameDescription": "ما اسم صالون الحلاقة الخاص بك؟",
+    "shopNamePlaceholder": "مثال: صالون الملك",
+    "salonModeLabel": "نوع الصالون",
+    "salonModeDescription": "كيف يعمل صالونك؟",
+    "solo": "فردي",
+    "soloDescription": "أنت فقط، كرسي واحد",
+    "multi": "متعدد الكراسي",
+    "multiDescription": "عدة حلاقين",
+    "addBarbers": "إضافة الحلاقين",
+    "addBarbersDescription": "أدخل أسماء الحلاقين",
+    "barberName": "اسم الحلاق",
+    "addAnotherBarber": "إضافة حلاق آخر",
+    "workingHoursLabel": "ساعات العمل",
+    "workingHoursDescription": "حدد أوقات الفتح والإغلاق",
+    "closed": "مغلق",
+    "back": "رجوع",
+    "next": "التالي",
+    "finish": "ابدأ الآن"
+  },
   "profile": {
     "title": "ملفي الشخصي",
     "subtitle": "إدارة معلوماتك الشخصية",
@@ -55,7 +93,9 @@
     "lowStockItems": "مخزون منخفض",
     "monthRevenue": "إيرادات الشهر",
     "quickActions": "إجراءات سريعة",
-    "todaySchedule": "جدول اليوم"
+    "todaySchedule": "جدول اليوم",
+    "noAppointmentsToday": "لا توجد مواعيد اليوم",
+    "scheduleIsClear": "جدولك فارغ"
   },
   "appointments": {
     "title": "المواعيد",
@@ -66,11 +106,14 @@
     "enterClientName": "أدخل اسم العميل",
     "selectService": "اختر الخدمة",
     "selectTime": "اختر الوقت",
+    "selectBarber": "اختر الحلاق",
     "bookAppointment": "تأكيد الحجز",
     "noAppointments": "لا توجد مواعيد",
     "fillFormAbove": "املأ النموذج أعلاه للحجز",
     "tapNewBooking": "اضغط على \"حجز جديد\" للإضافة",
-    "appointmentsFor": "مواعيد {day} ({count})"
+    "appointmentsFor": "مواعيد {day} ({count})",
+    "noSlotsAvailable": "لا توجد أوقات متاحة في هذا اليوم",
+    "selectServiceFirst": "اختر خدمة لعرض الأوقات المتاحة"
   },
   "services": {
     "title": "الخدمات",
@@ -116,7 +159,14 @@
     "opens": "يفتح",
     "closes": "يغلق",
     "language": "اللغة",
-    "selectLanguage": "اختر اللغة"
+    "selectLanguage": "اختر اللغة",
+    "salonMode": "نوع الصالون",
+    "soloMode": "فردي",
+    "multiMode": "متعدد الكراسي",
+    "staff": "الفريق",
+    "addBarber": "إضافة حلاق",
+    "barberName": "اسم الحلاق",
+    "noStaff": "لا يوجد أعضاء فريق بعد"
   },
   "days": {
     "monday": "الإثنين",

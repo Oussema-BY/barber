@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Calendar, DollarSign, AlertCircle, TrendingUp, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { KPICard } from '@/components/dashboard/kpi-card';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { TodaySchedule } from '@/components/dashboard/today-schedule';
@@ -11,6 +12,7 @@ import { getDashboardStats } from '@/lib/actions/dashboard.actions';
 import { getAppointmentsByDate } from '@/lib/actions/appointment.actions';
 
 export default function DashboardPage() {
+  const t = useTranslations('dashboard');
   const [stats, setStats] = useState({
     todayAppointments: 0,
     dailyRevenue: 0,
@@ -56,32 +58,32 @@ export default function DashboardPage() {
     <div className="p-4 md:p-6 lg:p-8 space-y-6 lg:space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-foreground-secondary mt-1">Welcome back! Here's your business overview.</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('title')}</h1>
+        <p className="text-foreground-secondary mt-1">{t('welcome')}</p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <KPICard
-          title="Today's Appointments"
+          title={t('todayAppointments')}
           value={stats.todayAppointments}
           icon={Calendar}
           color="blue"
         />
         <KPICard
-          title="Daily Revenue"
+          title={t('dailyRevenue')}
           value={formatCurrency(stats.dailyRevenue)}
           icon={DollarSign}
           color="emerald"
         />
         <KPICard
-          title="Low Stock Items"
+          title={t('lowStockItems')}
           value={stats.lowStockProducts}
           icon={AlertCircle}
           color="amber"
         />
         <KPICard
-          title="This Month Revenue"
+          title={t('monthRevenue')}
           value={formatCurrency(stats.monthRevenue)}
           icon={TrendingUp}
           color="purple"
@@ -90,13 +92,13 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <section>
-        <h2 className="text-lg font-bold text-foreground mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-bold text-foreground mb-4">{t('quickActions')}</h2>
         <QuickActions />
       </section>
 
       {/* Today's Schedule */}
       <section>
-        <h2 className="text-lg font-bold text-foreground mb-4">Today's Schedule</h2>
+        <h2 className="text-lg font-bold text-foreground mb-4">{t('todaySchedule')}</h2>
         <TodaySchedule appointments={todaySchedule} />
       </section>
     </div>

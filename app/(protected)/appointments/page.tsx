@@ -5,17 +5,12 @@ import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, Check, 
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_COLORS } from '@/lib/constants';
-import { Appointment, Service } from '@/lib/types';
+import { Appointment, Service, StaffMember } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
-import { getAppointmentsByDate, createAppointment, deleteAppointment } from '@/lib/actions/appointment.actions';
-
-const TIME_SLOTS = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
-  '18:00', '18:30', '19:00', '19:30',
-];
+import { getAppointmentsByDate, createAppointment, deleteAppointment, getAvailableSlots } from '@/lib/actions/appointment.actions';
+import { getSettings } from '@/lib/actions/settings.actions';
+import { getStaffMembers } from '@/lib/actions/staff.actions';
 
 function getTodayDate() {
   return new Date().toISOString().split('T')[0];
@@ -28,14 +23,19 @@ export default function AppointmentsPage() {
 
   const [services, setServices] = useState<Service[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
+  const [salonMode, setSalonMode] = useState<'solo' | 'multi'>('solo');
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [isBooking, setIsBooking] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   // Booking form state
   const [clientName, setClientName] = useState('');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedTime, setSelectedTime] = useState('');
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
 
   const loadAppointments = useCallback(async (date: string) => {
     try {
@@ -49,11 +49,15 @@ export default function AppointmentsPage() {
   useEffect(() => {
     async function init() {
       try {
-        const [servicesData] = await Promise.all([
+        const [servicesData, settings, staff] = await Promise.all([
           getServices(),
-          loadAppointments(selectedDate),
+          getSettings(),
+          getStaffMembers(),
         ]);
         setServices(servicesData);
+        setSalonMode(settings.salonMode || 'solo');
+        setStaffMembers(staff);
+        await loadAppointments(selectedDate);
       } catch (err) {
         console.error('Failed to initialize:', err);
       } finally {
@@ -69,8 +73,35 @@ export default function AppointmentsPage() {
     }
   }, [selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Get booked times for the selected date
-  const bookedTimes = appointments.map((apt) => apt.time);
+  // Load available slots when service or staff changes
+  useEffect(() => {
+    if (!selectedService) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    async function loadSlots() {
+      setLoadingSlots(true);
+      try {
+        const slots = await getAvailableSlots(
+          selectedDate,
+          selectedService!.duration,
+          selectedStaff?.id
+        );
+        setAvailableSlots(slots);
+        // Reset selected time if no longer available
+        if (selectedTime && !slots.includes(selectedTime)) {
+          setSelectedTime('');
+        }
+      } catch (err) {
+        console.error('Failed to load slots:', err);
+        setAvailableSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    }
+    loadSlots();
+  }, [selectedService, selectedStaff, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDateDisplay = (dateString: string) => {
     const date = new Date(dateString);
@@ -95,6 +126,7 @@ export default function AppointmentsPage() {
 
   const handleBook = async () => {
     if (!clientName.trim() || !selectedService || !selectedTime) return;
+    if (salonMode === 'multi' && !selectedStaff) return;
 
     try {
       const newAppointment = await createAppointment({
@@ -106,15 +138,19 @@ export default function AppointmentsPage() {
         duration: selectedService.duration,
         price: selectedService.price,
         status: 'confirmed',
+        staffMemberId: selectedStaff?.id,
+        staffMemberName: selectedStaff?.name,
       });
 
       setAppointments([...appointments, newAppointment]);
       setClientName('');
       setSelectedService(null);
       setSelectedTime('');
+      setSelectedStaff(null);
       setIsBooking(false);
     } catch (err) {
-      console.error('Failed to book appointment:', err);
+      const message = err instanceof Error ? err.message : 'Failed to book appointment';
+      alert(message);
     }
   };
 
@@ -131,6 +167,7 @@ export default function AppointmentsPage() {
     setClientName('');
     setSelectedService(null);
     setSelectedTime('');
+    setSelectedStaff(null);
     setIsBooking(false);
   };
 
@@ -198,6 +235,34 @@ export default function AppointmentsPage() {
             />
           </div>
 
+          {/* Barber Selection (multi mode only) */}
+          {salonMode === 'multi' && staffMembers.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectBarber')}</label>
+              <div className="flex flex-wrap gap-2">
+                {staffMembers.map((member) => (
+                  <button
+                    key={member.id}
+                    onClick={() => setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
+                      selectedStaff?.id === member.id
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{ backgroundColor: member.color }}
+                    >
+                      {member.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-foreground text-sm">{member.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectService')}</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -225,33 +290,39 @@ export default function AppointmentsPage() {
 
           <div>
             <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectTime')}</label>
-            <div className="flex flex-wrap gap-2">
-              {TIME_SLOTS.map((time) => {
-                const isBooked = bookedTimes.includes(time);
-                const isSelected = selectedTime === time;
-                return (
-                  <button
-                    key={time}
-                    onClick={() => !isBooked && setSelectedTime(time)}
-                    disabled={isBooked}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      isBooked
-                        ? 'bg-secondary text-foreground-muted line-through cursor-not-allowed'
-                        : isSelected
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-foreground hover:bg-secondary-hover'
-                    }`}
-                  >
-                    {time}
-                  </button>
-                );
-              })}
-            </div>
+            {loadingSlots ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              </div>
+            ) : availableSlots.length === 0 ? (
+              <p className="text-sm text-foreground-muted py-2">
+                {selectedService ? t('noSlotsAvailable') : t('selectServiceFirst')}
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {availableSlots.map((time) => {
+                  const isSelected = selectedTime === time;
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => setSelectedTime(time)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-foreground hover:bg-secondary-hover'
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <Button
             onClick={handleBook}
-            disabled={!clientName.trim() || !selectedService || !selectedTime}
+            disabled={!clientName.trim() || !selectedService || !selectedTime || (salonMode === 'multi' && !selectedStaff)}
             size="lg"
             className="w-full text-lg font-semibold"
           >
@@ -299,6 +370,11 @@ export default function AppointmentsPage() {
                         {appointment.duration}{tCommon('minutes')}
                       </span>
                       <span className="font-bold text-foreground">{formatCurrency(appointment.price)}</span>
+                      {appointment.staffMemberName && (
+                        <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                          {appointment.staffMemberName}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <button onClick={() => handleDelete(appointment.id)} className="p-2 hover:bg-destructive/10 rounded-lg transition-colors">

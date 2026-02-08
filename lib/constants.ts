@@ -10,6 +10,12 @@ import {
 } from 'lucide-react';
 import type { WorkingHours } from './types';
 
+// Staff Colors for multi-chair mode
+export const STAFF_COLORS = [
+  '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
+  '#8B5CF6', '#EC4899', '#06B6D4', '#F97316',
+];
+
 // Color Mapping for Categories
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   hair: {

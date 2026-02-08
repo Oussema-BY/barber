@@ -5,10 +5,12 @@ import { Check, RotateCcw, Scissors, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_COLORS } from '@/lib/constants';
-import { Service } from '@/lib/types';
+import { Service, StaffMember } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
 import { createTransaction } from '@/lib/actions/transaction.actions';
+import { getSettings } from '@/lib/actions/settings.actions';
+import { getStaffMembers } from '@/lib/actions/staff.actions';
 
 export default function POSPage() {
   const t = useTranslations('pos');
@@ -19,21 +21,30 @@ export default function POSPage() {
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [cashReceived, setCashReceived] = useState('');
   const [isComplete, setIsComplete] = useState(false);
+  const [salonMode, setSalonMode] = useState<'solo' | 'multi'>('solo');
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
 
-  const loadServices = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
-      const data = await getServices();
-      setServices(data);
+      const [servicesData, settings, staff] = await Promise.all([
+        getServices(),
+        getSettings(),
+        getStaffMembers(),
+      ]);
+      setServices(servicesData);
+      setSalonMode(settings.salonMode || 'solo');
+      setStaffMembers(staff);
     } catch (err) {
-      console.error('Failed to load services:', err);
+      console.error('Failed to load data:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadServices();
-  }, [loadServices]);
+    loadData();
+  }, [loadData]);
 
   // Calculate total (no tax for simplicity)
   const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
@@ -72,6 +83,7 @@ export default function POSPage() {
         paymentMethod: 'cash',
         date: now.toISOString().split('T')[0],
         time: now.toTimeString().slice(0, 5),
+        completedBy: selectedStaff?.name,
       });
     } catch (err) {
       console.error('Failed to save transaction:', err);
@@ -83,6 +95,7 @@ export default function POSPage() {
   const handleNewSale = () => {
     setSelectedServices([]);
     setCashReceived('');
+    setSelectedStaff(null);
     setIsComplete(false);
   };
 
@@ -125,6 +138,31 @@ export default function POSPage() {
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('title')}</h1>
         <p className="text-foreground-secondary mt-1">{t('subtitle')}</p>
       </div>
+
+      {/* Barber Selector (multi mode) */}
+      {salonMode === 'multi' && staffMembers.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {staffMembers.map((member) => (
+            <button
+              key={member.id}
+              onClick={() => setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
+                selectedStaff?.id === member.id
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                style={{ backgroundColor: member.color }}
+              >
+                {member.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium text-foreground text-sm">{member.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Services Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

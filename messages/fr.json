@@ -31,6 +31,44 @@
     "search": "Rechercher rendez-vous, clients...",
     "brandName": "BarberPro"
   },
+  "auth": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "signInSubtitle": "Bon retour sur BarberPro",
+    "signUpSubtitle": "Créez votre compte",
+    "email": "Email",
+    "password": "Mot de passe",
+    "name": "Nom complet",
+    "enterEmail": "Entrez votre email",
+    "enterPassword": "Entrez votre mot de passe",
+    "enterName": "Entrez votre nom",
+    "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Déjà un compte ?",
+    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur BarberPro !",
+    "letsGetStarted": "Configurons votre salon",
+    "shopNameLabel": "Nom du salon",
+    "shopNameDescription": "Comment s'appelle votre salon de coiffure ?",
+    "shopNamePlaceholder": "ex: Salon du Roi",
+    "salonModeLabel": "Mode du salon",
+    "salonModeDescription": "Comment fonctionne votre salon ?",
+    "solo": "Solo",
+    "soloDescription": "Juste vous, un fauteuil",
+    "multi": "Multi-fauteuils",
+    "multiDescription": "Plusieurs coiffeurs",
+    "addBarbers": "Ajouter les coiffeurs",
+    "addBarbersDescription": "Entrez les noms de vos coiffeurs",
+    "barberName": "Nom du coiffeur",
+    "addAnotherBarber": "Ajouter un autre coiffeur",
+    "workingHoursLabel": "Heures d'ouverture",
+    "workingHoursDescription": "Définissez vos heures d'ouverture et de fermeture",
+    "closed": "Fermé",
+    "back": "Retour",
+    "next": "Suivant",
+    "finish": "Commencer"
+  },
   "profile": {
     "title": "Mon Profil",
     "subtitle": "Gérer vos informations personnelles",
@@ -55,7 +93,9 @@
     "lowStockItems": "Stock faible",
     "monthRevenue": "Revenu du mois",
     "quickActions": "Actions rapides",
-    "todaySchedule": "Planning du jour"
+    "todaySchedule": "Planning du jour",
+    "noAppointmentsToday": "Aucun rendez-vous aujourd'hui",
+    "scheduleIsClear": "Votre planning est libre"
   },
   "appointments": {
     "title": "Rendez-vous",
@@ -66,11 +106,14 @@
     "enterClientName": "Entrez le nom du client",
     "selectService": "Choisir un Service",
     "selectTime": "Choisir l'Heure",
+    "selectBarber": "Choisir le Coiffeur",
     "bookAppointment": "Réserver",
     "noAppointments": "Aucun rendez-vous",
     "fillFormAbove": "Remplissez le formulaire ci-dessus",
     "tapNewBooking": "Appuyez sur \"Nouveau RDV\" pour ajouter",
-    "appointmentsFor": "Rendez-vous de {day} ({count})"
+    "appointmentsFor": "Rendez-vous de {day} ({count})",
+    "noSlotsAvailable": "Aucun créneau disponible ce jour",
+    "selectServiceFirst": "Sélectionnez un service pour voir les créneaux"
   },
   "services": {
     "title": "Services",
@@ -116,7 +159,14 @@
     "opens": "Ouvre",
     "closes": "Ferme",
     "language": "Langue",
-    "selectLanguage": "Choisir la langue"
+    "selectLanguage": "Choisir la langue",
+    "salonMode": "Mode du Salon",
+    "soloMode": "Solo",
+    "multiMode": "Multi-fauteuils",
+    "staff": "Équipe",
+    "addBarber": "Ajouter Coiffeur",
+    "barberName": "Nom du coiffeur",
+    "noStaff": "Aucun membre de l'équipe"
   },
   "days": {
     "monday": "Lundi",

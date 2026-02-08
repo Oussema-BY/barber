@@ -4,15 +4,17 @@ import { useState } from 'react';
 import { User, Mail, Phone, Camera, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/lib/user-context';
 
 export default function ProfilePage() {
   const t = useTranslations('profile');
   const tCommon = useTranslations('common');
+  const user = useUser();
 
   const [profile, setProfile] = useState({
-    name: 'Admin',
-    email: 'admin@barberpro.com',
-    phone: '+1 (555) 123-4567',
+    name: user.name || '',
+    email: user.email || '',
+    phone: '',
   });
 
   const [isSaved, setIsSaved] = useState(false);
