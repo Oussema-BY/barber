@@ -8,8 +8,11 @@ import { AddServiceModal } from '@/components/services/add-service-modal';
 import { SERVICE_CATEGORIES } from '@/lib/constants';
 import { Service, ServiceCategory } from '@/lib/types';
 import { getServices, deleteService } from '@/lib/actions/service.actions';
+import { useUser } from '@/lib/user-context';
 
 export default function ServicesPage() {
+  const { shopRole } = useUser();
+  const isOwner = shopRole === 'owner';
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
@@ -74,13 +77,15 @@ export default function ServicesPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Services</h1>
           <p className="text-foreground-secondary mt-1">Manage your barber services and pricing</p>
         </div>
-        <Button
-          onClick={() => setAddServiceModalOpen(true)}
-          className="w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add Service</span>
-        </Button>
+        {isOwner && (
+          <Button
+            onClick={() => setAddServiceModalOpen(true)}
+            className="w-full sm:w-auto"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add Service</span>
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -149,18 +154,20 @@ export default function ServicesPage() {
             <ServiceCard
               key={service.id}
               service={service}
-              onDelete={handleDeleteService}
+              onDelete={isOwner ? handleDeleteService : undefined}
             />
           ))}
         </div>
       )}
 
       {/* Add Service Modal */}
-      <AddServiceModal
-        open={addServiceModalOpen}
-        onOpenChange={setAddServiceModalOpen}
-        onServiceAdded={loadServices}
-      />
+      {isOwner && (
+        <AddServiceModal
+          open={addServiceModalOpen}
+          onOpenChange={setAddServiceModalOpen}
+          onServiceAdded={loadServices}
+        />
+      )}
     </div>
   );
 }

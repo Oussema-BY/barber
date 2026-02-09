@@ -67,7 +67,14 @@
     "closed": "مغلق",
     "back": "رجوع",
     "next": "التالي",
-    "finish": "ابدأ الآن"
+    "finish": "ابدأ الآن",
+    "joinShopTitle": "انضم إلى صالون حلاقة",
+    "joinShopDescription": "أدخل رمز الدعوة من صاحب الصالون",
+    "inviteCodeLabel": "رمز الدعوة",
+    "inviteCodeDescription": "اطلب الرمز المكون من 8 أحرف من صاحب الصالون",
+    "inviteCodePlaceholder": "ABCD1234",
+    "joinShop": "انضم للصالون",
+    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
   },
   "profile": {
     "title": "ملفي الشخصي",
@@ -77,6 +84,7 @@
     "workingHours": "ساعات العمل",
     "logout": "تسجيل الخروج",
     "shopOwner": "صاحب صالون الحلاقة",
+    "barber": "حلاق",
     "fullName": "الاسم الكامل",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",

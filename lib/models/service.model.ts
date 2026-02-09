@@ -12,6 +12,7 @@ const ServiceSchema = new Schema(
     duration: { type: Number, required: true },
     description: { type: String, default: '' },
     image: { type: String, default: '' },
+    shopId: { type: String, required: true, index: true },
   },
   {
     timestamps: true,

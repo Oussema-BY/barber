@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/lib/user-context';
 import { Minus, Plus, AlertCircle, Package, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +11,15 @@ import { formatCurrency } from '@/lib/utils';
 import { getProducts, updateProductQuantity } from '@/lib/actions/product.actions';
 
 export default function InventoryPage() {
+  const router = useRouter();
+  const { shopRole } = useUser();
+
+  useEffect(() => {
+    if (shopRole && shopRole !== 'owner') {
+      router.replace('/dashboard');
+    }
+  }, [shopRole, router]);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 

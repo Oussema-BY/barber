@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/user-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -84,6 +86,15 @@ const typeColors: Record<
 };
 
 export default function InsightsPage() {
+  const router = useRouter();
+  const { shopRole } = useUser();
+
+  useEffect(() => {
+    if (shopRole && shopRole !== 'owner') {
+      router.replace('/dashboard');
+    }
+  }, [shopRole, router]);
+
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       {/* Header */}

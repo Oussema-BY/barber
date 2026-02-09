@@ -11,6 +11,7 @@ const ProductSchema = new Schema(
     minQuantity: { type: Number, required: true, default: 5 },
     unit: { type: String, default: 'pcs' },
     barcode: { type: String, default: '' },
+    shopId: { type: String, required: true, index: true },
   },
   {
     timestamps: true,

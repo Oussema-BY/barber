@@ -1,14 +1,16 @@
 import mongoose, { Schema } from 'mongoose';
 
-const StaffSchema = new Schema(
+const ShopSchema = new Schema(
   {
     name: { type: String, required: true },
-    phone: { type: String, default: '' },
-    color: { type: String, default: '#3B82F6' },
-    isActive: { type: Boolean, default: true },
-    ownerId: { type: String, default: '' },
-    shopId: { type: String, default: '', index: true },
-    userId: { type: String, default: '' },
+    inviteCode: { type: String, required: true, unique: true },
+    status: {
+      type: String,
+      enum: ['active', 'suspended'],
+      default: 'active',
+    },
+    ownerId: { type: String, required: true },
+    createdBy: { type: String, required: true },
   },
   {
     timestamps: true,
@@ -25,4 +27,4 @@ const StaffSchema = new Schema(
   }
 );
 
-export default mongoose.models.Staff || mongoose.model('Staff', StaffSchema);
+export default mongoose.models.Shop || mongoose.model('Shop', ShopSchema);

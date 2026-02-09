@@ -30,6 +30,7 @@ const TransactionSchema = new Schema(
     time: { type: String, required: true }, // HH:mm
     completedBy: { type: String, default: '' },
     notes: { type: String, default: '' },
+    shopId: { type: String, required: true, index: true },
   },
   {
     timestamps: true,

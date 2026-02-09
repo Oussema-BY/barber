@@ -75,41 +75,49 @@ export const MAIN_NAV = [
     label: 'Dashboard',
     href: '/dashboard',
     icon: Home,
+    roles: ['owner', 'staff'] as const,
   },
   {
     label: 'Appointments',
     href: '/appointments',
     icon: Calendar,
+    roles: ['owner', 'staff'] as const,
   },
   {
     label: 'Services',
     href: '/services',
     icon: Zap,
+    roles: ['owner', 'staff'] as const,
   },
   {
     label: 'POS',
     href: '/pos',
     icon: ShoppingCart,
+    roles: ['owner', 'staff'] as const,
   },
   {
     label: 'Inventory',
     href: '/inventory',
     icon: Users,
+    roles: ['owner'] as const,
   },
   {
     label: 'Finance',
     href: '/finance',
     icon: BarChart3,
+    roles: ['owner'] as const,
   },
   {
     label: 'Insights',
     href: '/insights',
     icon: TrendingUp,
+    roles: ['owner'] as const,
   },
   {
     label: 'Settings',
     href: '/settings',
     icon: Settings,
+    roles: ['owner'] as const,
   },
 ];
 

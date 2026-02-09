@@ -2,15 +2,110 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Scissors, Plus, X, Loader2, User, Store, Clock } from 'lucide-react';
+import { Scissors, Plus, X, Loader2, User, Store, Clock, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/user-context';
+import { useOnboarding } from '@/lib/onboarding-context';
 import { completeOnboarding } from '@/lib/actions/settings.actions';
+import { joinShopByInviteCode } from '@/lib/actions/shop.actions';
 import { DEFAULT_WORKING_HOURS } from '@/lib/constants';
 
 type SalonMode = 'solo' | 'multi';
 
 export default function OnboardingPage() {
+  const { hasShop } = useOnboarding();
+
+  // Staff with no shop → join flow; Owner with shop → config flow
+  if (!hasShop) {
+    return <StaffJoinFlow />;
+  }
+
+  return <OwnerConfigFlow />;
+}
+
+function StaffJoinFlow() {
+  const t = useTranslations('onboarding');
+  const [inviteCode, setInviteCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleJoin = async () => {
+    if (!inviteCode.trim()) return;
+    setLoading(true);
+    setError('');
+    try {
+      await joinShopByInviteCode(inviteCode.trim().toUpperCase());
+      window.location.href = '/dashboard';
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('somethingWentWrong'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background-secondary">
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Scissors className="w-8 h-8 text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">{t('joinShopTitle')}</h1>
+          <p className="text-foreground-secondary mt-1">{t('joinShopDescription')}</p>
+        </div>
+
+        <div className="bg-card rounded-2xl border border-border p-6 shadow-lg">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <KeyRound className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  {t('inviteCodeLabel')}
+                </h2>
+                <p className="text-sm text-foreground-secondary">
+                  {t('inviteCodeDescription')}
+                </p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            <input
+              type="text"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              placeholder={t('inviteCodePlaceholder')}
+              className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none text-lg text-center tracking-widest font-mono uppercase"
+              maxLength={8}
+              autoFocus
+            />
+
+            <Button
+              onClick={handleJoin}
+              disabled={loading || inviteCode.trim().length < 8}
+              className="w-full"
+              size="lg"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                t('joinShop')
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OwnerConfigFlow() {
   const t = useTranslations('onboarding');
   const tDays = useTranslations('days');
   const user = useUser();
@@ -18,17 +113,10 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Step 1: Shop name
-  const [shopName, setShopName] = useState('');
-
-  // Step 2: Salon mode
+  const [shopName, setShopName] = useState(user.shopName || '');
   const [salonMode, setSalonMode] = useState<SalonMode>('solo');
   const [numberOfChairs, setNumberOfChairs] = useState(1);
-
-  // Step 3: Barber names
   const [barberNames, setBarberNames] = useState<string[]>([user.name]);
-
-  // Step 4: Working hours
   const [workingHours, setWorkingHours] = useState(
     DEFAULT_WORKING_HOURS.map((wh) => ({ ...wh }))
   );
@@ -87,7 +175,6 @@ export default function OnboardingPage() {
         barberNames: salonMode === 'solo' ? [user.name] : barberNames,
         workingHours,
       });
-      // Full navigation to ensure server layout re-checks onboarding status
       window.location.href = '/dashboard';
     } catch {
       alert('Something went wrong. Please try again.');
@@ -114,17 +201,9 @@ export default function OnboardingPage() {
 
   const totalSteps = salonMode === 'solo' ? 3 : 4;
 
-  const getActualStep = () => {
-    if (salonMode === 'solo' && step >= 3) {
-      return step === 3 ? 'hours' : 'hours';
-    }
-    return step;
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background-secondary">
       <div className="w-full max-w-lg">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Scissors className="w-8 h-8 text-primary-foreground" />
@@ -133,7 +212,6 @@ export default function OnboardingPage() {
           <p className="text-foreground-secondary mt-1">{t('letsGetStarted')}</p>
         </div>
 
-        {/* Progress */}
         <div className="flex gap-2 mb-8">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
@@ -145,9 +223,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        {/* Card */}
         <div className="bg-card rounded-2xl border border-border p-6 shadow-lg">
-          {/* Step 1: Shop Name */}
           {step === 1 && (
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
@@ -174,7 +250,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: Salon Mode */}
           {step === 2 && (
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
@@ -228,7 +303,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3: Barber Names (multi mode only) */}
           {step === 3 && salonMode === 'multi' && (
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
@@ -277,7 +351,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3 (solo) or Step 4 (multi): Working Hours */}
           {((step === 3 && salonMode === 'solo') ||
             (step === 4 && salonMode === 'multi')) && (
             <div className="space-y-6">
@@ -356,7 +429,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Navigation */}
           <div className="flex gap-3 mt-8">
             {step > 1 && (
               <Button

@@ -28,13 +28,13 @@ export default function SignUpPage() {
         name,
         email,
         password,
-        callbackURL: '/onboarding',
+        callbackURL: '/dashboard',
       });
 
       if (authError) {
         setError(authError.message || t('somethingWentWrong'));
       } else {
-        router.push('/onboarding');
+        router.push('/dashboard');
       }
     } catch {
       setError(t('somethingWentWrong'));

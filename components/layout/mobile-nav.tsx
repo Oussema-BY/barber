@@ -5,12 +5,13 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { MAIN_NAV } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/lib/user-context';
 
 export function MobileNav() {
   const pathname = usePathname();
   const t = useTranslations('nav');
+  const { shopRole } = useUser();
 
-  // Map href to translation key
   const getNavLabel = (href: string) => {
     const keyMap: Record<string, string> = {
       '/dashboard': 'dashboard',
@@ -22,10 +23,14 @@ export function MobileNav() {
     return t(keyMap[href] || 'dashboard');
   };
 
+  const filteredNav = MAIN_NAV.filter(
+    (item) => shopRole && (item.roles as readonly string[]).includes(shopRole)
+  ).slice(0, 5);
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-card/95 backdrop-blur-xl border-t border-border z-50 safe-area-bottom">
       <div className="flex justify-around items-stretch h-16">
-        {MAIN_NAV.slice(0, 5).map((item) => {
+        {filteredNav.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const Icon = item.icon;
 

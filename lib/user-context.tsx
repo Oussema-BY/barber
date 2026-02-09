@@ -1,11 +1,16 @@
 'use client';
 
 import { createContext, useContext } from 'react';
+import type { GlobalRole, UserRole } from '@/lib/types';
 
 interface UserContextType {
   id: string;
   name: string;
   email: string;
+  globalRole: GlobalRole;
+  shopId: string | null;
+  shopRole: UserRole | null;
+  shopName: string | null;
 }
 
 const UserContext = createContext<UserContextType | null>(null);

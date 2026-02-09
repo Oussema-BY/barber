@@ -19,6 +19,7 @@ const AppointmentSchema = new Schema(
     staffMemberId: { type: String, default: '' },
     staffMemberName: { type: String, default: '' },
     notes: { type: String, default: '' },
+    shopId: { type: String, required: true, index: true },
   },
   {
     timestamps: true,

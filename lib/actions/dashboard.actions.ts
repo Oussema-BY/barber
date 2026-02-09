@@ -5,12 +5,25 @@ import Appointment from '@/lib/models/appointment.model';
 import Product from '@/lib/models/product.model';
 import Transaction from '@/lib/models/transaction.model';
 import Expense from '@/lib/models/expense.model';
+import { getSessionContext } from '@/lib/session';
 
 export async function getDashboardStats() {
+  const { shopId } = await getSessionContext();
+  if (!shopId) {
+    return {
+      todayAppointments: 0,
+      dailyRevenue: 0,
+      lowStockProducts: 0,
+      monthRevenue: 0,
+      monthExpenses: 0,
+      inventoryValue: 0,
+    };
+  }
+
   await dbConnect();
 
   const today = new Date().toISOString().split('T')[0];
-  const startOfMonth = today.slice(0, 7) + '-01'; // YYYY-MM-01
+  const startOfMonth = today.slice(0, 7) + '-01';
 
   const [
     todayAppointments,
@@ -19,11 +32,11 @@ export async function getDashboardStats() {
     monthExpenses,
     totalProducts,
   ] = await Promise.all([
-    Appointment.find({ date: today }),
-    Product.countDocuments({ $expr: { $lte: ['$quantity', '$minQuantity'] } }),
-    Transaction.find({ date: { $gte: startOfMonth } }),
-    Expense.find({ date: { $gte: startOfMonth } }),
-    Product.find(),
+    Appointment.find({ date: today, shopId }),
+    Product.countDocuments({ shopId, $expr: { $lte: ['$quantity', '$minQuantity'] } }),
+    Transaction.find({ date: { $gte: startOfMonth }, shopId }),
+    Expense.find({ date: { $gte: startOfMonth }, shopId }),
+    Product.find({ shopId }),
   ]);
 
   const dailyRevenue = todayAppointments.reduce(

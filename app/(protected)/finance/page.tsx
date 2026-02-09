@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/user-context";
 import {
   BarChart,
   Bar,
@@ -33,6 +35,15 @@ import { getProducts } from "@/lib/actions/product.actions";
 import { getAllAppointments } from "@/lib/actions/appointment.actions";
 
 export default function FinancePage() {
+  const router = useRouter();
+  const { shopRole } = useUser();
+
+  useEffect(() => {
+    if (shopRole && shopRole !== 'owner') {
+      router.replace('/dashboard');
+    }
+  }, [shopRole, router]);
+
   const [services, setServices] = useState<Service[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [products, setProducts] = useState<Product[]>([]);

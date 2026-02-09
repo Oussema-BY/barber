@@ -25,6 +25,7 @@ const SettingsSchema = new Schema(
     salonMode: { type: String, enum: ['solo', 'multi'], default: 'solo' },
     numberOfChairs: { type: Number, default: 1 },
     ownerId: { type: String, default: '' },
+    shopId: { type: String, default: '', index: true },
     isOnboarded: { type: Boolean, default: false },
   },
   {

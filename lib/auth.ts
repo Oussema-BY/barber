@@ -12,6 +12,15 @@ export const auth = betterAuth({
     autoSignIn: true,
     minPasswordLength: 6,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        defaultValue: 'user',
+        required: false,
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     cookieCache: {

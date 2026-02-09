@@ -12,6 +12,7 @@ const ExpenseSchema = new Schema(
     date: { type: String, required: true }, // YYYY-MM-DD
     description: { type: String, default: '' },
     attachments: { type: [String], default: [] },
+    shopId: { type: String, required: true, index: true },
   },
   {
     timestamps: true,

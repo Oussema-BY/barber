@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/lib/user-context';
 import { Check, Clock, Store, Loader2, Users, Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
@@ -10,9 +12,17 @@ import { getStaffMembers, createStaffMember, deleteStaffMember } from '@/lib/act
 import { STAFF_COLORS } from '@/lib/constants';
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const { shopRole } = useUser();
   const t = useTranslations('settings');
   const tDays = useTranslations('days');
   const tCommon = useTranslations('common');
+
+  useEffect(() => {
+    if (shopRole && shopRole !== 'owner') {
+      router.replace('/dashboard');
+    }
+  }, [shopRole, router]);
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'hours' | 'business' | 'staff'>('hours');

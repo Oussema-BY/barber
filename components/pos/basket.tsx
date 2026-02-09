@@ -1,9 +1,9 @@
-import React from 'react';
-import { Trash2, ShoppingBag, Minus, Plus } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BasketItem } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import React from "react";
+import { Trash2, ShoppingBag, Minus, Plus } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { BasketItem } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 
 interface BasketProps {
   items: BasketItem[];
@@ -36,7 +36,9 @@ export function Basket({
           <div className="flex-1 flex flex-col items-center justify-center text-foreground-secondary py-8">
             <ShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 text-foreground-muted mb-3" />
             <p className="text-sm sm:text-base">Basket is empty</p>
-            <p className="text-xs text-foreground-muted mt-1">Add items to get started</p>
+            <p className="text-xs text-foreground-muted mt-1">
+              Add items to get started
+            </p>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto space-y-2 mb-4 -mx-1 px-1 scrollbar-none">
@@ -47,7 +49,9 @@ export function Basket({
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
-                    <p className="font-semibold text-foreground text-sm sm:text-base truncate">{item.name}</p>
+                    <p className="font-semibold text-foreground text-sm sm:text-base truncate">
+                      {item.name}
+                    </p>
                     <Badge size="sm" variant="info" className="shrink-0">
                       {item.type}
                     </Badge>
@@ -63,7 +67,12 @@ export function Basket({
                   {/* Quantity Controls - Always show for touch-friendly interaction */}
                   <div className="flex items-center gap-2 mt-2">
                     <button
-                      onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                      onClick={() =>
+                        onUpdateQuantity(
+                          item.id,
+                          Math.max(1, item.quantity - 1),
+                        )
+                      }
                       className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-secondary-hover hover:bg-border rounded-lg transition-colors active:scale-95"
                       disabled={item.quantity <= 1}
                     >
@@ -73,7 +82,9 @@ export function Basket({
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                      onClick={() =>
+                        onUpdateQuantity(item.id, item.quantity + 1)
+                      }
                       className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-secondary-hover hover:bg-border rounded-lg transition-colors active:scale-95"
                     >
                       <Plus className="w-3.5 h-3.5 text-foreground-secondary" />

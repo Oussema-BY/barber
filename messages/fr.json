@@ -67,7 +67,14 @@
     "closed": "Fermé",
     "back": "Retour",
     "next": "Suivant",
-    "finish": "Commencer"
+    "finish": "Commencer",
+    "joinShopTitle": "Rejoindre un salon",
+    "joinShopDescription": "Entrez le code d'invitation de votre patron",
+    "inviteCodeLabel": "Code d'invitation",
+    "inviteCodeDescription": "Demandez le code à 8 caractères au propriétaire",
+    "inviteCodePlaceholder": "ABCD1234",
+    "joinShop": "Rejoindre le salon",
+    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer."
   },
   "profile": {
     "title": "Mon Profil",
@@ -77,6 +84,7 @@
     "workingHours": "Heures d'ouverture",
     "logout": "Déconnexion",
     "shopOwner": "Propriétaire du Salon",
+    "barber": "Coiffeur",
     "fullName": "Nom Complet",
     "email": "Adresse Email",
     "phone": "Numéro de Téléphone",

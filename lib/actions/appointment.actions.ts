@@ -3,6 +3,7 @@
 import dbConnect from '@/lib/mongodb';
 import Appointment from '@/lib/models/appointment.model';
 import Settings from '@/lib/models/settings.model';
+import { getSessionContext } from '@/lib/session';
 import type { Appointment as AppointmentType } from '@/lib/types';
 
 function timeToMinutes(time: string): number {
@@ -17,14 +18,20 @@ function minutesToTime(minutes: number): string {
 }
 
 export async function getAppointmentsByDate(date: string): Promise<AppointmentType[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
   await dbConnect();
-  const appointments = await Appointment.find({ date }).sort({ time: 1 });
+  const appointments = await Appointment.find({ date, shopId }).sort({ time: 1 });
   return JSON.parse(JSON.stringify(appointments.map((a: { toJSON: () => unknown }) => a.toJSON())));
 }
 
 export async function getAllAppointments(): Promise<AppointmentType[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
   await dbConnect();
-  const appointments = await Appointment.find().sort({ date: -1, time: -1 });
+  const appointments = await Appointment.find({ shopId }).sort({ date: -1, time: -1 });
   return JSON.parse(JSON.stringify(appointments.map((a: { toJSON: () => unknown }) => a.toJSON())));
 }
 
@@ -41,6 +48,9 @@ export async function createAppointment(data: {
   staffMemberName?: string;
   notes?: string;
 }): Promise<AppointmentType> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) throw new Error('No shop');
+
   await dbConnect();
 
   // Check for time conflicts
@@ -51,9 +61,9 @@ export async function createAppointment(data: {
   const query: any = {
     date: data.date,
     status: { $nin: ['cancelled'] },
+    shopId,
   };
 
-  // In multi mode, check per-staff; in solo mode, check all
   if (data.staffMemberId) {
     query.staffMemberId = data.staffMemberId;
   }
@@ -71,14 +81,18 @@ export async function createAppointment(data: {
 
   const appointment = await Appointment.create({
     ...data,
+    shopId,
     status: data.status || 'confirmed',
   });
   return JSON.parse(JSON.stringify(appointment.toJSON()));
 }
 
 export async function deleteAppointment(id: string) {
+  const { shopId } = await getSessionContext();
+  if (!shopId) throw new Error('No shop');
+
   await dbConnect();
-  await Appointment.findByIdAndDelete(id);
+  await Appointment.findOneAndDelete({ _id: id, shopId });
 }
 
 export async function getAvailableSlots(
@@ -86,10 +100,12 @@ export async function getAvailableSlots(
   duration: number,
   staffMemberId?: string
 ): Promise<string[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
   await dbConnect();
 
-  // Get working hours for the day
-  const settings = await Settings.findOne();
+  const settings = await Settings.findOne({ shopId });
   if (!settings) return [];
 
   const dayOfWeek = new Date(date)
@@ -103,11 +119,11 @@ export async function getAvailableSlots(
   const openMinutes = timeToMinutes(dayHours.open);
   const closeMinutes = timeToMinutes(dayHours.close);
 
-  // Get existing appointments for the day
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query: any = {
     date,
     status: { $nin: ['cancelled'] },
+    shopId,
   };
 
   if (staffMemberId) {
@@ -121,7 +137,6 @@ export async function getAvailableSlots(
     end: timeToMinutes(apt.time) + apt.duration,
   }));
 
-  // Generate available slots in 15-minute increments
   const slots: string[] = [];
   const increment = 15;
 

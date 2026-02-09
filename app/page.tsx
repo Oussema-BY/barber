@@ -7,9 +7,17 @@ export default async function Home() {
     headers: await headers(),
   });
 
-  if (session) {
-    redirect('/dashboard');
-  } else {
+  if (!session) {
     redirect('/sign-in');
   }
+
+  const globalRole = ((session.user as Record<string, unknown>).role as string) === 'super_admin'
+    ? 'super_admin'
+    : 'user';
+
+  if (globalRole === 'super_admin') {
+    redirect('/admin');
+  }
+
+  redirect('/dashboard');
 }

@@ -5,15 +5,21 @@ import { usePathname, useRouter } from 'next/navigation';
 
 interface OnboardingContextType {
   isOnboarded: boolean;
+  hasShop: boolean;
 }
 
-const OnboardingContext = createContext<OnboardingContextType>({ isOnboarded: false });
+const OnboardingContext = createContext<OnboardingContextType>({
+  isOnboarded: false,
+  hasShop: false,
+});
 
 export function OnboardingProvider({
   isOnboarded,
+  hasShop,
   children,
 }: {
   isOnboarded: boolean;
+  hasShop: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -26,7 +32,7 @@ export function OnboardingProvider({
   }, [isOnboarded, pathname, router]);
 
   return (
-    <OnboardingContext.Provider value={{ isOnboarded }}>
+    <OnboardingContext.Provider value={{ isOnboarded, hasShop }}>
       {children}
     </OnboardingContext.Provider>
   );

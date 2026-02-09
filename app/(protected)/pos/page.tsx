@@ -5,36 +5,27 @@ import { Check, RotateCcw, Scissors, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_COLORS } from '@/lib/constants';
-import { Service, StaffMember } from '@/lib/types';
+import { Service } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
 import { createTransaction } from '@/lib/actions/transaction.actions';
-import { getSettings } from '@/lib/actions/settings.actions';
-import { getStaffMembers } from '@/lib/actions/staff.actions';
+import { useUser } from '@/lib/user-context';
 
 export default function POSPage() {
   const t = useTranslations('pos');
   const tServices = useTranslations('services');
+  const { name: userName } = useUser();
 
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [cashReceived, setCashReceived] = useState('');
   const [isComplete, setIsComplete] = useState(false);
-  const [salonMode, setSalonMode] = useState<'solo' | 'multi'>('solo');
-  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
 
   const loadData = useCallback(async () => {
     try {
-      const [servicesData, settings, staff] = await Promise.all([
-        getServices(),
-        getSettings(),
-        getStaffMembers(),
-      ]);
+      const servicesData = await getServices();
       setServices(servicesData);
-      setSalonMode(settings.salonMode || 'solo');
-      setStaffMembers(staff);
     } catch (err) {
       console.error('Failed to load data:', err);
     } finally {
@@ -83,7 +74,7 @@ export default function POSPage() {
         paymentMethod: 'cash',
         date: now.toISOString().split('T')[0],
         time: now.toTimeString().slice(0, 5),
-        completedBy: selectedStaff?.name,
+        completedBy: userName,
       });
     } catch (err) {
       console.error('Failed to save transaction:', err);
@@ -95,7 +86,6 @@ export default function POSPage() {
   const handleNewSale = () => {
     setSelectedServices([]);
     setCashReceived('');
-    setSelectedStaff(null);
     setIsComplete(false);
   };
 
@@ -139,32 +129,18 @@ export default function POSPage() {
         <p className="text-foreground-secondary mt-1">{t('subtitle')}</p>
       </div>
 
-      {/* Barber Selector (multi mode) */}
-      {salonMode === 'multi' && staffMembers.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {staffMembers.map((member) => (
-            <button
-              key={member.id}
-              onClick={() => setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
-                selectedStaff?.id === member.id
-                  ? 'border-primary bg-primary/10'
-                  : 'border-border hover:border-primary/50'
-              }`}
-            >
-              <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                style={{ backgroundColor: member.color }}
-              >
-                {member.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="font-medium text-foreground text-sm">{member.name}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Services Grid */}
+      {services.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+            <Scissors className="w-8 h-8 text-foreground-muted" />
+          </div>
+          <p className="text-foreground-secondary font-medium">No services yet</p>
+          <p className="text-foreground-muted text-sm mt-1">
+            Add services from the Services page first
+          </p>
+        </div>
+      ) : (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {services.map((service) => {
           const isSelected = selectedServices.some((s) => s.id === service.id);
@@ -202,6 +178,7 @@ export default function POSPage() {
           );
         })}
       </div>
+      )}
 
       {/* Fixed Bottom Panel */}
       <div className="fixed bottom-0 left-0 right-0 md:ltr:left-64 md:rtl:right-64 md:rtl:left-0 bg-card border-t border-border p-4 pb-24 md:pb-4 z-40">

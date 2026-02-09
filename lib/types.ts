@@ -1,6 +1,8 @@
-// User Types
+// Role Types
+export type GlobalRole = 'super_admin' | 'user';
 export type UserRole = 'owner' | 'staff';
 
+// User Types
 export interface User {
   id: string;
   name: string;
@@ -9,6 +11,28 @@ export interface User {
   phone?: string;
   avatar?: string;
   createdAt: string;
+}
+
+// Shop Types
+export interface Shop {
+  id: string;
+  name: string;
+  inviteCode: string;
+  status: 'active' | 'suspended';
+  ownerId: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShopMemberType {
+  id: string;
+  userId: string;
+  shopId: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Service Types
@@ -22,6 +46,7 @@ export interface Service {
   duration: number; // in minutes
   description?: string;
   image?: string;
+  shopId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +69,7 @@ export interface Appointment {
   staffMemberId?: string;
   staffMemberName?: string;
   notes?: string;
+  shopId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -60,6 +86,7 @@ export interface Product {
   minQuantity: number;
   unit?: string;
   barcode?: string;
+  shopId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -75,6 +102,7 @@ export interface Expense {
   date: string; // ISO format
   description?: string;
   attachments?: string[];
+  shopId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -104,6 +132,7 @@ export interface POSTransaction {
   time: string;
   completedBy?: string;
   notes?: string;
+  shopId?: string;
 }
 
 // Dashboard Stats Types
@@ -132,6 +161,8 @@ export interface StaffMember {
   phone?: string;
   color: string;
   isActive: boolean;
+  shopId?: string;
+  userId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -152,5 +183,6 @@ export interface BusinessSettings {
   salonMode: 'solo' | 'multi';
   numberOfChairs: number;
   ownerId: string;
+  shopId?: string;
   isOnboarded: boolean;
 }

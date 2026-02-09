@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/mongodb';
 import Transaction from '@/lib/models/transaction.model';
+import { getSessionContext } from '@/lib/session';
 import type { POSTransaction } from '@/lib/types';
 
 export async function createTransaction(data: {
@@ -16,13 +17,19 @@ export async function createTransaction(data: {
   time: string;
   completedBy?: string;
 }): Promise<POSTransaction> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) throw new Error('No shop');
+
   await dbConnect();
-  const transaction = await Transaction.create(data);
+  const transaction = await Transaction.create({ ...data, shopId });
   return JSON.parse(JSON.stringify(transaction.toJSON()));
 }
 
 export async function getTransactions(): Promise<POSTransaction[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
   await dbConnect();
-  const transactions = await Transaction.find().sort({ createdAt: -1 });
+  const transactions = await Transaction.find({ shopId }).sort({ createdAt: -1 });
   return JSON.parse(JSON.stringify(transactions.map((t: { toJSON: () => unknown }) => t.toJSON())));
 }

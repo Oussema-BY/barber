@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { User, Settings, Clock, LogOut } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { useUser } from '@/lib/user-context';
 
 interface ProfileDropdownProps {
   userName: string;
@@ -15,10 +16,10 @@ interface ProfileDropdownProps {
 export function ProfileDropdown({ userName, userInitial }: ProfileDropdownProps) {
   const t = useTranslations('profile');
   const router = useRouter();
+  const { shopRole } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -29,6 +30,8 @@ export function ProfileDropdown({ userName, userInitial }: ProfileDropdownProps)
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const roleLabel = shopRole === 'owner' ? t('shopOwner') : t('barber');
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -46,7 +49,7 @@ export function ProfileDropdown({ userName, userInitial }: ProfileDropdownProps)
           {/* User Info */}
           <div className="px-4 py-3 border-b border-border">
             <p className="font-semibold text-foreground">{userName}</p>
-            <p className="text-sm text-foreground-secondary">{t('shopOwner')}</p>
+            <p className="text-sm text-foreground-secondary">{roleLabel}</p>
           </div>
 
           {/* Menu Items */}
@@ -60,23 +63,27 @@ export function ProfileDropdown({ userName, userInitial }: ProfileDropdownProps)
               <span>{t('myProfile')}</span>
             </Link>
 
-            <Link
-              href="/settings"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-foreground hover:bg-secondary transition-colors"
-            >
-              <Settings className="w-4 h-4 text-foreground-secondary" />
-              <span>{t('businessSettings')}</span>
-            </Link>
+            {shopRole === 'owner' && (
+              <>
+                <Link
+                  href="/settings"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-foreground hover:bg-secondary transition-colors"
+                >
+                  <Settings className="w-4 h-4 text-foreground-secondary" />
+                  <span>{t('businessSettings')}</span>
+                </Link>
 
-            <Link
-              href="/settings#working-hours"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-foreground hover:bg-secondary transition-colors"
-            >
-              <Clock className="w-4 h-4 text-foreground-secondary" />
-              <span>{t('workingHours')}</span>
-            </Link>
+                <Link
+                  href="/settings#working-hours"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-foreground hover:bg-secondary transition-colors"
+                >
+                  <Clock className="w-4 h-4 text-foreground-secondary" />
+                  <span>{t('workingHours')}</span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Logout */}

@@ -67,7 +67,14 @@
     "closed": "Closed",
     "back": "Back",
     "next": "Next",
-    "finish": "Get Started"
+    "finish": "Get Started",
+    "joinShopTitle": "Join a Barber Shop",
+    "joinShopDescription": "Enter the invite code from your shop owner",
+    "inviteCodeLabel": "Invite Code",
+    "inviteCodeDescription": "Ask your shop owner for the 8-character code",
+    "inviteCodePlaceholder": "ABCD1234",
+    "joinShop": "Join Shop",
+    "somethingWentWrong": "Something went wrong. Please try again."
   },
   "profile": {
     "title": "My Profile",
@@ -77,6 +84,7 @@
     "workingHours": "Working Hours",
     "logout": "Logout",
     "shopOwner": "Barber Shop Owner",
+    "barber": "Barber",
     "fullName": "Full Name",
     "email": "Email Address",
     "phone": "Phone Number",

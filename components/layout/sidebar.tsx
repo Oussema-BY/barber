@@ -6,13 +6,14 @@ import { useTranslations } from 'next-intl';
 import { Scissors } from 'lucide-react';
 import { MAIN_NAV } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/lib/user-context';
 
 export function Sidebar() {
   const pathname = usePathname();
   const t = useTranslations('nav');
   const tTopbar = useTranslations('topbar');
+  const { shopRole } = useUser();
 
-  // Map href to translation key
   const getNavLabel = (href: string) => {
     const keyMap: Record<string, string> = {
       '/dashboard': 'dashboard',
@@ -26,6 +27,10 @@ export function Sidebar() {
     };
     return t(keyMap[href] || 'dashboard');
   };
+
+  const filteredNav = MAIN_NAV.filter(
+    (item) => shopRole && (item.roles as readonly string[]).includes(shopRole)
+  );
 
   return (
     <aside className="hidden md:fixed md:left-0 rtl:md:left-auto rtl:md:right-0 md:top-0 md:h-screen md:w-64 md:flex md:flex-col bg-sidebar-background border-r rtl:border-r-0 rtl:border-l border-sidebar-border">
@@ -41,7 +46,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {MAIN_NAV.map((item) => {
+        {filteredNav.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const Icon = item.icon;
 
