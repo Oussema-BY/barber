@@ -29,7 +29,10 @@
   },
   "topbar": {
     "search": "Search appointments, clients...",
-    "brandName": "BarberPro"
+    "brandName": "BarberPro",
+    "appointment": "Appointment",
+    "service": "Service",
+    "product": "Product"
   },
   "auth": {
     "signIn": "Sign In",

@@ -29,7 +29,10 @@
   },
   "topbar": {
     "search": "Rechercher rendez-vous, clients...",
-    "brandName": "BarberPro"
+    "brandName": "BarberPro",
+    "appointment": "Rendez-vous",
+    "service": "Service",
+    "product": "Produit"
   },
   "auth": {
     "signIn": "Se connecter",

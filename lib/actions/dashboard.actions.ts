@@ -22,25 +22,31 @@ export async function getDashboardStats() {
 
   await dbConnect();
 
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
   const startOfMonth = today.slice(0, 7) + '-01';
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    .toISOString()
+    .split('T')[0];
 
   const [
     todayAppointments,
     lowStockProducts,
+    todayTransactions,
     monthTransactions,
     monthExpenses,
     totalProducts,
   ] = await Promise.all([
     Appointment.find({ date: today, shopId }),
     Product.countDocuments({ shopId, $expr: { $lte: ['$quantity', '$minQuantity'] } }),
-    Transaction.find({ date: { $gte: startOfMonth }, shopId }),
-    Expense.find({ date: { $gte: startOfMonth }, shopId }),
+    Transaction.find({ date: today, shopId }),
+    Transaction.find({ date: { $gte: startOfMonth, $lte: endOfMonth }, shopId }),
+    Expense.find({ date: { $gte: startOfMonth, $lte: endOfMonth }, shopId }),
     Product.find({ shopId }),
   ]);
 
-  const dailyRevenue = todayAppointments.reduce(
-    (sum: number, a: { price: number }) => sum + a.price,
+  const dailyRevenue = todayTransactions.reduce(
+    (sum: number, t: { total: number }) => sum + t.total,
     0
   );
   const monthRevenue = monthTransactions.reduce(

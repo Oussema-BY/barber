@@ -29,7 +29,10 @@
   },
   "topbar": {
     "search": "البحث عن المواعيد والعملاء...",
-    "brandName": "باربر برو"
+    "brandName": "باربر برو",
+    "appointment": "موعد",
+    "service": "خدمة",
+    "product": "منتج"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
