@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_COLORS } from '@/lib/constants';
@@ -27,6 +27,7 @@ export default function AppointmentsPage() {
   const [salonMode, setSalonMode] = useState<'solo' | 'multi'>('solo');
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -118,11 +119,80 @@ export default function AppointmentsPage() {
     }
   };
 
-  const handleDateChange = (direction: 'prev' | 'next') => {
-    const date = new Date(selectedDate);
-    date.setDate(date.getDate() + (direction === 'next' ? 1 : -1));
-    setSelectedDate(date.toISOString().split('T')[0]);
+  const [viewMonth, setViewMonth] = useState(() => {
+    const d = new Date(selectedDate);
+    return { year: d.getFullYear(), month: d.getMonth() };
+  });
+
+  const handleMonthChange = (direction: 'prev' | 'next') => {
+    setViewMonth((prev) => {
+      const d = new Date(prev.year, prev.month + (direction === 'next' ? 1 : -1), 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
   };
+
+  const handleSelectDay = (dateStr: string) => {
+    setSelectedDate(dateStr);
+    setCalendarOpen(false);
+  };
+
+  const calendarDays = useMemo(() => {
+    const { year, month } = viewMonth;
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    // 0 = Sunday, adjust so Monday = 0
+    const startDow = (firstDay.getDay() + 6) % 7;
+    const days: { date: string; day: number; currentMonth: boolean }[] = [];
+
+    // Previous month padding
+    for (let i = startDow - 1; i >= 0; i--) {
+      const d = new Date(year, month, -i);
+      days.push({
+        date: d.toISOString().split('T')[0],
+        day: d.getDate(),
+        currentMonth: false,
+      });
+    }
+
+    // Current month
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(year, month, d);
+      days.push({
+        date: date.toISOString().split('T')[0],
+        day: d,
+        currentMonth: true,
+      });
+    }
+
+    // Next month padding to fill last row
+    const remaining = 7 - (days.length % 7);
+    if (remaining < 7) {
+      for (let d = 1; d <= remaining; d++) {
+        const date = new Date(year, month + 1, d);
+        days.push({
+          date: date.toISOString().split('T')[0],
+          day: d,
+          currentMonth: false,
+        });
+      }
+    }
+
+    return days;
+  }, [viewMonth]);
+
+  const monthLabel = new Date(viewMonth.year, viewMonth.month).toLocaleDateString(locale, {
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const weekDays = useMemo(() => {
+    const base = new Date(2024, 0, 1); // Monday
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(base);
+      d.setDate(d.getDate() + i);
+      return d.toLocaleDateString(locale, { weekday: 'narrow' });
+    });
+  }, [locale]);
 
   const handleBook = async () => {
     if (!clientName.trim() || !selectedService || !selectedTime) return;
@@ -197,20 +267,71 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Date Selector */}
-      <div className="flex items-center justify-between bg-card rounded-xl border border-border p-3">
-        <button onClick={() => handleDateChange('prev')} className="p-2 hover:bg-secondary rounded-lg transition-colors">
-          <ChevronLeft className="w-5 h-5 text-foreground-secondary rtl:rotate-180" />
-        </button>
-        <div className="flex items-center gap-3">
-          <Calendar className="w-5 h-5 text-primary" />
-          <div className="text-center">
-            <p className="font-bold text-foreground">{formatDateDisplay(selectedDate)}</p>
-            <p className="text-xs text-foreground-secondary">{selectedDate}</p>
+      <div className="bg-card rounded-xl border border-border">
+        {/* Collapsed Header — always visible */}
+        <button
+          onClick={() => setCalendarOpen(!calendarOpen)}
+          className="w-full flex items-center justify-between p-4"
+        >
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-primary" />
+            <div className="text-start">
+              <p className="font-bold text-foreground">{formatDateDisplay(selectedDate)}</p>
+              <p className="text-xs text-foreground-secondary">{selectedDate}</p>
+            </div>
           </div>
-        </div>
-        <button onClick={() => handleDateChange('next')} className="p-2 hover:bg-secondary rounded-lg transition-colors">
-          <ChevronRight className="w-5 h-5 text-foreground-secondary rtl:rotate-180" />
+          <ChevronDown className={`w-5 h-5 text-foreground-secondary transition-transform ${calendarOpen ? 'rotate-180' : ''}`} />
         </button>
+
+        {/* Expanded Calendar */}
+        {calendarOpen && (
+          <div className="px-4 pb-4 border-t border-border pt-3">
+            {/* Month Navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button onClick={() => handleMonthChange('prev')} className="p-2 hover:bg-secondary rounded-lg transition-colors">
+                <ChevronLeft className="w-5 h-5 text-foreground-secondary rtl:rotate-180" />
+              </button>
+              <span className="font-bold text-foreground capitalize">{monthLabel}</span>
+              <button onClick={() => handleMonthChange('next')} className="p-2 hover:bg-secondary rounded-lg transition-colors">
+                <ChevronRight className="w-5 h-5 text-foreground-secondary rtl:rotate-180" />
+              </button>
+            </div>
+
+            {/* Weekday Headers */}
+            <div className="grid grid-cols-7 mb-1">
+              {weekDays.map((day, i) => (
+                <div key={i} className="text-center text-xs font-semibold text-foreground-muted py-1">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Days Grid */}
+            <div className="grid grid-cols-7">
+              {calendarDays.map(({ date, day, currentMonth }) => {
+                const isSelected = date === selectedDate;
+                const isToday = date === getTodayDate();
+                return (
+                  <button
+                    key={date}
+                    onClick={() => handleSelectDay(date)}
+                    className={`relative py-2 text-sm font-medium rounded-lg transition-all active:scale-95 ${
+                      isSelected
+                        ? 'bg-primary text-primary-foreground'
+                        : isToday
+                          ? 'bg-primary/10 text-primary font-bold'
+                          : currentMonth
+                            ? 'text-foreground hover:bg-secondary'
+                            : 'text-foreground-muted hover:bg-secondary'
+                    }`}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Booking Form */}
