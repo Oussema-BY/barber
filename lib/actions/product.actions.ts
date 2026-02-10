@@ -46,6 +46,32 @@ export async function updateProductQuantity(id: string, quantity: number): Promi
   return product ? JSON.parse(JSON.stringify(product.toJSON())) : null;
 }
 
+export async function updateProduct(
+  id: string,
+  data: {
+    name?: string;
+    category?: string;
+    supplier?: string;
+    costPrice?: number;
+    salePrice?: number;
+    quantity?: number;
+    minQuantity?: number;
+    unit?: string;
+  }
+): Promise<ProductType | null> {
+  const { shopId, shopRole } = await getSessionContext();
+  if (!shopId) throw new Error('No shop');
+  if (shopRole !== 'owner') throw new Error('Owner only');
+
+  await dbConnect();
+  const product = await Product.findOneAndUpdate(
+    { _id: id, shopId },
+    data,
+    { new: true }
+  );
+  return product ? JSON.parse(JSON.stringify(product.toJSON())) : null;
+}
+
 export async function deleteProduct(id: string) {
   const { shopId, shopRole } = await getSessionContext();
   if (!shopId) throw new Error('No shop');
