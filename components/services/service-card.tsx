@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ export function ServiceCard({
   onDelete,
   onSchedule,
 }: ServiceCardProps) {
-  const colors = categoryColors[service.category] || { bg: '', badge: 'default' as const };
+  const colors = categoryColors[service.category ?? 'other'] || { bg: '', badge: 'default' as const };
 
   return (
     <Card className={`overflow-hidden hover:shadow-md transition-all animate-fade-in ${colors.bg}`}>
@@ -37,7 +37,7 @@ export function ServiceCard({
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <h3 className="text-sm sm:text-base font-bold text-foreground truncate">{service.name}</h3>
               <Badge variant={colors.badge} size="sm" className="capitalize shrink-0 text-xs">
-                {service.category}
+                {service.category ?? 'other'}
               </Badge>
             </div>
           </div>
@@ -55,13 +55,8 @@ export function ServiceCard({
           </p>
         )}
 
-        {/* Footer - Duration & Actions */}
-        <div className="flex items-center justify-between pt-2 border-t border-border">
-          <div className="flex items-center gap-1 text-xs sm:text-sm">
-            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-foreground-muted" />
-            <span className="text-foreground-secondary">{service.duration} min</span>
-          </div>
-
+        {/* Footer - Actions */}
+        <div className="flex items-center justify-end pt-2 border-t border-border">
           {/* Actions */}
           {(onEdit || onDelete) && (
             <div className="flex gap-1">

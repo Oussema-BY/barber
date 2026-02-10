@@ -16,10 +16,7 @@ export async function getServices(): Promise<ServiceType[]> {
 
 export async function createService(data: {
   name: string;
-  category: string;
   price: number;
-  duration: number;
-  description?: string;
 }): Promise<ServiceType> {
   const { shopId, shopRole } = await getSessionContext();
   if (!shopId) throw new Error('No shop');

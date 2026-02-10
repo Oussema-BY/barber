@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Modal } from '@/components/ui/modal';
-import { Input, Select, Textarea } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Service, Appointment } from '@/lib/types';
-import { getTodayDate, generateId, formatTime } from '@/lib/utils';
+import React, { useState } from "react";
+import { Modal } from "@/components/ui/modal";
+import { Input, Select, Textarea } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Service, Appointment } from "@/lib/types";
+import { getTodayDate, generateId } from "@/lib/utils";
 
 interface BookingModalProps {
   open: boolean;
@@ -15,10 +15,29 @@ interface BookingModalProps {
 }
 
 const TIME_SLOTS = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
-  '18:00', '18:30', '19:00', '19:30', '20:00',
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
+  "20:00",
 ];
 
 export function BookingModal({
@@ -28,13 +47,13 @@ export function BookingModal({
   onBooking,
 }: BookingModalProps) {
   const [formData, setFormData] = useState({
-    clientName: '',
-    clientPhone: '',
-    clientEmail: '',
-    serviceId: '',
+    clientName: "",
+    clientPhone: "",
+    clientEmail: "",
+    serviceId: "",
     date: getTodayDate(),
-    time: '10:00',
-    notes: '',
+    time: "10:00",
+    notes: "",
   });
 
   const selectedService = services.find((s) => s.id === formData.serviceId);
@@ -43,7 +62,7 @@ export function BookingModal({
     e.preventDefault();
 
     if (!formData.clientName || !formData.serviceId || !formData.time) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
 
@@ -59,9 +78,9 @@ export function BookingModal({
       serviceName: service.name,
       date: formData.date,
       time: formData.time,
-      duration: service.duration,
+      duration: service.duration ?? 30,
       price: service.price,
-      status: 'pending',
+      status: "pending",
       notes: formData.notes || undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -69,13 +88,13 @@ export function BookingModal({
 
     onBooking(appointment);
     setFormData({
-      clientName: '',
-      clientPhone: '',
-      clientEmail: '',
-      serviceId: '',
+      clientName: "",
+      clientPhone: "",
+      clientEmail: "",
+      serviceId: "",
       date: getTodayDate(),
-      time: '10:00',
-      notes: '',
+      time: "10:00",
+      notes: "",
     });
     onOpenChange(false);
   };
@@ -129,7 +148,10 @@ export function BookingModal({
           onChange={(e) =>
             setFormData({ ...formData, serviceId: e.target.value })
           }
-          options={services.map((s) => ({ value: s.id, label: `${s.name} (${s.duration} min)` }))}
+          options={services.map((s) => ({
+            value: s.id,
+            label: s.name,
+          }))}
           required
         />
 
@@ -137,10 +159,8 @@ export function BookingModal({
         {selectedService && (
           <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200">
             <p className="text-sm text-indigo-900">
-              <span className="font-semibold">Duration:</span> {selectedService.duration} minutes
-            </p>
-            <p className="text-sm text-indigo-900 mt-1">
-              <span className="font-semibold">Price:</span> €{selectedService.price}
+              <span className="font-semibold">Price:</span> €
+              {selectedService.price}
             </p>
           </div>
         )}

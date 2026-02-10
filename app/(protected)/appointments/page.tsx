@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { CATEGORY_COLORS } from '@/lib/constants';
 import { Appointment, Service, StaffMember } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
@@ -86,7 +85,7 @@ export default function AppointmentsPage() {
       try {
         const slots = await getAvailableSlots(
           selectedDate,
-          selectedService!.duration,
+          selectedService!.duration ?? 30,
           selectedStaff?.id
         );
         setAvailableSlots(slots);
@@ -205,7 +204,7 @@ export default function AppointmentsPage() {
         serviceName: selectedService.name,
         date: selectedDate,
         time: selectedTime,
-        duration: selectedService.duration,
+        duration: selectedService.duration ?? 30,
         price: selectedService.price,
         status: 'confirmed',
         staffMemberId: selectedStaff?.id,
@@ -389,7 +388,6 @@ export default function AppointmentsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {services.map((service) => {
                 const isSelected = selectedService?.id === service.id;
-                const categoryColor = CATEGORY_COLORS[service.category] || CATEGORY_COLORS.other;
                 return (
                   <button
                     key={service.id}
@@ -399,10 +397,7 @@ export default function AppointmentsPage() {
                     }`}
                   >
                     <p className="font-semibold text-foreground text-sm line-clamp-1">{service.name}</p>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className={`text-xs ${categoryColor.text}`}>{service.duration}{tCommon('minutes')}</span>
-                      <span className="font-bold text-primary text-sm">{formatCurrency(service.price)}</span>
-                    </div>
+                    <p className="font-bold text-primary text-sm mt-1">{formatCurrency(service.price)}</p>
                   </button>
                 );
               })}

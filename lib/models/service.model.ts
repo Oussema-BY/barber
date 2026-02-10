@@ -6,10 +6,10 @@ const ServiceSchema = new Schema(
     category: {
       type: String,
       enum: ['hair', 'beard', 'face', 'package', 'other'],
-      required: true,
+      default: 'other',
     },
     price: { type: Number, required: true },
-    duration: { type: Number, required: true },
+    duration: { type: Number, default: 30 },
     description: { type: String, default: '' },
     image: { type: String, default: '' },
     shopId: { type: String, required: true, index: true },
@@ -29,4 +29,6 @@ const ServiceSchema = new Schema(
   }
 );
 
-export default mongoose.models.Service || mongoose.model('Service', ServiceSchema);
+// Force re-register to pick up schema changes during dev hot-reload
+delete mongoose.models.Service;
+export default mongoose.model('Service', ServiceSchema);

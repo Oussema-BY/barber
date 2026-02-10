@@ -2,10 +2,8 @@
 
 import React, { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
-import { Input, Select, Textarea } from '@/components/ui/input';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ServiceCategory } from '@/lib/types';
-import { SERVICE_CATEGORIES } from '@/lib/constants';
 import { createService } from '@/lib/actions/service.actions';
 
 interface AddServiceModalProps {
@@ -21,17 +19,14 @@ export function AddServiceModal({
 }: AddServiceModalProps) {
   const [formData, setFormData] = useState({
     name: '',
-    category: 'hair' as ServiceCategory,
     price: '',
-    duration: '',
-    description: '',
   });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.price || !formData.duration) {
+    if (!formData.name || !formData.price) {
       alert('Please fill in all required fields');
       return;
     }
@@ -40,18 +35,12 @@ export function AddServiceModal({
     try {
       await createService({
         name: formData.name,
-        category: formData.category,
         price: parseFloat(formData.price),
-        duration: parseInt(formData.duration, 10),
-        description: formData.description || undefined,
       });
 
       setFormData({
         name: '',
-        category: 'hair',
         price: '',
-        duration: '',
-        description: '',
       });
       onOpenChange(false);
       onServiceAdded();
@@ -80,51 +69,16 @@ export function AddServiceModal({
           required
         />
 
-        {/* Category */}
-        <Select
-          label="Category *"
-          value={formData.category}
-          onChange={(e) =>
-            setFormData({ ...formData, category: e.target.value as ServiceCategory })
-          }
-          options={SERVICE_CATEGORIES.map((cat) => ({
-            value: cat,
-            label: cat.charAt(0).toUpperCase() + cat.slice(1)
-          }))}
+        {/* Price */}
+        <Input
+          label="Price (€) *"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="25.00"
+          value={formData.price}
+          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
           required
-        />
-
-        {/* Price & Duration */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Price (€) *"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="25.00"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            required
-          />
-          <Input
-            label="Duration (min) *"
-            type="number"
-            min="5"
-            step="5"
-            placeholder="30"
-            value={formData.duration}
-            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-            required
-          />
-        </div>
-
-        {/* Description */}
-        <Textarea
-          label="Description"
-          placeholder="Describe the service..."
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          rows={3}
         />
 
         {/* Actions */}

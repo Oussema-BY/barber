@@ -41,9 +41,9 @@ export type ServiceCategory = 'hair' | 'beard' | 'face' | 'package' | 'other';
 export interface Service {
   id: string;
   name: string;
-  category: ServiceCategory;
+  category?: ServiceCategory;
   price: number;
-  duration: number; // in minutes
+  duration?: number; // in minutes
   description?: string;
   image?: string;
   shopId?: string;

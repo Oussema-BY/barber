@@ -144,7 +144,7 @@ export default function POSPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {services.map((service) => {
           const isSelected = selectedServices.some((s) => s.id === service.id);
-          const categoryColor = CATEGORY_COLORS[service.category] || CATEGORY_COLORS.other;
+          const categoryColor = CATEGORY_COLORS[service.category ?? 'other'] || CATEGORY_COLORS.other;
 
           return (
             <button
@@ -162,7 +162,7 @@ export default function POSPage() {
                     {service.name}
                   </p>
                   <p className={`text-xs mt-1 capitalize ${categoryColor.text}`}>
-                    {tServices(service.category)}
+                    {tServices(service.category ?? 'other')}
                   </p>
                 </div>
                 {isSelected && (
