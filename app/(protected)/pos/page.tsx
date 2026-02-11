@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Check, RotateCcw, Scissors, Loader2 } from 'lucide-react';
+import { Check, RotateCcw, Scissors, Loader2, Clock, Receipt } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import { CATEGORY_COLORS } from '@/lib/constants';
-import { Service } from '@/lib/types';
+import { Service, POSTransaction } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
-import { createTransaction } from '@/lib/actions/transaction.actions';
+import { createTransaction, getTodayTransactions } from '@/lib/actions/transaction.actions';
 import { useUser } from '@/lib/user-context';
 
 export default function POSPage() {
@@ -22,10 +23,18 @@ export default function POSPage() {
   const [cashReceived, setCashReceived] = useState('');
   const [isComplete, setIsComplete] = useState(false);
 
+  // Sales history
+  const [todaySales, setTodaySales] = useState<POSTransaction[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
   const loadData = useCallback(async () => {
     try {
-      const servicesData = await getServices();
+      const [servicesData, salesData] = await Promise.all([
+        getServices(),
+        getTodayTransactions(),
+      ]);
       setServices(servicesData);
+      setTodaySales(salesData);
     } catch (err) {
       console.error('Failed to load data:', err);
     } finally {
@@ -43,6 +52,9 @@ export default function POSPage() {
   // Calculate change
   const cashAmount = parseFloat(cashReceived) || 0;
   const change = cashAmount > 0 ? cashAmount - total : 0;
+
+  // Today's total revenue
+  const todayRevenue = todaySales.reduce((sum, tx) => sum + tx.total, 0);
 
   const toggleService = (service: Service) => {
     const exists = selectedServices.find((s) => s.id === service.id);
@@ -76,6 +88,9 @@ export default function POSPage() {
         time: now.toTimeString().slice(0, 5),
         completedBy: userName,
       });
+      // Reload sales history
+      const salesData = await getTodayTransactions();
+      setTodaySales(salesData);
     } catch (err) {
       console.error('Failed to save transaction:', err);
     }
@@ -124,9 +139,15 @@ export default function POSPage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 lg:space-y-8 pb-48">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('title')}</h1>
-        <p className="text-foreground-secondary mt-1">{t('subtitle')}</p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('title')}</h1>
+          <p className="text-foreground-secondary mt-1">{t('subtitle')}</p>
+        </div>
+        <Button variant="outline" onClick={() => setHistoryOpen(true)} className="shrink-0">
+          <Receipt className="w-5 h-5" />
+          <span className="hidden sm:inline">{t('todaySales')}</span>
+        </Button>
       </div>
 
       {/* Services Grid */}
@@ -179,6 +200,44 @@ export default function POSPage() {
         })}
       </div>
       )}
+
+      {/* Sales History Modal */}
+      <Modal
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        title={t('todaySales')}
+        description={`${todaySales.length} ${t('transactions')} — ${formatCurrency(todayRevenue)}`}
+        size="md"
+      >
+        {todaySales.length === 0 ? (
+          <div className="py-8 text-center">
+            <Receipt className="w-10 h-10 text-foreground-muted mx-auto mb-3" />
+            <p className="text-sm text-foreground-secondary">{t('noSalesYet')}</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border max-h-96 overflow-y-auto -mx-6 px-6">
+            {todaySales.map((tx) => (
+              <div key={tx.id} className="py-3 flex items-center gap-3">
+                <div className="flex items-center gap-2 text-foreground-secondary shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">{tx.time}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {tx.items.map((item) => item.name).join(', ')}
+                  </p>
+                  {tx.completedBy && (
+                    <p className="text-xs text-foreground-tertiary">{tx.completedBy}</p>
+                  )}
+                </div>
+                <span className="font-bold text-foreground shrink-0">
+                  {formatCurrency(tx.total)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
 
       {/* Fixed Bottom Panel */}
       <div className="fixed bottom-0 left-0 right-0 md:ltr:left-64 md:rtl:right-64 md:rtl:left-0 bg-card border-t border-border p-4 pb-24 md:pb-4 z-40">

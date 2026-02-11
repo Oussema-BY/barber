@@ -33,3 +33,13 @@ export async function getTransactions(): Promise<POSTransaction[]> {
   const transactions = await Transaction.find({ shopId }).sort({ createdAt: -1 });
   return JSON.parse(JSON.stringify(transactions.map((t: { toJSON: () => unknown }) => t.toJSON())));
 }
+
+export async function getTodayTransactions(): Promise<POSTransaction[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
+  await dbConnect();
+  const today = new Date().toISOString().split('T')[0];
+  const transactions = await Transaction.find({ shopId, date: today }).sort({ time: -1 });
+  return JSON.parse(JSON.stringify(transactions.map((t: { toJSON: () => unknown }) => t.toJSON())));
+}

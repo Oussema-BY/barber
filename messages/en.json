@@ -151,7 +151,10 @@
     "selectServices": "Select Services",
     "completeSale": "Complete Sale",
     "saleComplete": "Sale Complete!",
-    "newSale": "New Sale"
+    "newSale": "New Sale",
+    "todaySales": "Today's Sales",
+    "transactions": "transactions",
+    "noSalesYet": "No sales yet today"
   },
   "settings": {
     "title": "Settings",

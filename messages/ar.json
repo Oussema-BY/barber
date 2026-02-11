@@ -151,7 +151,10 @@
     "selectServices": "اختر الخدمات",
     "completeSale": "إتمام البيع",
     "saleComplete": "تم البيع!",
-    "newSale": "بيع جديد"
+    "newSale": "بيع جديد",
+    "todaySales": "مبيعات اليوم",
+    "transactions": "معاملات",
+    "noSalesYet": "لا توجد مبيعات اليوم"
   },
   "settings": {
     "title": "الإعدادات",

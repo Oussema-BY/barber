@@ -151,7 +151,10 @@
     "selectServices": "Choisir Services",
     "completeSale": "Terminer la Vente",
     "saleComplete": "Vente Terminée !",
-    "newSale": "Nouvelle Vente"
+    "newSale": "Nouvelle Vente",
+    "todaySales": "Ventes du jour",
+    "transactions": "transactions",
+    "noSalesYet": "Aucune vente aujourd'hui"
   },
   "settings": {
     "title": "Paramètres",
