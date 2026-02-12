@@ -140,7 +140,9 @@
     "beard": "beard",
     "face": "face",
     "package": "package",
-    "other": "other"
+    "other": "other",
+    "service": "service",
+    "servicesCount": "services"
   },
   "pos": {
     "title": "Quick Sale",

@@ -1,98 +1,54 @@
 import React from 'react';
-import { Trash2, Edit2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Scissors, Trash2 } from 'lucide-react';
 import { Service } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
 interface ServiceCardProps {
   service: Service;
-  onEdit?: (service: Service) => void;
   onDelete?: (id: string) => void;
-  onSchedule?: (service: Service) => void;
 }
 
-const categoryColors: Record<string, { bg: string; badge: 'info' | 'success' | 'warning' | 'purple' | 'default' }> = {
-  hair: { bg: 'border-l-4 border-l-info', badge: 'info' },
-  beard: { bg: 'border-l-4 border-l-success', badge: 'success' },
-  grooming: { bg: 'border-l-4 border-l-warning', badge: 'warning' },
-  package: { bg: 'border-l-4 border-l-purple', badge: 'purple' },
-};
-
-export function ServiceCard({
-  service,
-  onEdit,
-  onDelete,
-  onSchedule,
-}: ServiceCardProps) {
-  const colors = categoryColors[service.category ?? 'other'] || { bg: '', badge: 'default' as const };
-
+export function ServiceCard({ service, onDelete }: ServiceCardProps) {
   return (
-    <Card className={`overflow-hidden hover:shadow-md transition-all animate-fade-in ${colors.bg}`}>
-      <CardContent className="p-3 sm:p-4">
-        {/* Header Row - Name, Badge, Price & Actions */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <h3 className="text-sm sm:text-base font-bold text-foreground truncate">{service.name}</h3>
-              <Badge variant={colors.badge} size="sm" className="capitalize shrink-0 text-xs">
-                {service.category ?? 'other'}
-              </Badge>
-            </div>
-          </div>
+    <div className="group relative bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-200">
+      {/* Accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary to-primary/50" />
 
-          {/* Price - prominent on mobile */}
-          <span className="text-base sm:text-lg font-bold text-primary shrink-0">
+      <div className="p-5">
+        {/* Icon + Name */}
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+            <Scissors className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-semibold text-foreground truncate">
+              {service.name}
+            </h3>
+            {service.description && (
+              <p className="text-sm text-foreground-secondary line-clamp-1 mt-0.5">
+                {service.description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Price */}
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-2xl font-bold text-foreground">
             {formatCurrency(service.price)}
           </span>
-        </div>
 
-        {/* Description */}
-        {service.description && (
-          <p className="text-xs sm:text-sm text-foreground-secondary line-clamp-2 mb-2">
-            {service.description}
-          </p>
-        )}
-
-        {/* Footer - Actions */}
-        <div className="flex items-center justify-end pt-2 border-t border-border">
-          {/* Actions */}
-          {(onEdit || onDelete) && (
-            <div className="flex gap-1">
-              {onEdit && (
-                <button
-                  onClick={() => onEdit(service)}
-                  className="p-1.5 sm:p-2 hover:bg-secondary rounded-lg transition-colors active:scale-95"
-                  title="Edit"
-                >
-                  <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-foreground-tertiary" />
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  onClick={() => onDelete(service.id)}
-                  className="p-1.5 sm:p-2 hover:bg-destructive-light rounded-lg transition-colors active:scale-95"
-                  title="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-destructive" />
-                </button>
-              )}
-            </div>
+          {onDelete && (
+            <button
+              onClick={() => onDelete(service.id)}
+              className="p-2 hover:bg-destructive-light rounded-xl transition-all active:scale-95 opacity-0 group-hover:opacity-100"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </button>
           )}
         </div>
-
-        {/* Schedule Button */}
-        {onSchedule && (
-          <Button
-            size="sm"
-            className="w-full mt-3"
-            onClick={() => onSchedule(service)}
-          >
-            Schedule Service
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

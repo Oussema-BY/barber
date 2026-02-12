@@ -140,7 +140,9 @@
     "beard": "barbe",
     "face": "visage",
     "package": "forfait",
-    "other": "autre"
+    "other": "autre",
+    "service": "service",
+    "servicesCount": "services"
   },
   "pos": {
     "title": "Vente Rapide",

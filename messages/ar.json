@@ -140,7 +140,9 @@
     "beard": "لحية",
     "face": "وجه",
     "package": "باقة",
-    "other": "أخرى"
+    "other": "أخرى",
+    "service": "خدمة",
+    "servicesCount": "خدمات"
   },
   "pos": {
     "title": "بيع سريع",

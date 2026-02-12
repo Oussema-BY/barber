@@ -2,21 +2,21 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Plus, Scissors, Search, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ServiceCard } from '@/components/services/service-card';
 import { AddServiceModal } from '@/components/services/add-service-modal';
-import { SERVICE_CATEGORIES } from '@/lib/constants';
-import { Service, ServiceCategory } from '@/lib/types';
+import { Service } from '@/lib/types';
 import { getServices, deleteService } from '@/lib/actions/service.actions';
 import { useUser } from '@/lib/user-context';
 
 export default function ServicesPage() {
+  const t = useTranslations('services');
   const { shopRole } = useUser();
   const isOwner = shopRole === 'owner';
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadServices = useCallback(async () => {
@@ -35,22 +35,13 @@ export default function ServicesPage() {
   }, [loadServices]);
 
   const filteredServices = useMemo(() => {
-    let result = services;
-
-    if (selectedCategory !== 'all') {
-      result = result.filter((s) => s.category === selectedCategory);
-    }
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter((s) =>
-        s.name.toLowerCase().includes(term) ||
-        s.description?.toLowerCase().includes(term)
-      );
-    }
-
-    return result;
-  }, [services, selectedCategory, searchTerm]);
+    if (!searchTerm) return services;
+    const term = searchTerm.toLowerCase();
+    return services.filter((s) =>
+      s.name.toLowerCase().includes(term) ||
+      s.description?.toLowerCase().includes(term)
+    );
+  }, [services, searchTerm]);
 
   const handleDeleteService = async (id: string) => {
     try {
@@ -74,8 +65,8 @@ export default function ServicesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Services</h1>
-          <p className="text-foreground-secondary mt-1">Manage your barber services and pricing</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t('title')}</h1>
+          <p className="text-foreground-secondary mt-1">{t('subtitle')}</p>
         </div>
         {isOwner && (
           <Button
@@ -83,53 +74,33 @@ export default function ServicesPage() {
             className="w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
-            <span>Add Service</span>
+            <span>{t('addService')}</span>
           </Button>
         )}
       </div>
 
-      {/* Filters */}
-      <div className="space-y-3">
+      {/* Search */}
+      {services.length > 0 && (
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
+          <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
           <input
             type="text"
-            placeholder="Search services..."
+            placeholder={t('searchServices')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-card text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+            className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 rounded-xl border border-border bg-card text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
           />
         </div>
+      )}
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95 ${
-              selectedCategory === 'all'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-card text-foreground-secondary border border-border hover:bg-secondary'
-            }`}
-          >
-            All ({services.length})
-          </button>
-          {SERVICE_CATEGORIES.map((category) => {
-            const count = services.filter((s) => s.category === category).length;
-            return (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all capitalize active:scale-95 ${
-                  selectedCategory === category
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-foreground-secondary border border-border hover:bg-secondary'
-                }`}
-              >
-                {category} ({count})
-              </button>
-            );
-          })}
+      {/* Stats */}
+      {services.length > 0 && (
+        <div className="flex items-center gap-3 text-sm text-foreground-secondary">
+          <span className="bg-secondary px-3 py-1 rounded-full font-medium">
+            {services.length} {services.length === 1 ? t('service') : t('servicesCount')}
+          </span>
         </div>
-      </div>
+      )}
 
       {/* Services Grid */}
       {filteredServices.length === 0 ? (
@@ -138,14 +109,10 @@ export default function ServicesPage() {
             <Scissors className="w-8 h-8 text-foreground-muted" />
           </div>
           <p className="text-foreground-secondary font-medium">
-            {searchTerm
-              ? 'No services found'
-              : selectedCategory === 'all'
-                ? 'No services yet'
-                : `No ${selectedCategory} services`}
+            {searchTerm ? t('noServicesFound') : t('noServices')}
           </p>
           <p className="text-foreground-muted text-sm mt-1">
-            {searchTerm ? 'Try adjusting your search' : 'Create your first service to get started'}
+            {searchTerm ? t('tryAdjusting') : t('createFirst')}
           </p>
         </div>
       ) : (
