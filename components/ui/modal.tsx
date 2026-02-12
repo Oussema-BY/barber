@@ -73,7 +73,7 @@ export const Modal: React.FC<ModalProps> = ({
         className={cn(
           'relative w-full bg-card rounded-2xl shadow-lg border border-border',
           'animate-in fade-in-0 zoom-in-95 duration-200',
-          'max-h-[90vh] flex flex-col',
+          'max-h-[90dvh] flex flex-col',
           sizeStyles[size],
           className
         )}

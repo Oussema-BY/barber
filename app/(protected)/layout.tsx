@@ -7,6 +7,7 @@ import { OnboardingProvider } from '@/lib/onboarding-context';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
 import { MobileNav } from '@/components/layout/mobile-nav';
+import { InstallPrompt } from '@/components/pwa/install-prompt';
 import dbConnect from '@/lib/mongodb';
 import Settings from '@/lib/models/settings.model';
 import ShopMember from '@/lib/models/shop-member.model';
@@ -97,6 +98,7 @@ export default async function ProtectedLayout({
               {children}
             </main>
             <MobileNav />
+            <InstallPrompt />
           </div>
         </div>
       </OnboardingProvider>

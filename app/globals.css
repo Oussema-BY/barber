@@ -511,6 +511,22 @@ body {
   animation: slideUp 0.2s ease-out;
 }
 
+/* ===== Standalone PWA Adjustments ===== */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Prevent overscroll bounce in standalone mode */
+  html {
+    overscroll-behavior: none;
+  }
+}
+
 /* ===== Print Styles for Finance Report PDF ===== */
 @media print {
   /* Hide navigation and controls */
