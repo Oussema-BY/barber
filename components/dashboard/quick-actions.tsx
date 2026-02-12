@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, ShoppingCart, Zap, Package, TrendingUp, Sparkles } from 'lucide-react';
+import { Calendar, ShoppingCart, Zap, Package, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
 const QUICK_ACTIONS = [
@@ -32,12 +32,6 @@ const QUICK_ACTIONS = [
     icon: TrendingUp,
     href: '/finance',
     color: 'bg-destructive-light text-destructive hover:bg-destructive/20',
-  },
-  {
-    label: 'AI Insights',
-    icon: Sparkles,
-    href: '/insights',
-    color: 'bg-primary-light text-primary hover:bg-primary/20',
   },
 ];
 

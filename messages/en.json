@@ -24,7 +24,6 @@
     "pos": "POS",
     "inventory": "Inventory",
     "finance": "Finance",
-    "insights": "Insights",
     "settings": "Settings"
   },
   "topbar": {

@@ -22,7 +22,6 @@ export function Sidebar() {
       '/pos': 'pos',
       '/inventory': 'inventory',
       '/finance': 'finance',
-      '/insights': 'insights',
       '/settings': 'settings',
     };
     return t(keyMap[href] || 'dashboard');

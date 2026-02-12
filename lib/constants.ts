@@ -4,7 +4,6 @@ import {
   Home,
   Settings,
   ShoppingCart,
-  TrendingUp,
   Users,
   Zap,
 } from 'lucide-react';
@@ -105,12 +104,6 @@ export const MAIN_NAV = [
     label: 'Finance',
     href: '/finance',
     icon: BarChart3,
-    roles: ['owner'] as const,
-  },
-  {
-    label: 'Insights',
-    href: '/insights',
-    icon: TrendingUp,
     roles: ['owner'] as const,
   },
   {
