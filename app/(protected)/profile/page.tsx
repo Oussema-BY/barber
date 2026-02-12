@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Mail, Phone, Camera, Check } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { User, Mail, Phone, Camera, Check, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/user-context';
+import { updateProfile, getProfile } from '@/lib/actions/profile.actions';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const t = useTranslations('profile');
   const tCommon = useTranslations('common');
   const user = useUser();
@@ -17,11 +20,48 @@ export default function ProfilePage() {
     phone: '',
   });
 
+  const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleSave = () => {
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+  const loadProfile = useCallback(async () => {
+    try {
+      const data = await getProfile();
+      setProfile({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+      });
+    } catch {
+      // Fall back to context values
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const handleSave = async () => {
+    if (!profile.name.trim()) return;
+
+    setSaving(true);
+    try {
+      const result = await updateProfile({
+        name: profile.name.trim(),
+        phone: profile.phone.trim(),
+      });
+
+      if (result.success) {
+        setIsSaved(true);
+        router.refresh();
+        setTimeout(() => setIsSaved(false), 2000);
+      } else {
+        alert(result.error || 'Failed to save');
+      }
+    } catch {
+      alert('Failed to save');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -47,7 +87,9 @@ export default function ProfilePage() {
 
           <div className="text-center sm:text-start">
             <h2 className="text-xl font-bold text-foreground">{profile.name}</h2>
-            <p className="text-foreground-secondary">{t('shopOwner')}</p>
+            <p className="text-foreground-secondary">
+              {user.shopRole === 'owner' ? t('shopOwner') : t('barber')}
+            </p>
           </div>
         </div>
 
@@ -70,7 +112,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Email */}
+          {/* Email (read-only) */}
           <div>
             <label className="text-sm font-medium text-foreground-secondary block mb-2">
               {t('email')}
@@ -80,9 +122,8 @@ export default function ProfilePage() {
               <input
                 type="email"
                 value={profile.email}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                className="w-full pl-12 pr-4 rtl:pl-4 rtl:pr-12 py-3 rounded-xl border-2 border-border bg-background text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none text-lg"
-                placeholder={t('enterEmail')}
+                readOnly
+                className="w-full pl-12 pr-4 rtl:pl-4 rtl:pr-12 py-3 rounded-xl border-2 border-border bg-secondary text-foreground-secondary cursor-not-allowed text-lg"
               />
             </div>
           </div>
@@ -108,10 +149,16 @@ export default function ProfilePage() {
         {/* Save Button */}
         <Button
           onClick={handleSave}
+          disabled={saving || !profile.name.trim()}
           size="lg"
           className="w-full text-lg font-semibold"
         >
-          {isSaved ? (
+          {saving ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              {tCommon('saving')}
+            </>
+          ) : isSaved ? (
             <>
               <Check className="w-5 h-5" />
               {tCommon('saved')}
