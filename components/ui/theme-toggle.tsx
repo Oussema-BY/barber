@@ -86,16 +86,14 @@ export function ThemeToggle({ variant = 'icon', className }: ThemeToggleProps) {
     );
   }
 
-  // Default: icon variant - cycles through themes
-  const cycleTheme = () => {
-    if (theme === 'light') setTheme('dark');
-    else if (theme === 'dark') setTheme('system');
-    else setTheme('light');
+  // Default: icon variant - toggles between light and dark
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
   return (
     <button
-      onClick={cycleTheme}
+      onClick={toggleTheme}
       className={cn(
         'relative p-2 rounded-lg text-foreground-secondary hover:text-foreground hover:bg-secondary transition-colors',
         className
