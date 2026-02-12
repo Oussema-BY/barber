@@ -510,3 +510,61 @@ body {
 .animate-slide-up {
   animation: slideUp 0.2s ease-out;
 }
+
+/* ===== Print Styles for Finance Report PDF ===== */
+@media print {
+  /* Hide navigation and controls */
+  aside,
+  nav,
+  .mobile-nav,
+  header,
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  /* Reset layout */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Remove margins from content container */
+  .md\:ltr\:ml-64,
+  .md\:rtl\:mr-64 {
+    margin: 0 !important;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Cards for print */
+  .bg-card,
+  [class*="bg-background"] {
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  /* Prevent chart splitting across pages */
+  .recharts-wrapper {
+    page-break-inside: avoid;
+  }
+
+  /* Force chart colors to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+}

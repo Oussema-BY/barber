@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/user-context";
+import { useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -25,53 +25,111 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  PieChart as PieChartIcon,
+  Package,
   Loader2,
+  BarChart3,
 } from "lucide-react";
-import { Service, Expense, Product, Appointment } from "@/lib/types";
-import { getServices } from "@/lib/actions/service.actions";
-import { getExpenses } from "@/lib/actions/expense.actions";
-import { getProducts } from "@/lib/actions/product.actions";
-import { getAllAppointments } from "@/lib/actions/appointment.actions";
+import { useUser } from "@/lib/user-context";
+import {
+  getFinanceReport,
+  type FinanceReportData,
+} from "@/lib/actions/finance.actions";
+
+type DatePeriod = "today" | "week" | "month" | "year" | "custom";
+
+function getDateRange(
+  period: DatePeriod,
+  customStart?: string,
+  customEnd?: string,
+) {
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+
+  switch (period) {
+    case "today":
+      return { start: today, end: today };
+    case "week": {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      return { start: weekStart.toISOString().split("T")[0], end: today };
+    }
+    case "month": {
+      const monthStart = today.slice(0, 7) + "-01";
+      return { start: monthStart, end: today };
+    }
+    case "year": {
+      const yearStart = today.slice(0, 4) + "-01-01";
+      return { start: yearStart, end: today };
+    }
+    case "custom":
+      return {
+        start: customStart || today,
+        end: customEnd || today,
+      };
+  }
+}
+
+const COLORS = [
+  "#6366f1",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#a855f7",
+  "#06b6d4",
+];
+
+const PERIOD_KEYS: DatePeriod[] = ["today", "week", "month", "year", "custom"];
 
 export default function FinancePage() {
   const router = useRouter();
-  const { shopRole } = useUser();
+  const { shopRole, shopName } = useUser();
+  const t = useTranslations("finance");
 
   useEffect(() => {
-    if (shopRole && shopRole !== 'owner') {
-      router.replace('/dashboard');
+    if (shopRole && shopRole !== "owner") {
+      router.replace("/dashboard");
     }
   }, [shopRole, router]);
 
-  const [services, setServices] = useState<Service[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [period, setPeriod] = useState<DatePeriod>("month");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+  const [report, setReport] = useState<FinanceReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [servicesData, expensesData, productsData, appointmentsData] =
-          await Promise.all([
-            getServices(),
-            getExpenses(),
-            getProducts(),
-            getAllAppointments(),
-          ]);
-        setServices(servicesData);
-        setExpenses(expensesData);
-        setProducts(productsData);
-        setAppointments(appointmentsData);
-      } catch (err) {
-        console.error("Failed to load finance data:", err);
-      } finally {
-        setLoading(false);
-      }
+  const loadReport = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { start, end } = getDateRange(period, customStart, customEnd);
+      const data = await getFinanceReport(start, end);
+      setReport(data);
+    } catch (err) {
+      console.error("Failed to load finance report:", err);
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, []);
+  }, [period, customStart, customEnd]);
+
+  useEffect(() => {
+    loadReport();
+  }, [loadReport]);
+
+  const periodLabel = (p: DatePeriod) => {
+    const map: Record<DatePeriod, string> = {
+      today: t("periodToday"),
+      week: t("periodWeek"),
+      month: t("periodMonth"),
+      year: t("periodYear"),
+      custom: t("periodCustom"),
+    };
+    return map[p];
+  };
+
+  const { start: displayStart, end: displayEnd } = getDateRange(
+    period,
+    customStart,
+    customEnd,
+  );
 
   if (loading) {
     return (
@@ -81,77 +139,107 @@ export default function FinancePage() {
     );
   }
 
-  const totalRevenue = appointments.reduce((sum, apt) => sum + apt.price, 0);
-  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  const inventoryValue = products.reduce(
-    (sum, p) => sum + p.quantity * p.costPrice,
-    0,
-  );
-  const netProfit = totalRevenue - totalExpenses;
+  if (!report) return null;
 
-  const revenueByService = services.map((service) => {
-    const appointmentsCount = appointments.filter(
-      (apt) => apt.serviceId === service.id,
-    ).length;
-    return {
-      name: service.name,
-      revenue: service.price * appointmentsCount,
-    };
-  });
+  const profitMargin =
+    report.totalRevenue > 0
+      ? ((report.netProfit / report.totalRevenue) * 100).toFixed(1)
+      : "0.0";
 
-  const expenseBreakdown = Object.entries(
-    expenses.reduce((acc: Record<string, number>, exp) => {
-      acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
-      return acc;
-    }, {}),
-  ).map(([category, amount]) => ({
-    name: category.charAt(0).toUpperCase() + category.slice(1),
-    value: amount,
+  // Chart data
+  const monthlyChartData = report.monthlyTrend.map((d) => ({
+    name: new Date(d.month + "-01").toLocaleString(undefined, {
+      month: "short",
+    }),
+    [t("revenue")]: d.revenue,
+    [t("expenses")]: d.expenses,
   }));
 
-  const monthlyTrend = Array.from({ length: 12 }, (_, i) => {
-    const month = new Date(2024, i, 1).toLocaleString("en-US", {
-      month: "short",
-    });
-    return {
-      name: month,
-      revenue: totalRevenue / 12,
-      expenses: totalExpenses / 12,
-    };
-  });
+  const serviceChartData = report.revenueByService.map((s) => ({
+    name: s.serviceName,
+    revenue: s.revenue,
+  }));
 
-  const COLORS = [
-    "#6366f1",
-    "#10b981",
-    "#f59e0b",
-    "#ef4444",
-    "#a855f7",
-    "#06b6d4",
-  ];
+  const expenseChartData = report.expenseBreakdown.map((e) => ({
+    name: e.category.charAt(0).toUpperCase() + e.category.slice(1),
+    value: e.amount,
+  }));
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Finance & Reports
+      {/* Print-only header */}
+      <div className="hidden print-only">
+        <h1 className="text-2xl font-bold">
+          {shopName} — {t("title")}
         </h1>
-        <p className="text-foreground-secondary mt-1">
-          Business analytics and financial overview
+        <p className="text-sm text-gray-500 mt-1">
+          {displayStart} — {displayEnd} | {new Date().toLocaleDateString()}
         </p>
+      </div>
+
+      {/* Header */}
+      <div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        data-print-hide
+      >
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            {t("title")}
+          </h1>
+          <p className="text-foreground-secondary mt-1">{t("subtitle")}</p>
+        </div>
+      </div>
+
+      {/* Period selector */}
+      <div className="flex flex-wrap items-center gap-2" data-print-hide>
+        {PERIOD_KEYS.map((p) => (
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            className={`px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${
+              period === p
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-foreground-secondary hover:text-foreground"
+            }`}
+          >
+            {periodLabel(p)}
+          </button>
+        ))}
+        {period === "custom" && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+              className="px-3 py-1.5 text-sm rounded-lg border-2 border-border bg-input text-foreground focus:border-primary focus:outline-none"
+            />
+            <span className="text-foreground-secondary">—</span>
+            <input
+              type="date"
+              value={customEnd}
+              max={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setCustomEnd(e.target.value)}
+              className="px-3 py-1.5 text-sm rounded-lg border-2 border-border bg-input text-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+        )}
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {/* Total Revenue */}
         <Card>
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <p className="text-xs md:text-sm font-medium text-foreground-secondary">
-                  Total Revenue
+                  {t("totalRevenue")}
                 </p>
                 <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(totalRevenue)}
+                  {formatCurrency(report.totalRevenue)}
+                </p>
+                <p className="text-xs text-foreground-tertiary mt-1">
+                  {report.transactionCount} {t("transactions")}
                 </p>
               </div>
               <div className="p-2 bg-success-light rounded-lg hidden sm:block">
@@ -161,15 +249,16 @@ export default function FinancePage() {
           </CardContent>
         </Card>
 
+        {/* Total Expenses */}
         <Card>
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <p className="text-xs md:text-sm font-medium text-foreground-secondary">
-                  Total Expenses
+                  {t("totalExpenses")}
                 </p>
                 <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(totalExpenses)}
+                  {formatCurrency(report.totalExpenses)}
                 </p>
               </div>
               <div className="p-2 bg-destructive-light rounded-lg hidden sm:block">
@@ -179,21 +268,21 @@ export default function FinancePage() {
           </CardContent>
         </Card>
 
+        {/* Net Profit */}
         <Card>
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <p className="text-xs md:text-sm font-medium text-foreground-secondary">
-                  Net Profit
+                  {t("netProfit")}
                 </p>
-                <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(netProfit)}
+                <p
+                  className={`text-lg md:text-2xl font-bold mt-1 ${report.netProfit >= 0 ? "text-success" : "text-destructive"}`}
+                >
+                  {formatCurrency(report.netProfit)}
                 </p>
-                <p className="text-xs md:text-sm text-success font-medium mt-1">
-                  {totalRevenue > 0
-                    ? ((netProfit / totalRevenue) * 100).toFixed(1)
-                    : "0.0"}
-                  % margin
+                <p className="text-xs text-foreground-tertiary mt-1">
+                  {profitMargin}% {t("margin")}
                 </p>
               </div>
               <div className="p-2 bg-primary-light rounded-lg hidden sm:block">
@@ -203,182 +292,224 @@ export default function FinancePage() {
           </CardContent>
         </Card>
 
+        {/* Inventory Value */}
         <Card>
           <CardContent className="pt-4 pb-4 md:pt-5 md:pb-5">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <p className="text-xs md:text-sm font-medium text-foreground-secondary">
-                  Inventory Value
+                  {t("inventoryValue")}
                 </p>
                 <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(inventoryValue)}
+                  {formatCurrency(report.inventoryValue)}
                 </p>
-                <p className="text-xs md:text-sm text-foreground-tertiary font-medium mt-1">
-                  {products.length} products
+                <p className="text-xs text-foreground-tertiary mt-1">
+                  {report.productCount} {t("products")}
                 </p>
               </div>
               <div className="p-2 bg-warning-light rounded-lg hidden sm:block">
-                <PieChartIcon className="w-5 h-5 text-warning" />
+                <Package className="w-5 h-5 text-warning" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Payment Methods */}
+      {report.paymentMethodBreakdown.length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          {report.paymentMethodBreakdown.map((pm) => (
+            <div
+              key={pm.method}
+              className="flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5"
+            >
+              <span className="text-sm font-medium text-foreground-secondary capitalize">
+                {t(pm.method as "cash" | "card" | "transfer")}
+              </span>
+              <span className="text-sm font-bold text-foreground">
+                {formatCurrency(pm.total)}
+              </span>
+              <span className="text-xs text-foreground-tertiary">
+                ({pm.count})
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        {/* Revenue by Service */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Revenue by Service</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 md:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={revenueByService} margin={{ bottom: 60 }}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-border"
-                  />
-                  <XAxis
-                    dataKey="name"
-                    angle={-45}
-                    textAnchor="end"
-                    tick={{ fontSize: 11 }}
-                    className="fill-foreground-secondary"
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11 }}
-                    className="fill-foreground-secondary"
-                  />
-                  <Tooltip
-                    formatter={(value) => formatCurrency(value as number)}
-                    contentStyle={{
-                      backgroundColor: "var(--card)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Bar
-                    dataKey="revenue"
-                    fill="var(--primary)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Expense Breakdown */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Expense Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 md:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
-                    }
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {expenseBreakdown.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) => formatCurrency(value as number)}
-                    contentStyle={{
-                      backgroundColor: "var(--card)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "8px",
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Monthly Trend */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Monthly Revenue vs Expenses</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 md:h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyTrend}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  className="stroke-border"
-                />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fontSize: 11 }}
-                  className="fill-foreground-secondary"
-                />
-                <YAxis
-                  tick={{ fontSize: 11 }}
-                  className="fill-foreground-secondary"
-                />
-                <Tooltip
-                  formatter={(value) => formatCurrency(value as number)}
-                  contentStyle={{
-                    backgroundColor: "var(--card)",
-                    border: "1px solid var(--border)",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="var(--success)"
-                  strokeWidth={2}
-                  name="Revenue"
-                  dot={{ fill: "var(--success)" }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="expenses"
-                  stroke="var(--destructive)"
-                  strokeWidth={2}
-                  name="Expenses"
-                  dot={{ fill: "var(--destructive)" }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+      {report.totalRevenue === 0 && report.totalExpenses === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+            <BarChart3 className="w-8 h-8 text-foreground-muted" />
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-foreground-secondary font-medium">{t("noData")}</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            {/* Revenue by Service */}
+            {serviceChartData.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">
+                    {t("revenueByService")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 md:h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={serviceChartData} margin={{ bottom: 60 }}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          className="stroke-border"
+                        />
+                        <XAxis
+                          dataKey="name"
+                          angle={-45}
+                          textAnchor="end"
+                          tick={{ fontSize: 11 }}
+                          className="fill-foreground-secondary"
+                        />
+                        <YAxis
+                          tick={{ fontSize: 11 }}
+                          className="fill-foreground-secondary"
+                        />
+                        <Tooltip
+                          formatter={(value) => formatCurrency(value as number)}
+                          contentStyle={{
+                            backgroundColor: "var(--card)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Bar
+                          dataKey="revenue"
+                          fill="var(--primary)"
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-      {/* Expense Details */}
+            {/* Expense Breakdown */}
+            {expenseChartData.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">
+                    {t("expenseBreakdown")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 md:h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={expenseChartData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) =>
+                            `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                          }
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {expenseChartData.map((_entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => formatCurrency(value as number)}
+                          contentStyle={{
+                            backgroundColor: "var(--card)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Monthly Trend */}
+          {monthlyChartData.length > 1 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">{t("monthlyTrend")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 md:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={monthlyChartData}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-border"
+                      />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 11 }}
+                        className="fill-foreground-secondary"
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11 }}
+                        className="fill-foreground-secondary"
+                      />
+                      <Tooltip
+                        formatter={(value) => formatCurrency(value as number)}
+                        contentStyle={{
+                          backgroundColor: "var(--card)",
+                          border: "1px solid var(--border)",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey={t("revenue")}
+                        stroke="var(--success)"
+                        strokeWidth={2}
+                        dot={{ fill: "var(--success)" }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey={t("expenses")}
+                        stroke="var(--destructive)"
+                        strokeWidth={2}
+                        dot={{ fill: "var(--destructive)" }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* Recent Expenses */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Recent Expenses</CardTitle>
+          <CardTitle className="text-lg">{t("recentExpenses")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {expenses.length === 0 ? (
+          {report.recentExpenses.length === 0 ? (
             <p className="text-foreground-secondary text-center py-8">
-              No expenses recorded yet
+              {t("noExpenses")}
             </p>
           ) : (
             <div className="space-y-3">
-              {expenses.map((expense) => (
+              {report.recentExpenses.map((expense) => (
                 <div
                   key={expense.id}
                   className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-background-secondary border border-border"
@@ -388,7 +519,7 @@ export default function FinancePage() {
                       {expense.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <Badge size="sm" variant="default">
+                      <Badge size="sm" variant="default" className="capitalize">
                         {expense.category}
                       </Badge>
                       <p className="text-sm text-foreground-tertiary">
