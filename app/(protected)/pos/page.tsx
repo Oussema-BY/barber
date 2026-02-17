@@ -162,43 +162,42 @@ export default function POSPage() {
           </p>
         </div>
       ) : (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {services.map((service) => {
-          const isSelected = selectedServices.some((s) => s.id === service.id);
-          const categoryColor = CATEGORY_COLORS[service.category ?? 'other'] || CATEGORY_COLORS.other;
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {services.map((service) => {
+            const isSelected = selectedServices.some((s) => s.id === service.id);
+            const categoryColor = CATEGORY_COLORS[service.category ?? 'other'] || CATEGORY_COLORS.other;
 
-          return (
-            <button
-              key={service.id}
-              onClick={() => toggleService(service)}
-              className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${
-                isSelected
-                  ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                  : 'border-border bg-card hover:border-primary/50'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm sm:text-base line-clamp-2">
-                    {service.name}
-                  </p>
-                  <p className={`text-xs mt-1 capitalize ${categoryColor.text}`}>
-                    {tServices(service.category ?? 'other')}
-                  </p>
-                </div>
-                {isSelected && (
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
-                    <Check className="w-4 h-4 text-primary-foreground" />
+            return (
+              <button
+                key={service.id}
+                onClick={() => toggleService(service)}
+                className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected
+                    ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                    : 'border-border bg-card hover:border-primary/50'
+                  }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-sm sm:text-base line-clamp-2">
+                      {service.name}
+                    </p>
+                    <p className={`text-xs mt-1 capitalize ${categoryColor.text}`}>
+                      {tServices(service.category ?? 'other')}
+                    </p>
                   </div>
-                )}
-              </div>
-              <p className="font-bold text-primary text-lg mt-3">
-                {formatCurrency(service.price)}
-              </p>
-            </button>
-          );
-        })}
-      </div>
+                  {isSelected && (
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
+                      <Check className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
+                <p className="font-bold text-primary text-lg mt-3">
+                  {formatCurrency(service.price)}
+                </p>
+              </button>
+            );
+          })}
+        </div>
       )}
 
       {/* Sales History Modal */}

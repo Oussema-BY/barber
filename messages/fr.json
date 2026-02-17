@@ -15,12 +15,16 @@
     "tomorrow": "Demain",
     "minutes": "min",
     "saved": "Enregistré !",
-    "saving": "Enregistrement..."
+    "saving": "Enregistrement...",
+    "name": "Nom",
+    "price": "Prix",
+    "description": "Description"
   },
   "nav": {
     "dashboard": "Tableau de bord",
     "appointments": "Rendez-vous",
     "services": "Services",
+    "packages": "Forfaits",
     "pos": "Caisse",
     "inventory": "Inventaire",
     "finance": "Finances",
@@ -140,6 +144,23 @@
     "face": "visage",
     "package": "forfait",
     "other": "autre",
+    "service": "service",
+    "servicesCount": "services"
+  },
+  "packages": {
+    "title": "Forfaits",
+    "subtitle": "Gérez vos bundles de services et vos tarifs",
+    "addPackage": "Ajouter un forfait",
+    "searchPackages": "Rechercher des forfaits...",
+    "noPackages": "Aucun forfait pour le moment",
+    "noPackagesFound": "Aucun forfait trouvé",
+    "createFirst": "Créez votre premier forfait pour commencer",
+    "package": "forfait",
+    "packagesCount": "forfaits",
+    "selectServices": "Sélectionner des services",
+    "totalDuration": "Durée totale",
+    "customPrice": "Prix personnalisé",
+    "servicesIncluded": "Services inclus",
     "service": "service",
     "servicesCount": "services"
   },

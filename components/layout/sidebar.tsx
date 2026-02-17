@@ -19,6 +19,7 @@ export function Sidebar() {
       '/dashboard': 'dashboard',
       '/appointments': 'appointments',
       '/services': 'services',
+      '/packages': 'packages',
       '/pos': 'pos',
       '/inventory': 'inventory',
       '/finance': 'finance',

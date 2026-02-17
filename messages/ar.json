@@ -15,12 +15,16 @@
     "tomorrow": "غداً",
     "minutes": "د",
     "saved": "تم الحفظ!",
-    "saving": "جاري الحفظ..."
+    "saving": "جاري الحفظ...",
+    "name": "الاسم",
+    "price": "السعر",
+    "description": "الوصف"
   },
   "nav": {
     "dashboard": "الرئيسية",
     "appointments": "المواعيد",
     "services": "الخدمات",
+    "packages": "الباقات",
     "pos": "نقطة البيع",
     "inventory": "المخزون",
     "finance": "المالية",
@@ -140,6 +144,23 @@
     "face": "وجه",
     "package": "باقة",
     "other": "أخرى",
+    "service": "خدمة",
+    "servicesCount": "خدمات"
+  },
+  "packages": {
+    "title": "الباقات",
+    "subtitle": "إدارة حزم الخدمات والأسعار",
+    "addPackage": "إضافة باقة",
+    "searchPackages": "البحث عن الباقات...",
+    "noPackages": "لا توجد باقات بعد",
+    "noPackagesFound": "لم يتم العثور على باقات",
+    "createFirst": "أنشئ باقتك الأولى للبدء",
+    "package": "باقة",
+    "packagesCount": "باقة",
+    "selectServices": "اختر الخدمات",
+    "totalDuration": "المدة الإجمالية",
+    "customPrice": "سعر مخصص",
+    "servicesIncluded": "الخدمات المشمولة",
     "service": "خدمة",
     "servicesCount": "خدمات"
   },

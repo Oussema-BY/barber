@@ -2,6 +2,8 @@ import {
   BarChart3,
   Calendar,
   Home,
+  LayoutGrid,
+  Package as PackageIcon,
   Settings,
   ShoppingCart,
   Users,
@@ -86,6 +88,12 @@ export const MAIN_NAV = [
     label: 'Services',
     href: '/services',
     icon: Zap,
+    roles: ['owner', 'staff'] as const,
+  },
+  {
+    label: 'Packages',
+    href: '/packages',
+    icon: PackageIcon,
     roles: ['owner', 'staff'] as const,
   },
   {

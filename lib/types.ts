@@ -51,6 +51,18 @@ export interface Service {
   updatedAt: string;
 }
 
+export interface Package {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  duration: number; // in minutes
+  services: string[]; // ids of services
+  shopId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Appointment Types
 export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 

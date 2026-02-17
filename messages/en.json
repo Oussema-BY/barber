@@ -15,12 +15,16 @@
     "tomorrow": "Tomorrow",
     "minutes": "min",
     "saved": "Saved!",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "name": "Name",
+    "price": "Price",
+    "description": "Description"
   },
   "nav": {
     "dashboard": "Dashboard",
     "appointments": "Appointments",
     "services": "Services",
+    "packages": "Packages",
     "pos": "POS",
     "inventory": "Inventory",
     "finance": "Finance",
@@ -140,6 +144,23 @@
     "face": "face",
     "package": "package",
     "other": "other",
+    "service": "service",
+    "servicesCount": "services"
+  },
+  "packages": {
+    "title": "Packages",
+    "subtitle": "Manage your service bundles and pricing",
+    "addPackage": "Add Package",
+    "searchPackages": "Search packages...",
+    "noPackages": "No packages yet",
+    "noPackagesFound": "No packages found",
+    "createFirst": "Create your first package to get started",
+    "package": "package",
+    "packagesCount": "packages",
+    "selectServices": "Select Services",
+    "totalDuration": "Total Duration",
+    "customPrice": "Custom Price",
+    "servicesIncluded": "Services included",
     "service": "service",
     "servicesCount": "services"
   },
