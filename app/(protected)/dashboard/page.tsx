@@ -6,10 +6,12 @@ import { useTranslations } from 'next-intl';
 import { KPICard } from '@/components/dashboard/kpi-card';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { TodaySchedule } from '@/components/dashboard/today-schedule';
-import { Appointment } from '@/lib/types';
+import { UpcomingEvents } from '@/components/dashboard/upcoming-events';
+import { Appointment, Package } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getDashboardStats } from '@/lib/actions/dashboard.actions';
 import { getAppointmentsByDate } from '@/lib/actions/appointment.actions';
+import { getUpcomingScheduledPackages } from '@/lib/actions/package.actions';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -20,15 +22,17 @@ export default function DashboardPage() {
     monthRevenue: 0,
   });
   const [todaySchedule, setTodaySchedule] = useState<Appointment[]>([]);
+  const [upcomingPackages, setUpcomingPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const [dashboardStats, appointments] = await Promise.all([
+        const [dashboardStats, appointments, upcoming] = await Promise.all([
           getDashboardStats(),
           getAppointmentsByDate(today),
+          getUpcomingScheduledPackages(),
         ]);
         setStats({
           todayAppointments: dashboardStats.todayAppointments,
@@ -37,6 +41,7 @@ export default function DashboardPage() {
           monthRevenue: dashboardStats.monthRevenue,
         });
         setTodaySchedule(appointments);
+        setUpcomingPackages(upcoming);
       } catch (err) {
         console.error('Failed to load dashboard:', err);
       } finally {
@@ -100,6 +105,11 @@ export default function DashboardPage() {
       <section>
         <h2 className="text-lg font-bold text-foreground mb-4">{t('todaySchedule')}</h2>
         <TodaySchedule appointments={todaySchedule} />
+      </section>
+
+      {/* Upcoming Events */}
+      <section>
+        <UpcomingEvents packages={upcomingPackages} />
       </section>
     </div>
   );

@@ -46,6 +46,40 @@ export const CATEGORY_COLORS: Record<string, { bg: string; text: string; border:
   },
 };
 
+// Package Category Colors
+export const PACKAGE_CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  mariage: {
+    bg: 'bg-pink-50',
+    text: 'text-pink-600',
+    border: 'border-pink-200',
+  },
+  fiancailles: {
+    bg: 'bg-rose-50',
+    text: 'text-rose-600',
+    border: 'border-rose-200',
+  },
+  khotba: {
+    bg: 'bg-violet-50',
+    text: 'text-violet-600',
+    border: 'border-violet-200',
+  },
+  henna: {
+    bg: 'bg-orange-50',
+    text: 'text-orange-600',
+    border: 'border-orange-200',
+  },
+  hammam: {
+    bg: 'bg-cyan-50',
+    text: 'text-cyan-600',
+    border: 'border-cyan-200',
+  },
+  other: {
+    bg: 'bg-slate-50',
+    text: 'text-slate-600',
+    border: 'border-slate-200',
+  },
+};
+
 // Appointment Status Colors
 export const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   pending: {
@@ -125,6 +159,12 @@ export const MAIN_NAV = [
 // Service Categories
 export const SERVICE_CATEGORIES = ['hair', 'beard', 'face', 'package', 'other'] as const;
 
+// Package Categories
+export const PACKAGE_CATEGORIES = ['mariage', 'fiancailles', 'khotba', 'henna', 'hammam', 'other'] as const;
+
+// Package Genders
+export const PACKAGE_GENDERS = ['homme', 'femme', 'mixte'] as const;
+
 // Expense Categories
 export const EXPENSE_CATEGORIES = ['rent', 'utilities', 'products', 'wages', 'other'] as const;
 
@@ -148,10 +188,10 @@ export const BUSINESS_HOURS = {
 
 // Currency Formatting
 export const CURRENCY = {
-  code: 'EUR',
-  symbol: '€',
-  locale: 'en-EU',
+  code: 'TND',
+  symbol: 'د.ت',
+  locale: 'ar-TN',
 };
 
 // Quick Cash Buttons for POS
-export const QUICK_CASH_AMOUNTS = [10, 20, 50];
+export const QUICK_CASH_AMOUNTS = [5, 10, 20];

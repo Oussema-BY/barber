@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2, Package as PackageIcon, CalendarDays } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Appointment, Service, StaffMember } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { Appointment, Service, StaffMember, Package } from '@/lib/types';
+import { formatCurrency, cn } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
 import { getAppointmentsByDate, createAppointment, deleteAppointment, getAvailableSlots } from '@/lib/actions/appointment.actions';
 import { getSettings } from '@/lib/actions/settings.actions';
 import { getStaffMembers } from '@/lib/actions/staff.actions';
+import { getScheduledPackagesByDate, getScheduledDatesForMonth } from '@/lib/actions/package.actions';
+import Link from 'next/link';
 
 function getTodayDate() {
   return new Date().toISOString().split('T')[0];
@@ -18,6 +20,7 @@ function getTodayDate() {
 export default function AppointmentsPage() {
   const t = useTranslations('appointments');
   const tCommon = useTranslations('common');
+  const tPkg = useTranslations('packages');
   const locale = useLocale();
 
   const [services, setServices] = useState<Service[]>([]);
@@ -30,6 +33,8 @@ export default function AppointmentsPage() {
   const [isBooking, setIsBooking] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [scheduledPackages, setScheduledPackages] = useState<Package[]>([]);
+  const [scheduledDates, setScheduledDates] = useState<string[]>([]);
 
   // Booking form state
   const [clientName, setClientName] = useState('');
@@ -39,8 +44,12 @@ export default function AppointmentsPage() {
 
   const loadAppointments = useCallback(async (date: string) => {
     try {
-      const data = await getAppointmentsByDate(date);
+      const [data, pkgs] = await Promise.all([
+        getAppointmentsByDate(date),
+        getScheduledPackagesByDate(date),
+      ]);
       setAppointments(data);
+      setScheduledPackages(pkgs);
     } catch (err) {
       console.error('Failed to load appointments:', err);
     }
@@ -179,6 +188,13 @@ export default function AppointmentsPage() {
     return days;
   }, [viewMonth]);
 
+  // Load scheduled package dates for calendar dots
+  useEffect(() => {
+    getScheduledDatesForMonth(viewMonth.year, viewMonth.month)
+      .then(setScheduledDates)
+      .catch(() => setScheduledDates([]));
+  }, [viewMonth]);
+
   const monthLabel = new Date(viewMonth.year, viewMonth.month).toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
@@ -257,12 +273,20 @@ export default function AppointmentsPage() {
           <p className="text-foreground-secondary mt-1">{t('subtitle')}</p>
         </div>
 
-        {!isBooking && (
-          <Button onClick={() => setIsBooking(true)} className="w-full sm:w-auto">
-            <Plus className="w-5 h-5" />
-            <span>{t('newBooking')}</span>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <Link href="/packages">
+            <Button variant="secondary" className="gap-2">
+              <CalendarDays className="w-4 h-4" />
+              <span>{tPkg('title')}</span>
+            </Button>
+          </Link>
+          {!isBooking && (
+            <Button onClick={() => setIsBooking(true)} className="w-full sm:w-auto">
+              <Plus className="w-5 h-5" />
+              <span>{t('newBooking')}</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Date Selector */}
@@ -310,21 +334,35 @@ export default function AppointmentsPage() {
               {calendarDays.map(({ date, day, currentMonth }) => {
                 const isSelected = date === selectedDate;
                 const isToday = date === getTodayDate();
+                const hasEvent = scheduledDates.includes(date);
+                const todayStr = getTodayDate();
+                const daysUntil = hasEvent ? Math.floor((new Date(date).getTime() - new Date(todayStr).getTime()) / 86400000) : -1;
+                const isUpcoming = hasEvent && daysUntil >= 0 && daysUntil <= 3;
                 return (
                   <button
                     key={date}
                     onClick={() => handleSelectDay(date)}
-                    className={`relative py-2 text-sm font-medium rounded-lg transition-all active:scale-95 ${
+                    className={cn(
+                      "relative py-2 text-sm font-medium rounded-lg transition-all active:scale-95",
                       isSelected
                         ? 'bg-primary text-primary-foreground'
-                        : isToday
-                          ? 'bg-primary/10 text-primary font-bold'
-                          : currentMonth
-                            ? 'text-foreground hover:bg-secondary'
-                            : 'text-foreground-muted hover:bg-secondary'
-                    }`}
+                        : isUpcoming
+                          ? 'bg-pink-50 text-pink-600 font-bold ring-1 ring-pink-200'
+                          : isToday
+                            ? 'bg-primary/10 text-primary font-bold'
+                            : currentMonth
+                              ? 'text-foreground hover:bg-secondary'
+                              : 'text-foreground-muted hover:bg-secondary'
+                    )}
                   >
                     {day}
+                    {hasEvent && (
+                      <span className={cn(
+                        "absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full",
+                        isSelected ? "bg-white" : "bg-pink-500",
+                        isUpcoming && !isSelected && "animate-pulse"
+                      )} />
+                    )}
                   </button>
                 );
               })}
@@ -501,6 +539,50 @@ export default function AppointmentsPage() {
           </div>
         )}
       </div>
+      {/* Scheduled Packages for this date */}
+      {scheduledPackages.length > 0 && (
+        <div>
+          <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
+            <PackageIcon className="w-5 h-5 text-pink-500" />
+            {tPkg('scheduledEvents')} ({scheduledPackages.length})
+          </h2>
+          <div className="space-y-3">
+            {scheduledPackages.map((pkg) => (
+                <div key={pkg.id} className="p-4 rounded-xl bg-card border border-pink-200 flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-xl bg-pink-50 flex flex-col items-center justify-center shrink-0">
+                    <PackageIcon className="w-6 h-6 text-pink-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{pkg.name}</p>
+                    {pkg.description && (
+                      <p className="text-sm text-foreground-secondary truncate">{pkg.description}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-xs text-foreground-muted">
+                        {pkg.services.length} {pkg.services.length === 1 ? tPkg('service') : tPkg('servicesCount')}
+                      </span>
+                      {(pkg.advance != null && pkg.advance > 0) && (
+                        <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-600">
+                          {tPkg('advance')}: {formatCurrency(pkg.advance)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-end shrink-0">
+                    <span className="text-lg font-black text-foreground">
+                      {formatCurrency(pkg.price)}
+                    </span>
+                    {(pkg.advance != null && pkg.advance > 0) && (
+                      <p className="text-xs text-foreground-muted">
+                        {tPkg('remaining')}: {formatCurrency(pkg.price - pkg.advance)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

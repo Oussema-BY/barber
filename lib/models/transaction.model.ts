@@ -5,9 +5,10 @@ const BasketItemSchema = new Schema(
     name: { type: String, required: true },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true, default: 1 },
-    type: { type: String, enum: ['service', 'product', 'custom'], default: 'service' },
+    type: { type: String, enum: ['service', 'product', 'package', 'custom'], default: 'service' },
     serviceId: { type: String, default: '' },
     productId: { type: String, default: '' },
+    packageId: { type: String, default: '' },
   },
   { _id: false }
 );

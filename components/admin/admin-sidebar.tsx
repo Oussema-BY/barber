@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Store,
+  Users,
   LogOut,
   Scissors,
   ArrowLeft,
@@ -15,6 +16,7 @@ import { useRouter } from 'next/navigation';
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/shops', label: 'Shops', icon: Store, exact: false },
+  { href: '/admin/owners', label: 'Owners', icon: Users, exact: false },
 ];
 
 export function AdminSidebar() {

@@ -6,7 +6,7 @@ import { getSessionContext } from '@/lib/session';
 import type { POSTransaction } from '@/lib/types';
 
 export async function createTransaction(data: {
-  items: { name: string; price: number; quantity: number; type: string; serviceId?: string }[];
+  items: { name: string; price: number; quantity: number; type: string; serviceId?: string; packageId?: string }[];
   subtotal: number;
   tax: number;
   total: number;

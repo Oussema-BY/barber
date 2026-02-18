@@ -2,7 +2,8 @@
 
 import crypto from 'crypto';
 import { headers } from 'next/headers';
-import { auth } from '@/lib/auth';
+import { ObjectId } from 'mongodb';
+import { auth, authDb } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Shop from '@/lib/models/shop.model';
 import ShopMember from '@/lib/models/shop-member.model';
@@ -70,23 +71,48 @@ export async function getAllShops() {
 
   const shops = await Shop.find().sort({ createdAt: -1 });
 
-  // Get owner info for each shop
+  // Get all owner user IDs in one pass
+  const shopIds = shops.map((s) => s._id.toString());
+  const ownerMembers = await ShopMember.find({
+    shopId: { $in: shopIds },
+    role: 'owner',
+  });
+  const ownerUserIds = ownerMembers
+    .map((m) => m.userId as string)
+    .filter(Boolean);
+
+  // Batch lookup owner emails from better-auth user collection
+  // better-auth stores user ID as _id (ObjectId) in MongoDB
+  const usersCol = authDb.collection('user');
+  const objectIds = ownerUserIds.map((id) => new ObjectId(id));
+  const users = await usersCol
+    .find({ _id: { $in: objectIds } })
+    .project({ _id: 1, email: 1 })
+    .toArray();
+  const ownerEmailMap: Record<string, string> = Object.fromEntries(
+    users.map((u) => [u._id.toString(), u.email as string])
+  );
+
+  // Build owner map by shopId
+  const ownerByShop: Record<string, string> = {};
+  for (const m of ownerMembers) {
+    ownerByShop[m.shopId as string] = m.userId as string;
+  }
+
+  // Get staff counts
   const shopsWithOwners = await Promise.all(
     shops.map(async (shop) => {
       const shopJson = JSON.parse(JSON.stringify(shop.toJSON()));
-      // Get owner info from Better Auth user collection
-      const member = await ShopMember.findOne({
-        shopId: shop._id.toString(),
-        role: 'owner',
-      });
       const staffCount = await ShopMember.countDocuments({
         shopId: shop._id.toString(),
         role: 'staff',
         isActive: true,
       });
+      const ownerUserId = ownerByShop[shop._id.toString()] || '';
       return {
         ...shopJson,
-        ownerUserId: member?.userId || '',
+        ownerUserId,
+        ownerEmail: ownerEmailMap[ownerUserId] || '',
         staffCount,
       };
     })
@@ -122,6 +148,64 @@ export async function updateShopStatus(shopId: string, status: 'active' | 'suspe
   if (!shop) throw new Error('Shop not found');
 
   return JSON.parse(JSON.stringify(shop.toJSON()));
+}
+
+export async function getAllOwners() {
+  await requireSuperAdmin();
+  await dbConnect();
+
+  // Get all owner memberships
+  const ownerMembers = await ShopMember.find({ role: 'owner' });
+  const ownerUserIds = ownerMembers
+    .map((m) => m.userId as string)
+    .filter(Boolean);
+
+  // Batch lookup owner details from better-auth user collection
+  // better-auth stores user ID as _id (ObjectId) in MongoDB
+  const usersCol = authDb.collection('user');
+  const objectIds = ownerUserIds.map((id) => new ObjectId(id));
+  const users = await usersCol
+    .find({ _id: { $in: objectIds } })
+    .project({ _id: 1, name: 1, email: 1, createdAt: 1 })
+    .toArray();
+  const userMap: Record<string, { name: string; email: string; createdAt: string }> =
+    Object.fromEntries(
+      users.map((u) => [
+        u._id.toString(),
+        {
+          name: (u.name as string) || '',
+          email: (u.email as string) || '',
+          createdAt: u.createdAt ? new Date(u.createdAt as string).toISOString() : '',
+        },
+      ])
+    );
+
+  // Get shop info for each owner
+  const shopIds = ownerMembers.map((m) => m.shopId as string).filter(Boolean);
+  const shops = await Shop.find({ _id: { $in: shopIds } });
+  const shopMap: Record<string, { name: string; status: string }> = Object.fromEntries(
+    shops.map((s) => [
+      s._id.toString(),
+      { name: s.name as string, status: s.status as string },
+    ])
+  );
+
+  return ownerMembers.map((m) => {
+    const userId = m.userId as string;
+    const shopId = m.shopId as string;
+    const user = userMap[userId] || { name: '', email: '', createdAt: '' };
+    const shop = shopMap[shopId] || { name: '', status: '' };
+    return {
+      id: userId,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      shopId,
+      shopName: shop.name,
+      shopStatus: shop.status,
+      isActive: m.isActive as boolean,
+    };
+  });
 }
 
 export async function getAdminStats() {

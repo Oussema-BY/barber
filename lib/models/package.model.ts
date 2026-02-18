@@ -4,8 +4,11 @@ const PackageSchema = new Schema(
     {
         name: { type: String, required: true },
         description: { type: String, default: '' },
+        category: { type: String, enum: ['mariage', 'fiancailles', 'khotba', 'henna', 'hammam', 'other'], default: 'other' },
+        gender: { type: String, enum: ['homme', 'femme', 'mixte'], default: 'mixte' },
         price: { type: Number, required: true },
-        duration: { type: Number, required: true },
+        advance: { type: Number, default: 0 },
+        scheduledDate: { type: String, default: '' },
         services: [{ type: Schema.Types.ObjectId, ref: 'Service' }],
         shopId: { type: String, required: true, index: true },
     },

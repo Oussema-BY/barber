@@ -1,17 +1,17 @@
 import React from 'react';
-import { Package as PackageIcon, Trash2, Clock, Layers } from 'lucide-react';
+import { Package as PackageIcon, Trash2, CalendarDays, Layers, Banknote, Pencil } from 'lucide-react';
 import { Package } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 interface PackageCardProps {
     packageData: Package;
+    onEdit?: (pkg: Package) => void;
     onDelete?: (id: string) => void;
 }
 
-export function PackageCard({ packageData, onDelete }: PackageCardProps) {
+export function PackageCard({ packageData, onEdit, onDelete }: PackageCardProps) {
     const t = useTranslations('packages');
-    const tCommon = useTranslations('common');
 
     return (
         <div className="group relative bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-200">
@@ -38,14 +38,22 @@ export function PackageCard({ packageData, onDelete }: PackageCardProps) {
 
                 {/* Info badges */}
                 <div className="mt-4 flex flex-wrap gap-2">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 text-foreground-secondary text-xs font-medium">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{packageData.duration} {tCommon('minutes')}</span>
-                    </div>
+                    {packageData.scheduledDate && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 text-foreground-secondary text-xs font-medium">
+                            <CalendarDays className="w-3.5 h-3.5" />
+                            <span>{new Date(packageData.scheduledDate).toLocaleDateString()}</span>
+                        </div>
+                    )}
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 text-foreground-secondary text-xs font-medium">
                         <Layers className="w-3.5 h-3.5" />
                         <span>{packageData.services.length} {packageData.services.length === 1 ? t('service') : t('servicesCount')}</span>
                     </div>
+                    {(packageData.advance != null && packageData.advance > 0) && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-medium">
+                            <Banknote className="w-3.5 h-3.5" />
+                            <span>{t('advance')}: {formatCurrency(packageData.advance)}</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Price & Actions */}
@@ -54,15 +62,24 @@ export function PackageCard({ packageData, onDelete }: PackageCardProps) {
                         {formatCurrency(packageData.price)}
                     </span>
 
-                    {onDelete && (
-                        <button
-                            onClick={() => onDelete(packageData.id)}
-                            className="p-2.5 hover:bg-destructive/10 rounded-xl transition-all active:scale-95 opacity-0 group-hover:opacity-100"
-                            title="Delete"
-                        >
-                            <Trash2 className="w-5 h-5 text-destructive" />
-                        </button>
-                    )}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {onEdit && (
+                            <button
+                                onClick={() => onEdit(packageData)}
+                                className="p-2.5 hover:bg-primary/10 rounded-xl transition-all active:scale-95"
+                            >
+                                <Pencil className="w-4 h-4 text-primary" />
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                onClick={() => onDelete(packageData.id)}
+                                className="p-2.5 hover:bg-destructive/10 rounded-xl transition-all active:scale-95"
+                            >
+                                <Trash2 className="w-5 h-5 text-destructive" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

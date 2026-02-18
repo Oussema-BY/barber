@@ -51,12 +51,18 @@ export interface Service {
   updatedAt: string;
 }
 
+export type PackageCategory = 'mariage' | 'fiancailles' | 'khotba' | 'henna' | 'hammam' | 'other';
+export type PackageGender = 'homme' | 'femme' | 'mixte';
+
 export interface Package {
   id: string;
   name: string;
   description?: string;
+  category: PackageCategory;
+  gender: PackageGender;
   price: number;
-  duration: number; // in minutes
+  advance?: number; // advance payment received
+  scheduledDate?: string; // ISO format YYYY-MM-DD
   services: string[]; // ids of services
   shopId: string;
   createdAt: string;
@@ -125,9 +131,10 @@ export interface BasketItem {
   name: string;
   price: number;
   quantity: number;
-  type: 'service' | 'product' | 'custom';
+  type: 'service' | 'product' | 'package' | 'custom';
   serviceId?: string;
   productId?: string;
+  packageId?: string;
 }
 
 export interface POSTransaction {

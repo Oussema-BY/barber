@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Check, RotateCcw, Scissors, Loader2, Clock, Receipt } from 'lucide-react';
+import { Check, RotateCcw, Scissors, Loader2, Clock, Receipt, Package as PackageIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { CATEGORY_COLORS } from '@/lib/constants';
-import { Service, POSTransaction } from '@/lib/types';
+import { Service, Package, POSTransaction } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
+import { getPackages } from '@/lib/actions/package.actions';
 import { createTransaction, getTodayTransactions } from '@/lib/actions/transaction.actions';
 import { useUser } from '@/lib/user-context';
 
@@ -18,8 +19,11 @@ export default function POSPage() {
   const { name: userName } = useUser();
 
   const [services, setServices] = useState<Service[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [selectedPackages, setSelectedPackages] = useState<Package[]>([]);
+  const [activeTab, setActiveTab] = useState<'services' | 'packages'>('services');
   const [cashReceived, setCashReceived] = useState('');
   const [isComplete, setIsComplete] = useState(false);
 
@@ -29,11 +33,13 @@ export default function POSPage() {
 
   const loadData = useCallback(async () => {
     try {
-      const [servicesData, salesData] = await Promise.all([
+      const [servicesData, packagesData, salesData] = await Promise.all([
         getServices(),
+        getPackages(),
         getTodayTransactions(),
       ]);
       setServices(servicesData);
+      setPackages(packagesData);
       setTodaySales(salesData);
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -47,7 +53,9 @@ export default function POSPage() {
   }, [loadData]);
 
   // Calculate total (no tax for simplicity)
-  const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const servicesTotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const packagesTotal = selectedPackages.reduce((sum, pkg) => sum + (pkg.price - (pkg.advance || 0)), 0);
+  const total = servicesTotal + packagesTotal;
 
   // Calculate change
   const cashAmount = parseFloat(cashReceived) || 0;
@@ -65,19 +73,36 @@ export default function POSPage() {
     }
   };
 
+  const togglePackage = (pkg: Package) => {
+    const exists = selectedPackages.find((p) => p.id === pkg.id);
+    if (exists) {
+      setSelectedPackages(selectedPackages.filter((p) => p.id !== pkg.id));
+    } else {
+      setSelectedPackages([...selectedPackages, pkg]);
+    }
+  };
+
   const handleSubmit = async () => {
-    if (selectedServices.length === 0) return;
+    if (selectedServices.length === 0 && selectedPackages.length === 0) return;
 
     const now = new Date();
     try {
+      const serviceItems = selectedServices.map((s) => ({
+        name: s.name,
+        price: s.price,
+        quantity: 1,
+        type: 'service' as const,
+        serviceId: s.id,
+      }));
+      const packageItems = selectedPackages.map((p) => ({
+        name: p.name,
+        price: p.price - (p.advance || 0),
+        quantity: 1,
+        type: 'package' as const,
+        packageId: p.id,
+      }));
       await createTransaction({
-        items: selectedServices.map((s) => ({
-          name: s.name,
-          price: s.price,
-          quantity: 1,
-          type: 'service',
-          serviceId: s.id,
-        })),
+        items: [...serviceItems, ...packageItems],
         subtotal: total,
         tax: 0,
         total,
@@ -100,6 +125,7 @@ export default function POSPage() {
 
   const handleNewSale = () => {
     setSelectedServices([]);
+    setSelectedPackages([]);
     setCashReceived('');
     setIsComplete(false);
   };
@@ -150,54 +176,145 @@ export default function POSPage() {
         </Button>
       </div>
 
-      {/* Services Grid */}
-      {services.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
-            <Scissors className="w-8 h-8 text-foreground-muted" />
-          </div>
-          <p className="text-foreground-secondary font-medium">No services yet</p>
-          <p className="text-foreground-muted text-sm mt-1">
-            Add services from the Services page first
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {services.map((service) => {
-            const isSelected = selectedServices.some((s) => s.id === service.id);
-            const categoryColor = CATEGORY_COLORS[service.category ?? 'other'] || CATEGORY_COLORS.other;
+      {/* Tabs */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab('services')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'services'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-foreground-secondary hover:bg-secondary/80'
+          }`}
+        >
+          <Scissors className="w-4 h-4" />
+          {t('services')} ({services.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('packages')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'packages'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-foreground-secondary hover:bg-secondary/80'
+          }`}
+        >
+          <PackageIcon className="w-4 h-4" />
+          {t('packages')} ({packages.length})
+        </button>
+      </div>
 
-            return (
-              <button
-                key={service.id}
-                onClick={() => toggleService(service)}
-                className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected
-                    ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                    : 'border-border bg-card hover:border-primary/50'
-                  }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-sm sm:text-base line-clamp-2">
-                      {service.name}
-                    </p>
-                    <p className={`text-xs mt-1 capitalize ${categoryColor.text}`}>
-                      {tServices(service.category ?? 'other')}
-                    </p>
-                  </div>
-                  {isSelected && (
-                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
-                      <Check className="w-4 h-4 text-primary-foreground" />
+      {/* Services Grid */}
+      {activeTab === 'services' && (
+        services.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+              <Scissors className="w-8 h-8 text-foreground-muted" />
+            </div>
+            <p className="text-foreground-secondary font-medium">{t('noServices')}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {services.map((service) => {
+              const isSelected = selectedServices.some((s) => s.id === service.id);
+              const categoryColor = CATEGORY_COLORS[service.category ?? 'other'] || CATEGORY_COLORS.other;
+
+              return (
+                <button
+                  key={service.id}
+                  onClick={() => toggleService(service)}
+                  className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected
+                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                      : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground text-sm sm:text-base line-clamp-2">
+                        {service.name}
+                      </p>
+                      <p className={`text-xs mt-1 capitalize ${categoryColor.text}`}>
+                        {tServices(service.category ?? 'other')}
+                      </p>
                     </div>
-                  )}
-                </div>
-                <p className="font-bold text-primary text-lg mt-3">
-                  {formatCurrency(service.price)}
-                </p>
-              </button>
-            );
-          })}
-        </div>
+                    {isSelected && (
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
+                        <Check className="w-4 h-4 text-primary-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="font-bold text-primary text-lg mt-3">
+                    {formatCurrency(service.price)}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        )
+      )}
+
+      {/* Packages Grid */}
+      {activeTab === 'packages' && (
+        packages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+              <PackageIcon className="w-8 h-8 text-foreground-muted" />
+            </div>
+            <p className="text-foreground-secondary font-medium">{t('noPackages')}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {packages.map((pkg) => {
+              const isSelected = selectedPackages.some((p) => p.id === pkg.id);
+
+              return (
+                <button
+                  key={pkg.id}
+                  onClick={() => togglePackage(pkg)}
+                  className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected
+                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                      : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground text-sm sm:text-base line-clamp-2">
+                        {pkg.name}
+                      </p>
+                      <p className="text-xs mt-1 text-foreground-secondary">
+                        {pkg.services.length} {pkg.services.length === 1 ? t('service') : t('servicesCount')}
+                      </p>
+                    </div>
+                    {isSelected && (
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shrink-0">
+                        <Check className="w-4 h-4 text-primary-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    {pkg.advance && pkg.advance > 0 ? (
+                      <>
+                        <p className="text-xs text-foreground-muted line-through">
+                          {formatCurrency(pkg.price)}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-primary text-lg">
+                            {formatCurrency(pkg.price - pkg.advance)}
+                          </p>
+                          <span className="text-xs px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-medium">
+                            {t('advancePaid')}: {formatCurrency(pkg.advance)}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="font-bold text-primary text-lg">
+                        {formatCurrency(pkg.price)}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )
       )}
 
       {/* Sales History Modal */}
@@ -241,8 +358,8 @@ export default function POSPage() {
       {/* Fixed Bottom Panel */}
       <div className="fixed bottom-0 left-0 right-0 md:ltr:left-64 md:rtl:right-64 md:rtl:left-0 bg-card border-t border-border p-4 pb-24 md:pb-4 z-40">
         <div className="max-w-4xl mx-auto space-y-4">
-          {/* Selected Services Summary */}
-          {selectedServices.length > 0 && (
+          {/* Selected Items Summary */}
+          {(selectedServices.length > 0 || selectedPackages.length > 0) && (
             <div className="flex flex-wrap gap-2">
               {selectedServices.map((service) => (
                 <span
@@ -250,6 +367,15 @@ export default function POSPage() {
                   className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full"
                 >
                   {service.name}
+                </span>
+              ))}
+              {selectedPackages.map((pkg) => (
+                <span
+                  key={pkg.id}
+                  className="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-medium rounded-full flex items-center gap-1"
+                >
+                  <PackageIcon className="w-3 h-3" />
+                  {pkg.name} — {formatCurrency(pkg.price - (pkg.advance || 0))}
                 </span>
               ))}
             </div>
@@ -293,14 +419,14 @@ export default function POSPage() {
           {/* Submit Button */}
           <Button
             onClick={handleSubmit}
-            disabled={selectedServices.length === 0}
+            disabled={selectedServices.length === 0 && selectedPackages.length === 0}
             size="lg"
             className="w-full text-lg font-semibold py-6"
           >
-            {selectedServices.length === 0 ? (
+            {selectedServices.length === 0 && selectedPackages.length === 0 ? (
               <>
                 <Scissors className="w-5 h-5" />
-                {t('selectServices')}
+                {t('selectItems')}
               </>
             ) : (
               <>

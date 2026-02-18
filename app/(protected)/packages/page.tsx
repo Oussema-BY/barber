@@ -19,6 +19,7 @@ export default function PackagesPage() {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [addPackageModalOpen, setAddPackageModalOpen] = useState(false);
+    const [editingPackage, setEditingPackage] = useState<Package | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const loadData = useCallback(async () => {
@@ -42,6 +43,7 @@ export default function PackagesPage() {
 
     const filteredPackages = useMemo(() => {
         if (!searchTerm) return packages;
+
         const term = searchTerm.toLowerCase();
         return packages.filter((p) =>
             p.name.toLowerCase().includes(term) ||
@@ -128,6 +130,10 @@ export default function PackagesPage() {
                         <PackageCard
                             key={pkg.id}
                             packageData={pkg}
+                            onEdit={isOwner ? (p) => {
+                                setEditingPackage(p);
+                                setAddPackageModalOpen(true);
+                            } : undefined}
                             onDelete={isOwner ? handleDeletePackage : undefined}
                         />
                     ))}
@@ -138,9 +144,17 @@ export default function PackagesPage() {
             {isOwner && (
                 <AddPackageModal
                     open={addPackageModalOpen}
-                    onOpenChange={setAddPackageModalOpen}
+                    onOpenChange={(open) => {
+                        setAddPackageModalOpen(open);
+                        if (!open) setEditingPackage(null);
+                    }}
                     onPackageAdded={loadData}
                     services={services}
+                    onServicesChanged={async () => {
+                        const servicesData = await getServices();
+                        setServices(servicesData);
+                    }}
+                    editingPackage={editingPackage}
                 />
             )}
         </div>

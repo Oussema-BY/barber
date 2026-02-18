@@ -36,7 +36,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
             })}
           </p>
         </div>
-        <ShopStatusToggle shopId={shop._id} currentStatus={shop.status} />
+        <ShopStatusToggle shopId={shop.id} currentStatus={shop.status} />
       </div>
 
       {/* Shop Info Cards */}
@@ -118,13 +118,13 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               ) : (
                 members.map(
                   (member: {
-                    _id: string;
+                    id: string;
                     userId: string;
                     role: string;
                     isActive: boolean;
                     createdAt: string;
                   }) => (
-                    <tr key={member._id} className="hover:bg-slate-50">
+                    <tr key={member.id} className="hover:bg-slate-50">
                       <td className="px-6 py-4 text-sm font-mono text-slate-600">
                         {member.userId}
                       </td>
