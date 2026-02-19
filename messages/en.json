@@ -18,7 +18,8 @@
     "saving": "Saving...",
     "name": "Name",
     "price": "Price",
-    "description": "Description"
+    "description": "Description",
+    "service": "Service"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -137,7 +138,8 @@
     "tapNewBooking": "Tap \"New Booking\" to add one",
     "appointmentsFor": "{day}'s Appointments ({count})",
     "noSlotsAvailable": "No slots available for this day",
-    "selectServiceFirst": "Select a service to see available times"
+    "selectServiceFirst": "Select a service to see available times",
+    "selectPackage": "Select Package"
   },
   "services": {
     "title": "Services",

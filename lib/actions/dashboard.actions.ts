@@ -6,6 +6,7 @@ import Product from '@/lib/models/product.model';
 import Transaction from '@/lib/models/transaction.model';
 import Expense from '@/lib/models/expense.model';
 import { getSessionContext } from '@/lib/session';
+import { getTodayDate, formatDateISO } from '@/lib/utils';
 
 export async function getDashboardStats() {
   const { shopId } = await getSessionContext();
@@ -23,11 +24,9 @@ export async function getDashboardStats() {
   await dbConnect();
 
   const now = new Date();
-  const today = now.toISOString().split('T')[0];
+  const today = getTodayDate();
   const startOfMonth = today.slice(0, 7) + '-01';
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split('T')[0];
+  const endOfMonth = formatDateISO(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
   const [
     todayAppointments,

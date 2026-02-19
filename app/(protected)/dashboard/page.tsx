@@ -8,10 +8,9 @@ import { QuickActions } from '@/components/dashboard/quick-actions';
 import { TodaySchedule } from '@/components/dashboard/today-schedule';
 import { UpcomingEvents } from '@/components/dashboard/upcoming-events';
 import { Appointment, Package } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getTodayDate } from '@/lib/utils';
 import { getDashboardStats } from '@/lib/actions/dashboard.actions';
-import { getAppointmentsByDate } from '@/lib/actions/appointment.actions';
-import { getUpcomingScheduledPackages } from '@/lib/actions/package.actions';
+import { getAppointmentsByDate, getUpcomingScheduledAppointments } from '@/lib/actions/appointment.actions';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -22,17 +21,17 @@ export default function DashboardPage() {
     monthRevenue: 0,
   });
   const [todaySchedule, setTodaySchedule] = useState<Appointment[]>([]);
-  const [upcomingPackages, setUpcomingPackages] = useState<Package[]>([]);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayDate();
         const [dashboardStats, appointments, upcoming] = await Promise.all([
           getDashboardStats(),
           getAppointmentsByDate(today),
-          getUpcomingScheduledPackages(),
+          getUpcomingScheduledAppointments(),
         ]);
         setStats({
           todayAppointments: dashboardStats.todayAppointments,
@@ -41,7 +40,7 @@ export default function DashboardPage() {
           monthRevenue: dashboardStats.monthRevenue,
         });
         setTodaySchedule(appointments);
-        setUpcomingPackages(upcoming);
+        setUpcomingAppointments(upcoming);
       } catch (err) {
         console.error('Failed to load dashboard:', err);
       } finally {
@@ -109,7 +108,7 @@ export default function DashboardPage() {
 
       {/* Upcoming Events */}
       <section>
-        <UpcomingEvents packages={upcomingPackages} />
+        <UpcomingEvents appointments={upcomingAppointments} />
       </section>
     </div>
   );

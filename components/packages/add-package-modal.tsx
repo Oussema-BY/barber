@@ -26,8 +26,6 @@ const emptyForm = {
   category: "other",
   gender: "mixte",
   price: "",
-  advance: "",
-  scheduledDate: "",
   selectedServices: [] as string[],
 };
 
@@ -54,8 +52,6 @@ export function AddPackageModal({
         category: editingPackage.category || "other",
         gender: editingPackage.gender || "mixte",
         price: String(editingPackage.price),
-        advance: editingPackage.advance ? String(editingPackage.advance) : "",
-        scheduledDate: editingPackage.scheduledDate || "",
         selectedServices: editingPackage.services || [],
       });
     } else if (!open) {
@@ -123,8 +119,6 @@ export function AddPackageModal({
         category: formData.category,
         gender: formData.gender,
         price: parseFloat(formData.price),
-        advance: formData.advance ? parseFloat(formData.advance) : undefined,
-        scheduledDate: formData.scheduledDate || undefined,
         services: formData.selectedServices,
       };
 
@@ -187,91 +181,6 @@ export function AddPackageModal({
               required
             />
 
-            <Input
-              label={t("advance") + " (د.ت)"}
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              value={formData.advance}
-              onChange={(e) =>
-                setFormData({ ...formData, advance: e.target.value })
-              }
-            />
-
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-foreground-secondary mb-2">
-                {t("scheduledDate")}
-              </label>
-              <div
-                className={cn(
-                  "relative flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all",
-                  formData.scheduledDate
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-border-focus bg-card",
-                )}
-                onClick={() => {
-                  const input = document.getElementById("scheduled-date-input");
-                  if (input) (input as HTMLInputElement).showPicker();
-                }}
-              >
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                    formData.scheduledDate
-                      ? "bg-primary/15 text-primary"
-                      : "bg-secondary text-foreground-muted",
-                  )}
-                >
-                  <CalendarDays className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  {formData.scheduledDate ? (
-                    <>
-                      <p className="text-sm font-semibold text-foreground">
-                        {new Date(
-                          formData.scheduledDate + "T00:00:00",
-                        ).toLocaleDateString(undefined, {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                      <p className="text-xs text-foreground-muted mt-0.5">
-                        {t("scheduledDate")}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-foreground-muted">
-                      {t("selectDate")}
-                    </p>
-                  )}
-                </div>
-                {formData.scheduledDate && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFormData({ ...formData, scheduledDate: "" });
-                    }}
-                    className="text-foreground-muted hover:text-destructive transition-colors p-1"
-                  >
-                    <span className="text-lg leading-none">&times;</span>
-                  </button>
-                )}
-              </div>
-              <input
-                id="scheduled-date-input"
-                type="date"
-                value={formData.scheduledDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, scheduledDate: e.target.value })
-                }
-                className="sr-only"
-                tabIndex={-1}
-              />
-            </div>
           </div>
 
           <div className="space-y-3">

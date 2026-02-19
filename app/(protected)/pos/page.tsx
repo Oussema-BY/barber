@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { CATEGORY_COLORS } from '@/lib/constants';
 import { Service, Package, POSTransaction } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getTodayDate } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
 import { getPackages } from '@/lib/actions/package.actions';
 import { createTransaction, getTodayTransactions } from '@/lib/actions/transaction.actions';
@@ -54,7 +54,7 @@ export default function POSPage() {
 
   // Calculate total (no tax for simplicity)
   const servicesTotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
-  const packagesTotal = selectedPackages.reduce((sum, pkg) => sum + (pkg.price - (pkg.advance || 0)), 0);
+  const packagesTotal = selectedPackages.reduce((sum, pkg) => sum + pkg.price, 0);
   const total = servicesTotal + packagesTotal;
 
   // Calculate change
@@ -96,7 +96,7 @@ export default function POSPage() {
       }));
       const packageItems = selectedPackages.map((p) => ({
         name: p.name,
-        price: p.price - (p.advance || 0),
+        price: p.price,
         quantity: 1,
         type: 'package' as const,
         packageId: p.id,
@@ -109,7 +109,7 @@ export default function POSPage() {
         amountPaid: cashAmount > 0 ? cashAmount : total,
         change: change > 0 ? change : 0,
         paymentMethod: 'cash',
-        date: now.toISOString().split('T')[0],
+        date: getTodayDate(),
         time: now.toTimeString().slice(0, 5),
         completedBy: userName,
       });
@@ -180,22 +180,20 @@ export default function POSPage() {
       <div className="flex gap-2">
         <button
           onClick={() => setActiveTab('services')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-            activeTab === 'services'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-foreground-secondary hover:bg-secondary/80'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === 'services'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-secondary text-foreground-secondary hover:bg-secondary/80'
+            }`}
         >
           <Scissors className="w-4 h-4" />
           {t('services')} ({services.length})
         </button>
         <button
           onClick={() => setActiveTab('packages')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-            activeTab === 'packages'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-foreground-secondary hover:bg-secondary/80'
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab === 'packages'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-secondary text-foreground-secondary hover:bg-secondary/80'
+            }`}
         >
           <PackageIcon className="w-4 h-4" />
           {t('packages')} ({packages.length})
@@ -222,8 +220,8 @@ export default function POSPage() {
                   key={service.id}
                   onClick={() => toggleService(service)}
                   className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected
-                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                      : 'border-border bg-card hover:border-primary/50'
+                    ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                    : 'border-border bg-card hover:border-primary/50'
                     }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -270,8 +268,8 @@ export default function POSPage() {
                   key={pkg.id}
                   onClick={() => togglePackage(pkg)}
                   className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected
-                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                      : 'border-border bg-card hover:border-primary/50'
+                    ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                    : 'border-border bg-card hover:border-primary/50'
                     }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -290,25 +288,9 @@ export default function POSPage() {
                     )}
                   </div>
                   <div className="mt-3">
-                    {pkg.advance && pkg.advance > 0 ? (
-                      <>
-                        <p className="text-xs text-foreground-muted line-through">
-                          {formatCurrency(pkg.price)}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-primary text-lg">
-                            {formatCurrency(pkg.price - pkg.advance)}
-                          </p>
-                          <span className="text-xs px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-medium">
-                            {t('advancePaid')}: {formatCurrency(pkg.advance)}
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="font-bold text-primary text-lg">
-                        {formatCurrency(pkg.price)}
-                      </p>
-                    )}
+                    <p className="font-bold text-primary text-lg">
+                      {formatCurrency(pkg.price)}
+                    </p>
                   </div>
                 </button>
               );
@@ -356,15 +338,15 @@ export default function POSPage() {
       </Modal>
 
       {/* Fixed Bottom Panel */}
-      <div className="fixed bottom-0 left-0 right-0 md:ltr:left-64 md:rtl:right-64 md:rtl:left-0 bg-card border-t border-border p-4 pb-24 md:pb-4 z-40">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <div className="fixed bottom-0 left-0 right-0 md:ltr:left-64 md:rtl:right-64 md:rtl:left-0 bg-card border-t border-border p-3 md:p-4 pb-24 md:pb-4 z-40 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.08)]">
+        <div className="max-w-4xl mx-auto space-y-2.5 md:space-y-4">
           {/* Selected Items Summary */}
           {(selectedServices.length > 0 || selectedPackages.length > 0) && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 md:gap-2 max-h-20 overflow-y-auto custom-scrollbar">
               {selectedServices.map((service) => (
                 <span
                   key={service.id}
-                  className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full"
+                  className="px-2 py-0.5 md:px-3 md:py-1 bg-primary/10 text-primary text-[10px] md:text-sm font-medium rounded-full"
                 >
                   {service.name}
                 </span>
@@ -372,26 +354,26 @@ export default function POSPage() {
               {selectedPackages.map((pkg) => (
                 <span
                   key={pkg.id}
-                  className="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-medium rounded-full flex items-center gap-1"
+                  className="px-2 py-0.5 md:px-3 md:py-1 bg-violet-100 text-violet-700 text-[10px] md:text-sm font-medium rounded-full flex items-center gap-1"
                 >
                   <PackageIcon className="w-3 h-3" />
-                  {pkg.name} — {formatCurrency(pkg.price - (pkg.advance || 0))}
+                  {pkg.name}
                 </span>
               ))}
             </div>
           )}
 
           {/* Total and Cash Input Row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 md:gap-4">
             {/* Total Display */}
-            <div className="flex-1">
-              <p className="text-sm text-foreground-secondary">{t('total')}</p>
-              <p className="text-3xl font-bold text-foreground">{formatCurrency(total)}</p>
+            <div className="flex-1 flex sm:flex-col items-center sm:items-start justify-between sm:justify-start bg-secondary/30 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none">
+              <p className="text-[10px] sm:text-sm text-foreground-secondary uppercase tracking-tight font-medium sm:normal-case">{t('total')}</p>
+              <p className="text-xl sm:text-3xl font-bold text-foreground">{formatCurrency(total)}</p>
             </div>
 
             {/* Cash Received Input (Optional) */}
             <div className="flex-1">
-              <label className="text-sm text-foreground-secondary block mb-1">
+              <label className="text-[10px] sm:text-sm text-foreground-secondary block mb-0.5 sm:mb-1 uppercase tracking-tight font-medium sm:normal-case">
                 {t('cashReceived')}
               </label>
               <input
@@ -401,15 +383,15 @@ export default function POSPage() {
                 placeholder="0.00"
                 value={cashReceived}
                 onChange={(e) => setCashReceived(e.target.value)}
-                className="w-full px-4 py-2 text-lg font-semibold rounded-lg border-2 border-border bg-background text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none"
+                className="w-full px-3 py-1.5 sm:px-4 sm:py-2 text-base sm:text-lg font-semibold rounded-lg border-2 border-border bg-background text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none transition-all"
               />
             </div>
 
             {/* Change Display */}
             {cashAmount > 0 && (
-              <div className="flex-1">
-                <p className="text-sm text-foreground-secondary">{t('change')}</p>
-                <p className={`text-2xl font-bold ${change >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+              <div className="flex-1 flex sm:flex-col items-center sm:items-start justify-between sm:justify-start bg-emerald-50 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none">
+                <p className="text-[10px] sm:text-sm text-foreground-secondary uppercase tracking-tight font-medium sm:normal-case">{t('change')}</p>
+                <p className={`text-lg sm:text-2xl font-bold ${change >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                   {formatCurrency(Math.abs(change))}
                 </p>
               </div>
@@ -421,16 +403,16 @@ export default function POSPage() {
             onClick={handleSubmit}
             disabled={selectedServices.length === 0 && selectedPackages.length === 0}
             size="lg"
-            className="w-full text-lg font-semibold py-6"
+            className="w-full text-base sm:text-lg font-bold py-3.5 md:py-6"
           >
             {selectedServices.length === 0 && selectedPackages.length === 0 ? (
               <>
-                <Scissors className="w-5 h-5" />
+                <Scissors className="w-5 h-5 mr-2" />
                 {t('selectItems')}
               </>
             ) : (
               <>
-                <Check className="w-5 h-5" />
+                <Check className="w-5 h-5 mr-2" />
                 {t('completeSale')} - {formatCurrency(total)}
               </>
             )}

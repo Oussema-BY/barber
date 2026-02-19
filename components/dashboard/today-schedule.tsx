@@ -40,8 +40,8 @@ export function TodaySchedule({ appointments }: TodayScheduleProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <p className="font-semibold text-foreground">{appointment.clientName}</p>
-                    <Badge variant="info" size="sm">
-                      {appointment.serviceName}
+                    <Badge variant={appointment.packageId ? "purple" : "info"} size="sm" className={appointment.packageId ? "bg-violet-100 text-violet-700 border-violet-200" : ""}>
+                      {appointment.packageId ? appointment.packageName : appointment.serviceName}
                     </Badge>
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground-tertiary">
@@ -63,8 +63,8 @@ export function TodaySchedule({ appointments }: TodayScheduleProps) {
                       appointment.status === 'confirmed'
                         ? 'success'
                         : appointment.status === 'pending'
-                        ? 'warning'
-                        : 'danger'
+                          ? 'warning'
+                          : 'danger'
                     }
                     size="sm"
                   >

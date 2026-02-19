@@ -4,6 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import Appointment from '@/lib/models/appointment.model';
 import Settings from '@/lib/models/settings.model';
 import { getSessionContext } from '@/lib/session';
+import { getTodayDate, getDayName } from '@/lib/utils';
 import type { Appointment as AppointmentType } from '@/lib/types';
 
 function timeToMinutes(time: string): number {
@@ -35,7 +36,7 @@ export async function getAllAppointments(): Promise<AppointmentType[]> {
   return JSON.parse(JSON.stringify(appointments.map((a: { toJSON: () => unknown }) => a.toJSON())));
 }
 
-export async function createAppointment(data: {
+export async function createServiceAppointment(data: {
   clientName: string;
   serviceId: string;
   serviceName: string;
@@ -71,6 +72,9 @@ export async function createAppointment(data: {
   const existing = await Appointment.find(query);
 
   for (const apt of existing) {
+    // Only check against other service appointments that have a time slot
+    if (!apt.time || apt.time === '00:00' || apt.packageId) continue;
+
     const existingStart = timeToMinutes(apt.time);
     const existingEnd = existingStart + apt.duration;
 
@@ -81,6 +85,35 @@ export async function createAppointment(data: {
 
   const appointment = await Appointment.create({
     ...data,
+    shopId,
+    status: data.status || 'confirmed',
+  });
+  return JSON.parse(JSON.stringify(appointment.toJSON()));
+}
+
+export async function createPackageAppointment(data: {
+  clientName: string;
+  packageId: string;
+  packageName: string;
+  advance?: number;
+  eventDate: string;
+  date: string;
+  price: number;
+  status?: string;
+  staffMemberId?: string;
+  staffMemberName?: string;
+  notes?: string;
+}): Promise<AppointmentType> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) throw new Error('No shop');
+
+  await dbConnect();
+
+  // For packages, we don't enforce time slots, so we default to 00:00 and 1 min duration
+  const appointment = await Appointment.create({
+    ...data,
+    time: '00:00',
+    duration: 1,
     shopId,
     status: data.status || 'confirmed',
   });
@@ -108,9 +141,7 @@ export async function getAvailableSlots(
   const settings = await Settings.findOne({ shopId });
   if (!settings) return [];
 
-  const dayOfWeek = new Date(date)
-    .toLocaleDateString('en-US', { weekday: 'long' })
-    .toLowerCase();
+  const dayOfWeek = getDayName(date).toLowerCase();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dayHours = settings.workingHours?.find((wh: any) => wh.day === dayOfWeek);
@@ -153,4 +184,46 @@ export async function getAvailableSlots(
   }
 
   return slots;
+}
+
+export async function getScheduledDatesForMonth(year: number, month: number): Promise<string[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
+  const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const endDate = `${year}-${String(month + 1).padStart(2, '0')}-31`;
+
+  await dbConnect();
+  // We want dates that have either an appointment or an eventDate
+  const appointments = await Appointment.find({
+    shopId,
+    $or: [
+      { date: { $gte: startDate, $lte: endDate } },
+      { eventDate: { $gte: startDate, $lte: endDate, $ne: '' } }
+    ]
+  }).select('date eventDate');
+
+  const dates = new Set<string>();
+  appointments.forEach((a: any) => {
+    if (a.date) dates.add(a.date);
+    if (a.eventDate) dates.add(a.eventDate);
+  });
+
+  return Array.from(dates);
+}
+
+export async function getUpcomingScheduledAppointments(): Promise<AppointmentType[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
+  const today = getTodayDate();
+  await dbConnect();
+  // We want appointments that have a package AND an eventDate in the future
+  const appointments = await Appointment.find({
+    shopId,
+    packageId: { $ne: '' },
+    eventDate: { $gte: today, $ne: '' },
+  }).sort({ eventDate: 1 }).limit(10);
+
+  return JSON.parse(JSON.stringify(appointments.map((a: { toJSON: () => unknown }) => a.toJSON())));
 }

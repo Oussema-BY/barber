@@ -61,8 +61,6 @@ export interface Package {
   category: PackageCategory;
   gender: PackageGender;
   price: number;
-  advance?: number; // advance payment received
-  scheduledDate?: string; // ISO format YYYY-MM-DD
   services: string[]; // ids of services
   shopId: string;
   createdAt: string;
@@ -77,8 +75,12 @@ export interface Appointment {
   clientName: string;
   clientPhone?: string;
   clientEmail?: string;
-  serviceId: string;
-  serviceName: string;
+  serviceId?: string;
+  serviceName?: string;
+  packageId?: string;
+  packageName?: string;
+  advance?: number;
+  eventDate?: string;
   date: string; // ISO format YYYY-MM-DD
   time: string; // HH:mm format
   duration: number; // in minutes

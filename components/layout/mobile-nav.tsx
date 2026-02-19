@@ -17,10 +17,11 @@ export function MobileNav() {
       '/dashboard': 'dashboard',
       '/appointments': 'appointments',
       '/services': 'services',
+      '/packages': 'packages',
       '/pos': 'pos',
       '/inventory': 'inventory',
     };
-    return t(keyMap[href] || 'dashboard');
+    return t(keyMap[href]);
   };
 
   const filteredNav = MAIN_NAV.filter(

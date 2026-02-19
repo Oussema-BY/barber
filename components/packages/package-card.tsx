@@ -38,22 +38,10 @@ export function PackageCard({ packageData, onEdit, onDelete }: PackageCardProps)
 
                 {/* Info badges */}
                 <div className="mt-4 flex flex-wrap gap-2">
-                    {packageData.scheduledDate && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 text-foreground-secondary text-xs font-medium">
-                            <CalendarDays className="w-3.5 h-3.5" />
-                            <span>{new Date(packageData.scheduledDate).toLocaleDateString()}</span>
-                        </div>
-                    )}
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 text-foreground-secondary text-xs font-medium">
                         <Layers className="w-3.5 h-3.5" />
                         <span>{packageData.services.length} {packageData.services.length === 1 ? t('service') : t('servicesCount')}</span>
                     </div>
-                    {(packageData.advance != null && packageData.advance > 0) && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-medium">
-                            <Banknote className="w-3.5 h-3.5" />
-                            <span>{t('advance')}: {formatCurrency(packageData.advance)}</span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Price & Actions */}

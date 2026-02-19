@@ -22,8 +22,6 @@ export async function createPackage(data: {
     category: string;
     gender: string;
     price: number;
-    advance?: number;
-    scheduledDate?: string;
     services: string[];
 }): Promise<PackageType> {
     const { shopId, shopRole } = await getSessionContext();
@@ -50,53 +48,12 @@ export async function createPackage(data: {
     return JSON.parse(JSON.stringify(newPackage.toJSON()));
 }
 
-export async function getScheduledPackagesByDate(date: string): Promise<PackageType[]> {
-    const { shopId } = await getSessionContext();
-    if (!shopId) return [];
-
-    await dbConnect();
-    const packages = await Package.find({ shopId, scheduledDate: date });
-    return JSON.parse(JSON.stringify(packages.map((p: { toJSON: () => unknown }) => p.toJSON())));
-}
-
-export async function getUpcomingScheduledPackages(): Promise<PackageType[]> {
-    const { shopId } = await getSessionContext();
-    if (!shopId) return [];
-
-    const today = new Date().toISOString().split('T')[0];
-    await dbConnect();
-    const packages = await Package.find({
-        shopId,
-        scheduledDate: { $gte: today, $ne: '' },
-    }).sort({ scheduledDate: 1 }).limit(10);
-    return JSON.parse(JSON.stringify(packages.map((p: { toJSON: () => unknown }) => p.toJSON())));
-}
-
-export async function getScheduledDatesForMonth(year: number, month: number): Promise<string[]> {
-    const { shopId } = await getSessionContext();
-    if (!shopId) return [];
-
-    const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-    const endDate = `${year}-${String(month + 1).padStart(2, '0')}-31`;
-
-    await dbConnect();
-    const packages = await Package.find({
-        shopId,
-        scheduledDate: { $gte: startDate, $lte: endDate, $ne: '' },
-    }).select('scheduledDate');
-
-    const dates = packages.map((p: { scheduledDate: string }) => p.scheduledDate);
-    return [...new Set(dates)];
-}
-
 export async function updatePackage(id: string, data: {
     name: string;
     description?: string;
     category: string;
     gender: string;
     price: number;
-    advance?: number;
-    scheduledDate?: string;
     services: string[];
 }): Promise<PackageType> {
     const { shopId, shopRole } = await getSessionContext();

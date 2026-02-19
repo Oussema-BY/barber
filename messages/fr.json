@@ -18,6 +18,7 @@
     "saving": "Enregistrement...",
     "name": "Nom",
     "price": "Prix",
+    "service": "service",
     "description": "Description"
   },
   "nav": {
@@ -137,7 +138,8 @@
     "tapNewBooking": "Appuyez sur \"Nouveau RDV\" pour ajouter",
     "appointmentsFor": "Rendez-vous de {day} ({count})",
     "noSlotsAvailable": "Aucun créneau disponible ce jour",
-    "selectServiceFirst": "Sélectionnez un service pour voir les créneaux"
+    "selectServiceFirst": "Sélectionnez un service pour voir les créneaux",
+    "selectPackage": "Choisir un Forfait"
   },
   "services": {
     "title": "Services",

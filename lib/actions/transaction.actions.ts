@@ -3,6 +3,7 @@
 import dbConnect from '@/lib/mongodb';
 import Transaction from '@/lib/models/transaction.model';
 import { getSessionContext } from '@/lib/session';
+import { getTodayDate } from '@/lib/utils';
 import type { POSTransaction } from '@/lib/types';
 
 export async function createTransaction(data: {
@@ -39,7 +40,7 @@ export async function getTodayTransactions(): Promise<POSTransaction[]> {
   if (!shopId) return [];
 
   await dbConnect();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDate();
   const transactions = await Transaction.find({ shopId, date: today }).sort({ time: -1 });
   return JSON.parse(JSON.stringify(transactions.map((t: { toJSON: () => unknown }) => t.toJSON())));
 }

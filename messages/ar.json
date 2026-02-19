@@ -18,6 +18,7 @@
     "saving": "جاري الحفظ...",
     "name": "الاسم",
     "price": "السعر",
+    "service": "خدمة",
     "description": "الوصف"
   },
   "nav": {
@@ -137,7 +138,8 @@
     "tapNewBooking": "اضغط على \"حجز جديد\" للإضافة",
     "appointmentsFor": "مواعيد {day} ({count})",
     "noSlotsAvailable": "لا توجد أوقات متاحة في هذا اليوم",
-    "selectServiceFirst": "اختر خدمة لعرض الأوقات المتاحة"
+    "selectServiceFirst": "اختر خدمة لعرض الأوقات المتاحة",
+    "selectPackage": "اختر باقة"
   },
   "services": {
     "title": "الخدمات",

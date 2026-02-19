@@ -5,17 +5,14 @@ import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, Chevron
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Appointment, Service, StaffMember, Package } from '@/lib/types';
-import { formatCurrency, cn } from '@/lib/utils';
+import { formatCurrency, cn, formatDateISO, getTodayDate } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
-import { getAppointmentsByDate, createAppointment, deleteAppointment, getAvailableSlots } from '@/lib/actions/appointment.actions';
+import { getAppointmentsByDate, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth } from '@/lib/actions/appointment.actions';
 import { getSettings } from '@/lib/actions/settings.actions';
 import { getStaffMembers } from '@/lib/actions/staff.actions';
-import { getScheduledPackagesByDate, getScheduledDatesForMonth } from '@/lib/actions/package.actions';
+import { getPackages } from '@/lib/actions/package.actions';
 import Link from 'next/link';
 
-function getTodayDate() {
-  return new Date().toISOString().split('T')[0];
-}
 
 export default function AppointmentsPage() {
   const t = useTranslations('appointments');
@@ -33,23 +30,23 @@ export default function AppointmentsPage() {
   const [isBooking, setIsBooking] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [scheduledPackages, setScheduledPackages] = useState<Package[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [scheduledDates, setScheduledDates] = useState<string[]>([]);
+  const [bookingType, setBookingType] = useState<'service' | 'package'>('service');
 
   // Booking form state
   const [clientName, setClientName] = useState('');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [advance, setAdvance] = useState('');
+
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
 
   const loadAppointments = useCallback(async (date: string) => {
     try {
-      const [data, pkgs] = await Promise.all([
-        getAppointmentsByDate(date),
-        getScheduledPackagesByDate(date),
-      ]);
+      const data = await getAppointmentsByDate(date);
       setAppointments(data);
-      setScheduledPackages(pkgs);
     } catch (err) {
       console.error('Failed to load appointments:', err);
     }
@@ -58,12 +55,14 @@ export default function AppointmentsPage() {
   useEffect(() => {
     async function init() {
       try {
-        const [servicesData, settings, staff] = await Promise.all([
+        const [servicesData, packagesData, settings, staff] = await Promise.all([
           getServices(),
+          getPackages(),
           getSettings(),
           getStaffMembers(),
         ]);
         setServices(servicesData);
+        setPackages(packagesData);
         setSalonMode(settings.salonMode || 'solo');
         setStaffMembers(staff);
         await loadAppointments(selectedDate);
@@ -113,7 +112,7 @@ export default function AppointmentsPage() {
   }, [selectedService, selectedStaff, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDateDisplay = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00');
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -128,7 +127,7 @@ export default function AppointmentsPage() {
   };
 
   const [viewMonth, setViewMonth] = useState(() => {
-    const d = new Date(selectedDate);
+    const d = new Date(selectedDate + 'T00:00:00');
     return { year: d.getFullYear(), month: d.getMonth() };
   });
 
@@ -156,7 +155,7 @@ export default function AppointmentsPage() {
     for (let i = startDow - 1; i >= 0; i--) {
       const d = new Date(year, month, -i);
       days.push({
-        date: d.toISOString().split('T')[0],
+        date: formatDateISO(d),
         day: d.getDate(),
         currentMonth: false,
       });
@@ -166,7 +165,7 @@ export default function AppointmentsPage() {
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const date = new Date(year, month, d);
       days.push({
-        date: date.toISOString().split('T')[0],
+        date: formatDateISO(date),
         day: d,
         currentMonth: true,
       });
@@ -178,7 +177,7 @@ export default function AppointmentsPage() {
       for (let d = 1; d <= remaining; d++) {
         const date = new Date(year, month + 1, d);
         days.push({
-          date: date.toISOString().split('T')[0],
+          date: formatDateISO(date),
           day: d,
           currentMonth: false,
         });
@@ -210,26 +209,50 @@ export default function AppointmentsPage() {
   }, [locale]);
 
   const handleBook = async () => {
-    if (!clientName.trim() || !selectedService || !selectedTime) return;
+    if (!clientName.trim()) return;
     if (salonMode === 'multi' && !selectedStaff) return;
 
+    if (bookingType === 'service') {
+      if (!selectedService || !selectedTime) return;
+    } else {
+      if (!selectedPackage) return;
+    }
+
     try {
-      const newAppointment = await createAppointment({
-        clientName: clientName.trim(),
-        serviceId: selectedService.id,
-        serviceName: selectedService.name,
-        date: selectedDate,
-        time: selectedTime,
-        duration: selectedService.duration ?? 30,
-        price: selectedService.price,
-        status: 'confirmed',
-        staffMemberId: selectedStaff?.id,
-        staffMemberName: selectedStaff?.name,
-      });
+      let newAppointment: Appointment;
+      if (bookingType === 'service') {
+        newAppointment = await createServiceAppointment({
+          clientName: clientName.trim(),
+          serviceId: selectedService!.id,
+          serviceName: selectedService!.name,
+          date: selectedDate,
+          time: selectedTime,
+          duration: selectedService!.duration || 30,
+          price: selectedService!.price || 0,
+          status: 'confirmed',
+          staffMemberId: selectedStaff?.id,
+          staffMemberName: selectedStaff?.name,
+        });
+      } else {
+        newAppointment = await createPackageAppointment({
+          clientName: clientName.trim(),
+          packageId: selectedPackage!.id,
+          packageName: selectedPackage!.name,
+          advance: advance ? parseFloat(advance) : 0,
+          eventDate: selectedDate,
+          date: selectedDate,
+          price: selectedPackage!.price || 0,
+          status: 'confirmed',
+          staffMemberId: selectedStaff?.id,
+          staffMemberName: selectedStaff?.name,
+        });
+      }
 
       setAppointments([...appointments, newAppointment]);
       setClientName('');
       setSelectedService(null);
+      setSelectedPackage(null);
+      setAdvance('');
       setSelectedTime('');
       setSelectedStaff(null);
       setIsBooking(false);
@@ -251,8 +274,11 @@ export default function AppointmentsPage() {
   const cancelBooking = () => {
     setClientName('');
     setSelectedService(null);
+    setSelectedPackage(null);
+    setAdvance('');
     setSelectedTime('');
     setSelectedStaff(null);
+    setBookingType('service');
     setIsBooking(false);
   };
 
@@ -381,6 +407,31 @@ export default function AppointmentsPage() {
             </button>
           </div>
 
+          <div className="flex p-1 bg-secondary rounded-lg">
+            <button
+              onClick={() => {
+                setBookingType('service');
+                setSelectedPackage(null);
+                setAdvance('');
+              }}
+              className={`flex-1 py-1.5 px-4 rounded-md text-xs font-bold transition-all ${bookingType === 'service' ? 'bg-primary text-white shadow-sm' : 'text-foreground-secondary hover:text-foreground hover:bg-background'
+                }`}
+            >
+              {tCommon('service').toUpperCase()}
+            </button>
+            <button
+              onClick={() => {
+                setBookingType('package');
+                setSelectedService(null);
+                setSelectedTime('');
+              }}
+              className={`flex-1 py-1.5 px-4 rounded-md text-xs font-bold transition-all ${bookingType === 'package' ? 'bg-primary text-white shadow-sm' : 'text-foreground-secondary hover:text-foreground hover:bg-background'
+                }`}
+            >
+              {tPkg('package').toUpperCase()}
+            </button>
+          </div>
+
           <div>
             <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('clientName')}</label>
             <input
@@ -402,11 +453,10 @@ export default function AppointmentsPage() {
                   <button
                     key={member.id}
                     onClick={() => setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
-                      selectedStaff?.id === member.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:border-primary/50'
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${selectedStaff?.id === member.id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/50'
+                      }`}
                   >
                     <div
                       className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
@@ -421,78 +471,127 @@ export default function AppointmentsPage() {
             </div>
           )}
 
-          <div>
-            <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectService')}</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {services.map((service) => {
-                const isSelected = selectedService?.id === service.id;
-                return (
-                  <button
-                    key={service.id}
-                    onClick={() => setSelectedService(service)}
-                    className={`p-3 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${
-                      isSelected ? 'border-primary bg-primary/10' : 'border-border bg-secondary hover:border-primary/50'
-                    }`}
-                  >
-                    <p className="font-semibold text-foreground text-sm line-clamp-1">{service.name}</p>
-                    <p className="font-bold text-primary text-sm mt-1">{formatCurrency(service.price)}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {bookingType === 'service' ? (
+            <>
+              <div>
+                <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectService')}</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {services.map((service) => {
+                    const isSelected = selectedService?.id === service.id;
+                    return (
+                      <button
+                        key={service.id}
+                        onClick={() => setSelectedService(service)}
+                        className={`p-3 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected ? 'border-primary bg-primary/10' : 'border-border bg-secondary hover:border-primary/50'
+                          }`}
+                      >
+                        <p className="font-semibold text-foreground text-sm line-clamp-1">{service.name}</p>
+                        <p className="font-bold text-primary text-sm mt-1">{formatCurrency(service.price)}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          <div>
-            <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectTime')}</label>
-            {loadingSlots ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <div>
+                <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectTime')}</label>
+                {loadingSlots ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <div className="p-4 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 text-sm text-center">
+                    {selectedService ? t('noSlotsAvailable') : t('selectServiceFirst')}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {availableSlots.map((time) => {
+                      const isSelected = selectedTime === time;
+                      return (
+                        <button
+                          key={time}
+                          onClick={() => setSelectedTime(time)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-foreground hover:bg-secondary-hover'
+                            }`}
+                        >
+                          {time}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            ) : availableSlots.length === 0 ? (
-              <p className="text-sm text-foreground-muted py-2">
-                {selectedService ? t('noSlotsAvailable') : t('selectServiceFirst')}
-              </p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {availableSlots.map((time) => {
-                  const isSelected = selectedTime === time;
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => setSelectedTime(time)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        isSelected
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-foreground hover:bg-secondary-hover'
-                      }`}
-                    >
-                      {time}
-                    </button>
-                  );
-                })}
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectPackage')}</label>
+                <div className="grid grid-cols-1 gap-2">
+                  {packages.map((pkg) => {
+                    const isSelected = selectedPackage?.id === pkg.id;
+                    return (
+                      <button
+                        key={pkg.id}
+                        onClick={() => setSelectedPackage(pkg)}
+                        className={`p-4 rounded-xl border-2 transition-all text-start active:scale-[0.98] ${isSelected ? 'border-violet-500 bg-violet-50' : 'border-border bg-secondary hover:border-violet-500/50'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-foreground font-title">{pkg.name}</p>
+                          <p className="font-black text-violet-600 font-mono tracking-tighter">{formatCurrency(pkg.price)}</p>
+                        </div>
+                        {pkg.description && (
+                          <p className="text-xs text-foreground-secondary mt-1 line-clamp-1">{pkg.description}</p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            )}
-          </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground-secondary block mb-2">{tPkg('advance')}</label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={advance}
+                    onChange={(e) => setAdvance(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-border bg-background text-foreground placeholder-foreground-muted focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="relative group">
+                  <label className="text-sm font-medium text-foreground-secondary block mb-2">{tPkg('scheduledDate')}</label>
+                  <div className="px-4 py-3 rounded-lg border-2 border-dashed border-pink-200 bg-pink-50 text-pink-600 font-bold text-sm">
+                    {selectedDate}
+                  </div>
+                  <p className="text-[10px] text-pink-400 mt-1 italic tracking-tight">* {tPkg('scheduledDate')} est fixé à la date sélectionnée</p>
+                </div>
+              </div>
+            </>
+          )}
 
           <Button
             onClick={handleBook}
-            disabled={!clientName.trim() || !selectedService || !selectedTime || (salonMode === 'multi' && !selectedStaff)}
+            disabled={!clientName.trim() || (bookingType === 'service' ? (!selectedService || !selectedTime) : !selectedPackage) || (salonMode === 'multi' && !selectedStaff)}
             size="lg"
             className="w-full text-lg font-semibold"
           >
             <Check className="w-5 h-5" />
-            {t('bookAppointment')}
+            {tCommon('confirm')}
           </Button>
         </div>
       )}
 
       {/* Appointments List */}
       <div>
-        <h2 className="font-bold text-foreground mb-3">
-          {t('appointmentsFor', { day: formatDateDisplay(selectedDate), count: appointments.length })}
+        <h2 className="font-bold text-foreground mb-3 font-title">
+          {t('appointmentsFor', { day: formatDateDisplay(selectedDate), count: appointments.filter(a => a.serviceId).length })}
         </h2>
 
-        {appointments.length === 0 ? (
+        {appointments.filter(a => a.serviceId).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center bg-card rounded-xl border border-border">
             <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
               <Calendar className="w-8 h-8 text-foreground-muted" />
@@ -505,6 +604,7 @@ export default function AppointmentsPage() {
         ) : (
           <div className="space-y-3">
             {appointments
+              .filter(a => a.serviceId)
               .sort((a, b) => a.time.localeCompare(b.time))
               .map((appointment) => (
                 <div key={appointment.id} className="p-4 rounded-xl bg-card border border-border flex items-center gap-4">
@@ -540,46 +640,58 @@ export default function AppointmentsPage() {
         )}
       </div>
       {/* Scheduled Packages for this date */}
-      {scheduledPackages.length > 0 && (
+      {appointments.filter(a => a.packageId).length > 0 && (
         <div>
           <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
             <PackageIcon className="w-5 h-5 text-pink-500" />
-            {tPkg('scheduledEvents')} ({scheduledPackages.length})
+            {tPkg('scheduledEvents')} ({appointments.filter(a => a.packageId).length})
           </h2>
           <div className="space-y-3">
-            {scheduledPackages.map((pkg) => (
-                <div key={pkg.id} className="p-4 rounded-xl bg-card border border-pink-200 flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-pink-50 flex flex-col items-center justify-center shrink-0">
-                    <PackageIcon className="w-6 h-6 text-pink-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate">{pkg.name}</p>
-                    {pkg.description && (
-                      <p className="text-sm text-foreground-secondary truncate">{pkg.description}</p>
-                    )}
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-xs text-foreground-muted">
-                        {pkg.services.length} {pkg.services.length === 1 ? tPkg('service') : tPkg('servicesCount')}
-                      </span>
-                      {(pkg.advance != null && pkg.advance > 0) && (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-600">
-                          {tPkg('advance')}: {formatCurrency(pkg.advance)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-end shrink-0">
-                    <span className="text-lg font-black text-foreground">
-                      {formatCurrency(pkg.price)}
+            {appointments.filter(a => a.packageId).map((apt) => (
+              <div key={apt.id} className="p-4 rounded-xl bg-card border border-pink-200 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-xl bg-pink-50 flex flex-col items-center justify-center shrink-0">
+                  <PackageIcon className="w-6 h-6 text-pink-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-foreground truncate">{apt.packageName}</p>
+                  {apt.notes && (
+                    <p className="text-sm text-foreground-secondary truncate">{apt.notes}</p>
+                  )}
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-sm font-medium text-foreground-secondary">
+                      {apt.clientName}
                     </span>
-                    {(pkg.advance != null && pkg.advance > 0) && (
+                    {(apt.advance != null && apt.advance > 0) && (
+                      <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-600">
+                        {tPkg('advance')}: {formatCurrency(apt.advance)}
+                      </span>
+                    )}
+                    {apt.eventDate && (
+                      <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-pink-50 text-pink-600">
+                        {tPkg('scheduledDate')}: {apt.eventDate}
+                      </span>
+                    )}
+                    {apt.staffMemberName && (
+                      <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {apt.staffMemberName}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className="text-end">
+                    <span className="text-lg font-black text-foreground">
+                      {formatCurrency(apt.price)}
+                    </span>
+                    {(apt.advance != null && apt.advance > 0) && (
                       <p className="text-xs text-foreground-muted">
-                        {tPkg('remaining')}: {formatCurrency(pkg.price - pkg.advance)}
+                        {tPkg('remaining')}: {formatCurrency(apt.price - apt.advance)}
                       </p>
                     )}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       )}
