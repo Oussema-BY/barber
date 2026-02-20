@@ -372,7 +372,8 @@
 
 /* ===== Base Styles ===== */
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth is intentionally omitted — Lenis manages smooth scroll on the landing page */
+  scroll-behavior: auto;
 }
 
 body {
@@ -583,4 +584,65 @@ body {
     margin: 1cm;
     size: A4;
   }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
+
+/* ===== Landing Page Enhancements ===== */
+
+/* Lenis override — ensure html/body take full height */
+html.lenis {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Landing hero text gradient shine effect */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(90deg, #fff 0%, #5E84F2 40%, #fff 60%, #fff 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Floating pill badge */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Landing nav active underline */
+.nav-link-active {
+  color: #5E84F2;
+  position: relative;
+}
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #5E84F2;
+  border-radius: 999px;
 }

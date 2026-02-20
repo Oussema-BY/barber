@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Appointment, Service, StaffMember, Package } from '@/lib/types';
 import { formatCurrency, cn, formatDateISO, getTodayDate } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
-import { getAppointmentsByDate, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth } from '@/lib/actions/appointment.actions';
+import { getAppointmentsByDate, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth, checkStaffPackageAvailability } from '@/lib/actions/appointment.actions';
 import { getSettings } from '@/lib/actions/settings.actions';
 import { getStaffMembers } from '@/lib/actions/staff.actions';
 import { getPackages } from '@/lib/actions/package.actions';
@@ -42,6 +42,7 @@ export default function AppointmentsPage() {
 
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [staffPackageStatuses, setStaffPackageStatuses] = useState<Record<string, string | null>>({});
 
   const loadAppointments = useCallback(async (date: string) => {
     try {
@@ -110,6 +111,27 @@ export default function AppointmentsPage() {
     }
     loadSlots();
   }, [selectedService, selectedStaff, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check staff availability for packages
+  useEffect(() => {
+    if (!selectedDate || staffMembers.length === 0) return;
+
+    async function checkAvailability() {
+      const statuses: Record<string, string | null> = {};
+      const promises = staffMembers.map(async (member) => {
+        const packageName = await checkStaffPackageAvailability(member.id, selectedDate);
+        statuses[member.id] = packageName;
+      });
+      await Promise.all(promises);
+      setStaffPackageStatuses(statuses);
+
+      // Deselect staff if they became unavailable for a package booking
+      if (selectedStaff && bookingType === 'package' && statuses[selectedStaff.id]) {
+        setSelectedStaff(null);
+      }
+    }
+    checkAvailability();
+  }, [selectedDate, staffMembers, bookingType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDateDisplay = (dateString: string) => {
     const date = new Date(dateString + 'T00:00:00');
@@ -449,24 +471,42 @@ export default function AppointmentsPage() {
             <div>
               <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectBarber')}</label>
               <div className="flex flex-wrap gap-2">
-                {staffMembers.map((member) => (
-                  <button
-                    key={member.id}
-                    onClick={() => setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${selectedStaff?.id === member.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-primary/50'
-                      }`}
-                  >
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                      style={{ backgroundColor: member.color }}
+                {staffMembers.map((member) => {
+                  const hasPackage = !!staffPackageStatuses[member.id];
+                  const isDisabled = bookingType === 'package' && hasPackage;
+                  
+                  return (
+                    <button
+                      key={member.id}
+                      onClick={() => !isDisabled && setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
+                      disabled={isDisabled}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${selectedStaff?.id === member.id
+                        ? 'border-primary bg-primary/10'
+                        : isDisabled
+                          ? 'border-destructive/10 bg-destructive/5 opacity-60 cursor-not-allowed'
+                          : 'border-border hover:border-primary/50'
+                        }`}
                     >
-                      {member.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="font-medium text-foreground text-sm">{member.name}</span>
-                  </button>
-                ))}
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                        style={{ backgroundColor: member.color }}
+                      >
+                        {member.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col items-start leading-tight">
+                        <span className="font-medium text-foreground text-sm">{member.name}</span>
+                        {hasPackage && (
+                          <span className={cn(
+                            "text-[9px] font-bold uppercase tracking-tight line-clamp-1",
+                            bookingType === 'package' ? "text-destructive" : "text-amber-600"
+                          )}>
+                            {bookingType === 'package' ? tCommon('notAvailable') : staffPackageStatuses[member.id]}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

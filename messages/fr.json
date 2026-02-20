@@ -19,7 +19,8 @@
     "name": "Nom",
     "price": "Prix",
     "service": "service",
-    "description": "Description"
+    "description": "Description",
+    "notAvailable": "Non disponible"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -321,5 +322,108 @@
     "friday": "Vendredi",
     "saturday": "Samedi",
     "sunday": "Dimanche"
+  },
+  "landing": {
+    "heroTag": "L'avenir de la gestion professionnelle",
+    "heroTag-title": "Élevez votre entreprise avec BarberPro. Une plateforme transparente et performante conçue pour l'élite moderne.",
+    "watchDemo": "Voir la démo",
+    "featuresSectionTitle": "Infrastructure de base",
+    "featuresSectionSubtitle": "Conçu pour ceux qui en demandent plus.",
+    "testimonialsSectionTitle": "Témoignages",
+    "testimonialsSectionSubtitle": "Approuvé par l'élite la plus innovante au monde.",
+    "rating": "Note de 5.0 / 5.0",
+    "getStarted": "Commencer",
+    "signIn": "Se connecter",
+    "footerTitle": "SYSTÈME BARBERPRO",
+    "footerDescription": "Autonomiser la prochaine génération de talents professionnels avec les solutions numériques de précision de BarberPro.",
+    "footerProtocol": "Protocole",
+    "footerNetwork": "Réseau",
+    "footerCopyright": "© 2026 BARBERPRO. TOUS DROITS RÉSERVÉS.",
+    "featureList": {
+      "performance": "Hyper-Performance",
+      "performanceDesc": "Faites l'expérience d'un traitement ultra-rapide avec notre moteur exclusif BarberPro. L'efficacité redéfinie.",
+      "security": "Bouclier de sécurité",
+      "securityDesc": "Cryptage de niveau militaire pour toutes vos données. Votre sécurité est notre priorité absolue, toujours.",
+      "analytics": "Analyses avancées",
+      "analyticsDesc": "Des informations approfondies sur la croissance de votre entreprise. Visualisation des données en temps réel à portée de main.",
+      "modular": "Structure modulaire",
+      "modularDesc": "Des composants entièrement personnalisables qui s'adaptent aux besoins de votre entreprise. Parfait pour toutes les tailles.",
+      "global": "Portée mondiale",
+      "globalDesc": "Déployez et gérez vos services dans le monde entier sans latence. Connectivité fluide.",
+      "collaboration": "Collaboration d'élite",
+      "collaborationDesc": "Outils intégrés pour les équipes performantes. Travaillez ensemble au-delà des frontières et des fuseaux horaires."
+    },
+    "testimonialList": [
+      {
+        "name": "Marcus Aurelius",
+        "role": "PDG CHEZ ROMAN CAPITAL",
+        "content": "BarberPro a complètement transformé notre flux de travail opérationnel. La rapidité et la précision sont inégalées sur le marché actuel."
+      },
+      {
+        "name": "Elara Vance",
+        "role": "DIRECTRICE DE L'INNOVATION TECH",
+        "content": "La plateforme la plus intuitive que j'aie jamais utilisée. L'attention portée aux détails dans l'interface et les performances est époustouflante."
+      }
+    ],
+    "footerLinks": {
+      "manifesto": "Manifeste",
+      "infrastructure": "Infrastructure",
+      "deployment": "Déploiement",
+      "laboratory": "Laboratoire",
+      "overview": "Aperçu",
+      "ecosystem": "Écosystème",
+      "access": "Accès",
+      "connect": "Connecter"
+    },
+    "functionalitySectionTitle": "Fonctionnalités",
+    "functionalitySectionSubtitle": "Outils de précision pour les salons d'élite.",
+    "functionalityList": [
+      {
+        "title": "Planification intelligente",
+        "desc": "Moteur de calendrier avancé avec résolution de conflits par IA et rappels automatisés."
+      },
+      {
+        "title": "Catalogue de services",
+        "desc": "Gestion dynamique des catégories, durées personnalisées et modèles de tarification."
+      },
+      {
+        "title": "Forfaits Premium",
+        "desc": "Créez des forfaits de services et des protocoles d'adhésion pour des revenus récurrents."
+      },
+      {
+        "title": "CRM Client",
+        "desc": "Profils d'élite complets avec historique des visites, préférences et suivi visuel."
+      },
+      {
+        "title": "Contrôle des stocks",
+        "desc": "Surveillance des stocks en temps réel avec réapprovisionnement prédictif et alertes."
+      },
+      {
+        "title": "Analyses financières",
+        "desc": "Analyses de performance approfondies, partages de commissions et paiements sécurisés."
+      }
+    ],
+    "faqSectionTitle": "Base de connaissances",
+    "faqSectionSubtitle": "Questions Fréquentes.",
+    "faqList": [
+      {
+        "q": "Mes données sont-elles sécurisées ?",
+        "a": "BarberPro utilise un cryptage de niveau militaire AES-256 pour toutes les données sensibles et effectue des audits de sécurité réguliers."
+      },
+      {
+        "q": "Puis-je migrer depuis une autre plateforme ?",
+        "a": "Oui. Notre équipe d'ingénieurs propose un service de migration haut de gamme pour déplacer vos rendez-vous et vos clients sans interruption."
+      },
+      {
+        "q": "BarberPro supporte-t-il plusieurs emplacements ?",
+        "a": "Absolument. Notre offre entreprise est conçue spécifiquement pour les franchises avec un contrôle centralisé."
+      }
+    ],
+    "contactSectionTitle": "Contact",
+    "contactSectionSubtitle": "Initier le Contact.",
+    "contactPlaceholderName": "NOM COMPLET",
+    "contactPlaceholderEmail": "ADRESSE E-MAIL",
+    "contactPlaceholderMessage": "VOTRE MESSAGE",
+    "contactSubmit": "ENVOYER LE PROTOCOLE"
   }
 }

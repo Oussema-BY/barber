@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { LandingPage } from '@/components/landing/landing-page';
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -8,7 +9,7 @@ export default async function Home() {
   });
 
   if (!session) {
-    redirect('/sign-in');
+    return <LandingPage />;
   }
 
   const globalRole = ((session.user as Record<string, unknown>).role as string) === 'super_admin'
