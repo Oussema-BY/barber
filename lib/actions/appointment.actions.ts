@@ -109,20 +109,6 @@ export async function createPackageAppointment(data: {
 
   await dbConnect();
 
-  if (data.staffMemberId) {
-    const existingPackage = await Appointment.findOne({
-      shopId,
-      staffMemberId: data.staffMemberId,
-      date: data.date,
-      packageId: { $exists: true, $nin: [null, ''] },
-      status: { $nin: ['cancelled'] }
-    });
-
-    if (existingPackage) {
-      throw new Error('Staff is already reserved for another package on this day.');
-    }
-  }
-
   // For packages, we don't enforce time slots, so we default to 00:00 and 1 min duration
   const appointment = await Appointment.create({
     ...data,
@@ -240,6 +226,25 @@ export async function getUpcomingScheduledAppointments(): Promise<AppointmentTyp
   }).sort({ eventDate: 1 }).limit(10);
 
   return JSON.parse(JSON.stringify(appointments.map((a: { toJSON: () => unknown }) => a.toJSON())));
+}
+
+export async function getPackagesForDate(date: string): Promise<{ packageName: string; clientName: string; staffMemberName: string }[]> {
+  const { shopId } = await getSessionContext();
+  if (!shopId) return [];
+
+  await dbConnect();
+  const packages = await Appointment.find({
+    shopId,
+    date,
+    packageId: { $exists: true, $nin: [null, ''] },
+    status: { $nin: ['cancelled'] },
+  }).select('packageName clientName staffMemberName');
+
+  return packages.map((p: { packageName: string; clientName: string; staffMemberName: string }) => ({
+    packageName: p.packageName || '',
+    clientName: p.clientName || '',
+    staffMemberName: p.staffMemberName || '',
+  }));
 }
 
 export async function checkStaffPackageAvailability(staffMemberId: string, date: string): Promise<string | null> {

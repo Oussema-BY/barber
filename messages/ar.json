@@ -140,7 +140,10 @@
     "appointmentsFor": "مواعيد {day} ({count})",
     "noSlotsAvailable": "لا توجد أوقات متاحة في هذا اليوم",
     "selectServiceFirst": "اختر خدمة لعرض الأوقات المتاحة",
-    "selectPackage": "اختر باقة"
+    "selectPackage": "اختر باقة",
+    "dateHasPackages": "هذا التاريخ يحتوي بالفعل على باقات مجدولة",
+    "existingPackagesWarning": "الباقات التالية مجدولة بالفعل في هذا التاريخ:",
+    "continueAnyway": "متابعة على أي حال"
   },
   "services": {
     "title": "الخدمات",

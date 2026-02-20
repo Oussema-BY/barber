@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2, Package as PackageIcon, CalendarDays } from 'lucide-react';
+import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2, Package as PackageIcon, CalendarDays, AlertTriangle, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Appointment, Service, StaffMember, Package } from '@/lib/types';
 import { formatCurrency, cn, formatDateISO, getTodayDate } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
-import { getAppointmentsByDate, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth, checkStaffPackageAvailability } from '@/lib/actions/appointment.actions';
+import { getAppointmentsByDate, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth, checkStaffPackageAvailability, getPackagesForDate } from '@/lib/actions/appointment.actions';
 import { getSettings } from '@/lib/actions/settings.actions';
 import { getStaffMembers } from '@/lib/actions/staff.actions';
 import { getPackages } from '@/lib/actions/package.actions';
@@ -43,6 +43,8 @@ export default function AppointmentsPage() {
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [staffPackageStatuses, setStaffPackageStatuses] = useState<Record<string, string | null>>({});
+  const [existingPackagesOnDate, setExistingPackagesOnDate] = useState<{ packageName: string; clientName: string; staffMemberName: string }[]>([]);
+  const [showDateWarning, setShowDateWarning] = useState(false);
 
   const loadAppointments = useCallback(async (date: string) => {
     try {
@@ -112,7 +114,7 @@ export default function AppointmentsPage() {
     loadSlots();
   }, [selectedService, selectedStaff, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Check staff availability for packages
+  // Check staff availability for packages (informational only)
   useEffect(() => {
     if (!selectedDate || staffMembers.length === 0) return;
 
@@ -124,14 +126,17 @@ export default function AppointmentsPage() {
       });
       await Promise.all(promises);
       setStaffPackageStatuses(statuses);
-
-      // Deselect staff if they became unavailable for a package booking
-      if (selectedStaff && bookingType === 'package' && statuses[selectedStaff.id]) {
-        setSelectedStaff(null);
-      }
     }
     checkAvailability();
   }, [selectedDate, staffMembers, bookingType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check if date already has packages (for warning dialog)
+  useEffect(() => {
+    if (!selectedDate) return;
+    getPackagesForDate(selectedDate)
+      .then(setExistingPackagesOnDate)
+      .catch(() => setExistingPackagesOnDate([]));
+  }, [selectedDate]);
 
   const formatDateDisplay = (dateString: string) => {
     const date = new Date(dateString + 'T00:00:00');
@@ -232,13 +237,24 @@ export default function AppointmentsPage() {
 
   const handleBook = async () => {
     if (!clientName.trim()) return;
-    if (salonMode === 'multi' && !selectedStaff) return;
 
     if (bookingType === 'service') {
       if (!selectedService || !selectedTime) return;
+      if (salonMode === 'multi' && !selectedStaff) return;
     } else {
       if (!selectedPackage) return;
+      // For packages: show warning dialog if date already has packages
+      if (existingPackagesOnDate.length > 0 && !showDateWarning) {
+        setShowDateWarning(true);
+        return;
+      }
     }
+
+    await confirmBook();
+  };
+
+  const confirmBook = async () => {
+    setShowDateWarning(false);
 
     try {
       let newAppointment: Appointment;
@@ -271,6 +287,8 @@ export default function AppointmentsPage() {
       }
 
       setAppointments([...appointments, newAppointment]);
+      // Refresh existing packages list for next booking
+      getPackagesForDate(selectedDate).then(setExistingPackagesOnDate).catch(() => {});
       setClientName('');
       setSelectedService(null);
       setSelectedPackage(null);
@@ -473,18 +491,14 @@ export default function AppointmentsPage() {
               <div className="flex flex-wrap gap-2">
                 {staffMembers.map((member) => {
                   const hasPackage = !!staffPackageStatuses[member.id];
-                  const isDisabled = bookingType === 'package' && hasPackage;
-                  
+
                   return (
                     <button
                       key={member.id}
-                      onClick={() => !isDisabled && setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
-                      disabled={isDisabled}
+                      onClick={() => setSelectedStaff(selectedStaff?.id === member.id ? null : member)}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${selectedStaff?.id === member.id
                         ? 'border-primary bg-primary/10'
-                        : isDisabled
-                          ? 'border-destructive/10 bg-destructive/5 opacity-60 cursor-not-allowed'
-                          : 'border-border hover:border-primary/50'
+                        : 'border-border hover:border-primary/50'
                         }`}
                     >
                       <div
@@ -496,11 +510,8 @@ export default function AppointmentsPage() {
                       <div className="flex flex-col items-start leading-tight">
                         <span className="font-medium text-foreground text-sm">{member.name}</span>
                         {hasPackage && (
-                          <span className={cn(
-                            "text-[9px] font-bold uppercase tracking-tight line-clamp-1",
-                            bookingType === 'package' ? "text-destructive" : "text-amber-600"
-                          )}>
-                            {bookingType === 'package' ? tCommon('notAvailable') : staffPackageStatuses[member.id]}
+                          <span className="text-[9px] font-bold uppercase tracking-tight line-clamp-1 text-amber-600">
+                            {staffPackageStatuses[member.id]}
                           </span>
                         )}
                       </div>
@@ -615,13 +626,73 @@ export default function AppointmentsPage() {
 
           <Button
             onClick={handleBook}
-            disabled={!clientName.trim() || (bookingType === 'service' ? (!selectedService || !selectedTime) : !selectedPackage) || (salonMode === 'multi' && !selectedStaff)}
+            disabled={
+              !clientName.trim() ||
+              (bookingType === 'service'
+                ? (!selectedService || !selectedTime || (salonMode === 'multi' && !selectedStaff))
+                : !selectedPackage)
+            }
             size="lg"
             className="w-full text-lg font-semibold"
           >
             <Check className="w-5 h-5" />
             {tCommon('confirm')}
           </Button>
+        </div>
+      )}
+
+      {/* Warning Dialog — date already has packages */}
+      {showDateWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md animate-fade-in">
+            <div className="p-5 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground">{t('dateHasPackages')}</h3>
+                  <p className="text-sm text-foreground-secondary mt-1">{t('existingPackagesWarning')}</p>
+                </div>
+                <button onClick={() => setShowDateWarning(false)} className="p-1 hover:bg-secondary rounded-lg">
+                  <X className="w-4 h-4 text-foreground-secondary" />
+                </button>
+              </div>
+
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {existingPackagesOnDate.map((pkg, idx) => (
+                  <div key={idx} className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <p className="font-semibold text-foreground text-sm">{pkg.packageName}</p>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-foreground-secondary">
+                      <span>{pkg.clientName}</span>
+                      {pkg.staffMemberName && (
+                        <>
+                          <span>•</span>
+                          <span>{pkg.staffMemberName}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDateWarning(false)}
+                  className="flex-1"
+                >
+                  {tCommon('cancel')}
+                </Button>
+                <Button
+                  onClick={confirmBook}
+                  className="flex-1"
+                >
+                  {t('continueAnyway')}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

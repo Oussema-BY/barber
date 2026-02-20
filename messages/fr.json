@@ -140,7 +140,10 @@
     "appointmentsFor": "Rendez-vous de {day} ({count})",
     "noSlotsAvailable": "Aucun créneau disponible ce jour",
     "selectServiceFirst": "Sélectionnez un service pour voir les créneaux",
-    "selectPackage": "Choisir un Forfait"
+    "selectPackage": "Choisir un Forfait",
+    "dateHasPackages": "Cette date a déjà des forfaits programmés",
+    "existingPackagesWarning": "Les forfaits suivants sont déjà programmés à cette date :",
+    "continueAnyway": "Continuer quand même"
   },
   "services": {
     "title": "Services",

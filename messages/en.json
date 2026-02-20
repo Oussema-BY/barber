@@ -140,7 +140,10 @@
     "appointmentsFor": "{day}'s Appointments ({count})",
     "noSlotsAvailable": "No slots available for this day",
     "selectServiceFirst": "Select a service to see available times",
-    "selectPackage": "Select Package"
+    "selectPackage": "Select Package",
+    "dateHasPackages": "This date already has scheduled packages",
+    "existingPackagesWarning": "The following packages are already scheduled on this date:",
+    "continueAnyway": "Continue Anyway"
   },
   "services": {
     "title": "Services",
