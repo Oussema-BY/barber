@@ -143,7 +143,10 @@
     "selectPackage": "اختر باقة",
     "dateHasPackages": "هذا التاريخ يحتوي بالفعل على باقات مجدولة",
     "existingPackagesWarning": "الباقات التالية مجدولة بالفعل في هذا التاريخ:",
-    "continueAnyway": "متابعة على أي حال"
+    "continueAnyway": "متابعة على أي حال",
+    "viewAll": "عرض الكل",
+    "allScheduled": "كل المواعيد",
+    "noUpcoming": "لا توجد مواعيد أو أحداث قادمة"
   },
   "services": {
     "title": "الخدمات",

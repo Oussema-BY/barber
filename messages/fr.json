@@ -143,7 +143,10 @@
     "selectPackage": "Choisir un Forfait",
     "dateHasPackages": "Cette date a déjà des forfaits programmés",
     "existingPackagesWarning": "Les forfaits suivants sont déjà programmés à cette date :",
-    "continueAnyway": "Continuer quand même"
+    "continueAnyway": "Continuer quand même",
+    "viewAll": "Voir tout",
+    "allScheduled": "Tout le planning",
+    "noUpcoming": "Aucun rendez-vous ou événement à venir"
   },
   "services": {
     "title": "Services",

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2, Package as PackageIcon, CalendarDays, AlertTriangle, X } from 'lucide-react';
+import { Plus, Calendar, Clock, User, Trash2, ChevronLeft, ChevronRight, ChevronDown, Check, Loader2, Package as PackageIcon, CalendarDays, AlertTriangle, X, List } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Appointment, Service, StaffMember, Package } from '@/lib/types';
 import { formatCurrency, cn, formatDateISO, getTodayDate } from '@/lib/utils';
 import { getServices } from '@/lib/actions/service.actions';
-import { getAppointmentsByDate, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth, checkStaffPackageAvailability, getPackagesForDate } from '@/lib/actions/appointment.actions';
+import { getAppointmentsByDate, getAllAppointments, createServiceAppointment, createPackageAppointment, deleteAppointment, getAvailableSlots, getScheduledDatesForMonth, checkStaffPackageAvailability, getPackagesForDate } from '@/lib/actions/appointment.actions';
 import { getSettings } from '@/lib/actions/settings.actions';
 import { getStaffMembers } from '@/lib/actions/staff.actions';
 import { getPackages } from '@/lib/actions/package.actions';
@@ -45,6 +45,9 @@ export default function AppointmentsPage() {
   const [staffPackageStatuses, setStaffPackageStatuses] = useState<Record<string, string | null>>({});
   const [existingPackagesOnDate, setExistingPackagesOnDate] = useState<{ packageName: string; clientName: string; staffMemberName: string }[]>([]);
   const [showDateWarning, setShowDateWarning] = useState(false);
+  const [showAllScheduled, setShowAllScheduled] = useState(false);
+  const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
+  const [loadingAll, setLoadingAll] = useState(false);
 
   const loadAppointments = useCallback(async (date: string) => {
     try {
@@ -311,6 +314,34 @@ export default function AppointmentsPage() {
     }
   };
 
+  const openAllScheduled = async () => {
+    setShowAllScheduled(true);
+    setLoadingAll(true);
+    try {
+      const data = await getAllAppointments();
+      setAllAppointments(data);
+    } catch (err) {
+      console.error('Failed to load all appointments:', err);
+    } finally {
+      setLoadingAll(false);
+    }
+  };
+
+  // Group all appointments by date for the "View All" modal
+  const groupedAppointments = useMemo(() => {
+    const groups: Record<string, Appointment[]> = {};
+    const today = getTodayDate();
+    // Only show today and future appointments, sorted by date ascending
+    const filtered = allAppointments
+      .filter(a => a.date >= today && a.status !== 'cancelled')
+      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    for (const apt of filtered) {
+      if (!groups[apt.date]) groups[apt.date] = [];
+      groups[apt.date].push(apt);
+    }
+    return groups;
+  }, [allAppointments]);
+
   const cancelBooking = () => {
     setClientName('');
     setSelectedService(null);
@@ -340,6 +371,10 @@ export default function AppointmentsPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button variant="secondary" className="gap-2" onClick={openAllScheduled}>
+            <List className="w-4 h-4" />
+            <span>{t('viewAll')}</span>
+          </Button>
           <Link href="/packages">
             <Button variant="secondary" className="gap-2">
               <CalendarDays className="w-4 h-4" />
@@ -692,6 +727,94 @@ export default function AppointmentsPage() {
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* View All Scheduled Modal */}
+      {showAllScheduled && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-background">
+          {/* Modal Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+            <h2 className="text-lg font-bold text-foreground">{t('allScheduled')}</h2>
+            <button onClick={() => setShowAllScheduled(false)} className="p-2 hover:bg-secondary rounded-lg">
+              <X className="w-5 h-5 text-foreground-secondary" />
+            </button>
+          </div>
+
+          {/* Modal Content */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {loadingAll ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : Object.keys(groupedAppointments).length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
+                  <Calendar className="w-8 h-8 text-foreground-muted" />
+                </div>
+                <p className="text-foreground-secondary font-medium">{t('noUpcoming')}</p>
+              </div>
+            ) : (
+              Object.entries(groupedAppointments).map(([date, apts]) => (
+                <div key={date}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-bold text-foreground">
+                      {formatDateDisplay(date)}
+                    </span>
+                    <span className="text-xs text-foreground-secondary">{date}</span>
+                    <span className="ml-auto px-2 py-0.5 rounded-full bg-secondary text-foreground-secondary text-xs font-medium">
+                      {apts.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {apts.map((apt) => (
+                      <div
+                        key={apt.id}
+                        onClick={() => {
+                          setSelectedDate(date);
+                          setShowAllScheduled(false);
+                        }}
+                        className={cn(
+                          "p-3 rounded-xl border flex items-center gap-3 cursor-pointer active:scale-[0.99] transition-all",
+                          apt.packageId
+                            ? "border-pink-200 bg-pink-50/50"
+                            : "border-border bg-card"
+                        )}
+                      >
+                        {apt.packageId ? (
+                          <div className="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center shrink-0">
+                            <PackageIcon className="w-5 h-5 text-pink-500" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex flex-col items-center justify-center shrink-0">
+                            <span className="text-sm font-bold text-primary leading-none">{apt.time.split(':')[0]}</span>
+                            <span className="text-[10px] text-primary leading-none">{apt.time.split(':')[1]}</span>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground text-sm truncate">
+                            {apt.packageName || apt.serviceName}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-foreground-secondary">
+                            <span>{apt.clientName}</span>
+                            {apt.staffMemberName && (
+                              <>
+                                <span>•</span>
+                                <span>{apt.staffMemberName}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <span className="font-bold text-foreground text-sm shrink-0">
+                          {formatCurrency(apt.price)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
