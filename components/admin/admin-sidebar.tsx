@@ -34,7 +34,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[260px] bg-slate-900 flex flex-col z-40">
+    <aside className="fixed left-0 top-0 h-screen w-65 bg-slate-900 flex flex-col z-40">
       {/* Branding */}
       <div className="px-6 py-5 border-b border-slate-700/50">
         <div className="flex items-center gap-3">

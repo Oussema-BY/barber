@@ -430,6 +430,59 @@
     "contactPlaceholderName": "FULL NAME",
     "contactPlaceholderEmail": "EMAIL ADDRESS",
     "contactPlaceholderMessage": "YOUR MESSAGE",
-    "contactSubmit": "SEND PROTOCOL"
+    "contactSubmit": "SEND PROTOCOL",
+    "prive": {
+      "label": "Pricing",
+      "title": "Choose Your",
+      "titleHighlight": "Plan",
+      "subtitle": "Flexible plans for every shop. No hidden fees. Cancel anytime.",
+      "badge": "Most Popular",
+      "currency": "TND",
+      "footerNote": "All plans include a 14-day free trial · No credit card required",
+      "plans": {
+        "mensuelle": {
+          "title": "Monthly",
+          "price": "150",
+          "period": "/ month",
+          "description": "Ideal for getting started and managing your activity day-to-day, with no commitment.",
+          "features": [
+            "Up to 2 barbers",
+            "Unlimited online bookings",
+            "Analytics dashboard",
+            "SMS & email notifications",
+            "Standard support 5d/7"
+          ],
+          "cta": "Get Started"
+        },
+        "annuelle": {
+          "title": "Annual",
+          "price": "100",
+          "period": "/ month",
+          "description": "The most cost-effective plan with 2 months free. For ambitious pros.",
+          "features": [
+            "Unlimited barbers",
+            "Priority bookings & queues",
+            "Advanced analytics & reports",
+            "Full customization",
+            "Premium 24/7 support"
+          ],
+          "cta": "Go Pro"
+        },
+        "semestrielle": {
+          "title": "Semi-Annual",
+          "price": "130",
+          "period": "/ month",
+          "description": "The right balance between flexibility and savings for your salon.",
+          "features": [
+            "Up to 5 barbers",
+            "Unlimited online bookings",
+            "Detailed monthly reports",
+            "Third-party integrations",
+            "Priority support 7d/7"
+          ],
+          "cta": "Get Started"
+        }
+      }
+    }
   }
 }

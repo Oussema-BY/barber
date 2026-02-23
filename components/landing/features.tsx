@@ -14,12 +14,16 @@ import { FeatureCard } from "./feature-card";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useTheme } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function Features() {
   const t = useTranslations("landing");
   const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useGSAP(() => {
     // Title
@@ -61,15 +65,18 @@ export function Features() {
   return (
     <section
       ref={containerRef}
-      className="py-24 sm:py-32 relative bg-black/50"
+      className={cn(
+        "py-16 sm:py-20 relative transition-colors duration-300",
+        isDark ? "bg-black/50" : "bg-white"
+      )}
       id="features"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 sm:mb-24 space-y-4">
+        <div className="text-center mb-12 sm:mb-16 space-y-4">
           <h2 className="features-label text-xs sm:text-sm font-black uppercase tracking-[0.4em] text-[#5E84F2]">
             {t("functionalitySectionTitle")}
           </h2>
-          <p className="features-heading text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white leading-none">
+          <p className={cn("features-heading text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-none", isDark ? "text-white" : "text-slate-900")}>
             {t("functionalitySectionSubtitle")}
           </p>
         </div>

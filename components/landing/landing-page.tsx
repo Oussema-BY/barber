@@ -3,14 +3,19 @@
 import { useEffect, useRef } from "react";
 import { Hero } from "./hero";
 import { Features } from "./features";
+import { Prive } from "./price";
 import { Testimonials } from "./testimonials";
 import { FAQ } from "./faq";
 import { Contact } from "./contact";
 import { Footer } from "./footer";
 import { Navbar } from "./navbar";
+import { useTheme } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 export function LandingPage() {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     let lenis: any;
@@ -40,7 +45,12 @@ export function LandingPage() {
   return (
     <div
       ref={wrapperRef}
-      className="relative min-h-screen bg-black text-white selection:bg-[#5E84F2]/30"
+      className={cn(
+        "relative min-h-screen selection:bg-[#5E84F2]/30 transition-colors duration-300",
+        isDark
+          ? "bg-black text-white"
+          : "bg-white text-slate-900"
+      )}
     >
       <div className="fixed top-0 left-0 right-0 z-50">
         <Navbar />
@@ -49,6 +59,7 @@ export function LandingPage() {
       <main>
         <Hero />
         <Features />
+        <Prive />
         <Testimonials />
         <FAQ />
         <Contact />

@@ -6,12 +6,16 @@ import { Quote, Star } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useTheme } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function Testimonials() {
   const t = useTranslations("landing");
   const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useGSAP(() => {
     gsap.from(".testimonials-info > *", {
@@ -54,7 +58,10 @@ export function Testimonials() {
   return (
     <section
       ref={containerRef}
-      className="py-24 sm:py-32 relative overflow-hidden bg-black"
+      className={cn(
+        "py-16 sm:py-20 relative overflow-hidden transition-colors duration-300",
+        isDark ? "bg-black" : "bg-slate-50"
+      )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -63,14 +70,14 @@ export function Testimonials() {
             <h2 className="text-xs sm:text-sm font-black uppercase tracking-[0.4em] text-purple-400">
               {t("testimonialsSectionTitle")}
             </h2>
-            <p className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-white leading-tight">
+            <p className={cn("text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter leading-tight", isDark ? "text-white" : "text-slate-900")}>
               {t("testimonialsSectionSubtitle")}
             </p>
             <div className="flex items-center justify-center lg:justify-start gap-1.5">
               {[1, 2, 3, 4, 5].map(i => (
                 <Star key={i} className="w-5 h-5 fill-[#5E84F2] text-[#5E84F2]" />
               ))}
-              <span className="ml-3 text-white font-bold">{t("rating")}</span>
+              <span className={cn("ml-3 font-bold", isDark ? "text-white" : "text-slate-900")}>{t("rating")}</span>
             </div>
           </div>
 
@@ -79,11 +86,16 @@ export function Testimonials() {
             {testimonials.map((testi, i) => (
               <div
                 key={i}
-                className="testimonial-card group relative p-8 sm:p-10 rounded-[2.5rem] bg-white/3 border border-white/5 hover:border-[#5E84F2]/25 transition-all duration-500"
+                className={cn(
+                  "testimonial-card group relative p-8 sm:p-10 rounded-[2.5rem] border transition-all duration-500",
+                  isDark 
+                    ? "bg-white/3 border-white/5 hover:border-[#5E84F2]/25" 
+                    : "bg-white border-slate-200 shadow-sm hover:border-[#5E84F2]/25 hover:shadow-md"
+                )}
               >
-                <Quote className="absolute top-6 right-8 w-12 h-12 text-white/4 group-hover:text-[#5E84F2]/8 transition-colors" />
+                <Quote className={cn("absolute top-6 right-8 w-12 h-12 transition-colors", isDark ? "text-white/4 group-hover:text-[#5E84F2]/8" : "text-black/3 group-hover:text-[#5E84F2]/6")} />
                 <div className="relative z-10 flex flex-col gap-6">
-                  <p className="text-lg sm:text-xl font-medium text-slate-300 italic leading-relaxed">
+                  <p className={cn("text-lg sm:text-xl font-medium italic leading-relaxed", isDark ? "text-slate-300" : "text-slate-700")}>
                     &ldquo;{testi.content}&rdquo;
                   </p>
                   <div className="flex items-center gap-4">
@@ -95,7 +107,7 @@ export function Testimonials() {
                       className="w-14 h-14 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                     />
                     <div>
-                      <h4 className="font-bold text-white">{testi.name}</h4>
+                      <h4 className={cn("font-bold", isDark ? "text-white" : "text-slate-900")}>{testi.name}</h4>
                       <p className="text-xs font-black uppercase tracking-widest text-[#5E84F2]">{testi.role}</p>
                     </div>
                   </div>

@@ -430,6 +430,59 @@
     "contactPlaceholderName": "NOM COMPLET",
     "contactPlaceholderEmail": "ADRESSE E-MAIL",
     "contactPlaceholderMessage": "VOTRE MESSAGE",
-    "contactSubmit": "ENVOYER LE PROTOCOLE"
+    "contactSubmit": "ENVOYER LE PROTOCOLE",
+    "prive": {
+      "label": "Tarification",
+      "title": "Choisissez",
+      "titleHighlight": "Votre Formule",
+      "subtitle": "Des plans flexibles adaptés à chaque salon. Sans frais cachés. Annulez à tout moment.",
+      "badge": "Plus Populaire",
+      "currency": "TND",
+      "footerNote": "Tous les plans incluent un essai gratuit de 14 jours · Aucune carte bancaire requise",
+      "plans": {
+        "mensuelle": {
+          "title": "Mensuelle",
+          "price": "29",
+          "period": "/ mois",
+          "description": "Idéal pour démarrer et gérer votre activité au quotidien sans engagement.",
+          "features": [
+            "Jusqu'à 2 barbiers",
+            "Réservations illimitées",
+            "Tableau de bord analytique",
+            "Notifications SMS & email",
+            "Support standard 5j/7"
+          ],
+          "cta": "Commencer maintenant"
+        },
+        "annuelle": {
+          "title": "Annuelle",
+          "price": "19",
+          "period": "/ mois",
+          "description": "La formule la plus rentable avec 2 mois offerts. Pour les pros ambitieux.",
+          "features": [
+            "Barbiers illimités",
+            "Réservations & files prioritaires",
+            "Analyses avancées & rapports",
+            "Personnalisation complète",
+            "Support premium 24/7"
+          ],
+          "cta": "Passer au Pro"
+        },
+        "semestrielle": {
+          "title": "Semestrielle",
+          "price": "24",
+          "period": "/ mois",
+          "description": "Le bon équilibre entre flexibilité et économies pour votre salon.",
+          "features": [
+            "Jusqu'à 5 barbiers",
+            "Réservations illimitées",
+            "Rapports mensuels détaillés",
+            "Intégrations tierces",
+            "Support prioritaire 7j/7"
+          ],
+          "cta": "Commencer maintenant"
+        }
+      }
+    }
   }
 }
