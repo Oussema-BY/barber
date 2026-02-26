@@ -2,9 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Scissors, Twitter, Github, Linkedin, Instagram } from "lucide-react";
+import { Twitter, Github, Linkedin, Instagram } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+
 
 export function Footer() {
   const t = useTranslations("landing");
@@ -20,7 +22,7 @@ export function Footer() {
 
   return (
     <footer className={cn(
-      "py-12 sm:py-16 border-t relative z-10 transition-colors duration-300",
+      "py-12 sm:py-16 border-t relative z-10 md:transition-colors md:duration-300",
       isDark ? "bg-black border-white/5" : "bg-white border-slate-200"
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,9 +31,15 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12 sm:mb-16">
           {/* Brand */}
           <div className="space-y-5 max-w-xs">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#5E84F2] flex items-center justify-center shadow-xl shadow-[#5E84F2]/25 group-hover:rotate-6 transition-transform">
-                <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <Link href="/" className="flex items-center">
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center md:group-hover:rotate-6 md:transition-transform md:duration-300">
+                <Image
+                  src="/logo.png"
+                  alt="TaktakBeauty Logo"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className={cn("text-xl sm:text-2xl font-black tracking-tighter uppercase italic", isDark ? "text-white" : "text-slate-900")}>
                 TAKTAKBEAUTY<span className={cn("not-italic text-[#5E84F2] text-xs tracking-widest pl-1.5", isDark ? "" : "text-[#5E84F2]")}>SYSTEM</span>
@@ -92,7 +100,7 @@ export function Footer() {
                 key={label}
                 href={href}
                 aria-label={label}
-                className={cn("transition-all hover:scale-110 duration-300", isDark ? "text-slate-600 hover:text-[#5E84F2]" : "text-slate-400 hover:text-[#5E84F2]")}
+                className={cn("md:transition-all md:hover:scale-110 md:duration-300", isDark ? "text-slate-600 md:hover:text-[#5E84F2]" : "text-slate-400 md:hover:text-[#5E84F2]")}
               >
                 <Icon className="w-4 h-4 sm:w-5 h-5" />
               </Link>

@@ -67,43 +67,49 @@ export function Hero() {
 
   useGSAP(
     () => {
-      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      let mm = gsap.matchMedia();
 
-      tl.from(".hero-badge", { y: 30, opacity: 0, duration: 0.9 }, "+=0.1");
+      mm.add("(min-width: 768px)", () => {
+        const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-      const chars = titleRef.current?.querySelectorAll(".char");
-      if (chars?.length) {
-        tl.from(
-          chars,
-          { y: 120, opacity: 0, rotateX: -90, stagger: 0.035, duration: 1 },
-          "-=0.7"
-        );
-      }
+        tl.from(".hero-badge", { y: 30, opacity: 0, duration: 0.9 }, "+=0.1");
 
-      tl.from(".hero-sub", { y: 24, opacity: 0, duration: 0.8 }, "-=0.5");
-      tl.from(".hero-ctas", { y: 24, opacity: 0, duration: 0.8 }, "-=0.55");
-      tl.from(".stat-pill", { y: 24, opacity: 0, stagger: 0.1, duration: 0.7 }, "-=0.5");
-      tl.from(".float-card", { scale: 0.85, opacity: 0, stagger: 0.15, duration: 0.8, ease: "back.out(1.4)" }, "-=0.6");
-      tl.from(".scroll-indicator", { opacity: 0, y: -10, duration: 0.6 }, "-=0.3");
+        const chars = titleRef.current?.querySelectorAll(".char");
+        if (chars?.length) {
+          tl.from(
+            chars,
+            { y: 120, opacity: 0, rotateX: -90, stagger: 0.035, duration: 1 },
+            "-=0.7"
+          );
+        }
 
-      gsap.to(".bg-blob", {
-        x: "random(-80, 80)",
-        y: "random(-80, 80)",
-        duration: "random(14, 26)",
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: { each: 5, from: "random" },
+        tl.from(".hero-sub", { y: 24, opacity: 0, duration: 0.8 }, "-=0.5");
+        tl.from(".hero-ctas", { y: 24, opacity: 0, duration: 0.8 }, "-=0.55");
+        tl.from(".stat-pill", { y: 24, opacity: 0, stagger: 0.1, duration: 0.7 }, "-=0.5");
+        tl.from(".float-card", { scale: 0.85, opacity: 0, stagger: 0.15, duration: 0.8, ease: "back.out(1.4)" }, "-=0.6");
+        tl.from(".scroll-indicator", { opacity: 0, y: -10, duration: 0.6 }, "-=0.3");
+
+        gsap.to(".bg-blob", {
+          x: "random(-80, 80)",
+          y: "random(-80, 80)",
+          duration: "random(14, 26)",
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          stagger: { each: 5, from: "random" },
+        });
+
+        gsap.to(".float-card", {
+          y: "random(-10, 10)",
+          duration: "random(3, 5)",
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          stagger: { each: 0.8, from: "random" },
+        });
       });
 
-      gsap.to(".float-card", {
-        y: "random(-10, 10)",
-        duration: "random(3, 5)",
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: { each: 0.8, from: "random" },
-      });
+      return () => mm.revert();
     },
     { scope: containerRef }
   );
@@ -124,7 +130,7 @@ export function Hero() {
     <section
       ref={containerRef}
       className={cn(
-        "relative min-h-screen flex items-center justify-center pt-28 pb-16 overflow-hidden transition-colors duration-300",
+        "relative min-h-screen flex items-center justify-center pt-28 pb-16 overflow-hidden md:transition-colors md:duration-300",
         sectionBg
       )}
     >
@@ -278,10 +284,10 @@ export function Hero() {
           <Link href="/#features">
             <Button
               size="lg"
-              className="h-14 px-8 sm:px-10 text-base sm:text-lg rounded-2xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white border-0 shadow-2xl shadow-[#5E84F2]/30 group transition-all duration-300 hover:scale-[1.04] hover:shadow-[#5E84F2]/40"
+              className="h-14 px-8 sm:px-10 text-base sm:text-lg rounded-2xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white border-0 shadow-2xl shadow-[#5E84F2]/30 group md:transition-all md:duration-300 md:hover:scale-[1.04] md:hover:shadow-[#5E84F2]/40"
             >
               {t("getStarted")}
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 w-5 h-5 md:group-hover:translate-x-1 md:transition-transform" />
             </Button>
           </Link>
           <Link href="/#">
@@ -289,13 +295,13 @@ export function Hero() {
               variant="outline"
               size="lg"
               className={cn(
-                "h-14 px-8 sm:px-10 text-base sm:text-lg rounded-2xl backdrop-blur-md transition-all gap-2 group",
+                "h-14 px-8 sm:px-10 text-base sm:text-lg rounded-2xl backdrop-blur-md md:transition-all gap-2 group",
                 isDark
                   ? "border-white/10 bg-white/5 text-white hover:text-white hover:bg-white/10"
                   : "border-black/10 bg-black/4 text-slate-800 hover:text-slate-900 hover:bg-black/8"
               )}
             >
-              <Play className={cn("w-4 h-4 shrink-0 group-hover:scale-110 transition-transform", isDark ? "fill-white text-white" : "fill-slate-800 text-slate-800")} />
+              <Play className={cn("w-4 h-4 shrink-0 md:group-hover:scale-110 md:transition-transform", isDark ? "fill-white text-white" : "fill-slate-800 text-slate-800")} />
               {t("watchDemo")}
             </Button>
           </Link>
@@ -323,7 +329,7 @@ export function Hero() {
       {/* ── Scroll indicator ── */}
       <div className={cn("scroll-indicator absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-10", isDark ? "text-slate-600" : "text-slate-400")}>
         <span className="text-[10px] uppercase tracking-[0.2em] font-semibold">Scroll</span>
-        <ChevronDown className="w-4 h-4 animate-bounce" />
+        <ChevronDown className="w-4 h-4 md:animate-bounce" />
       </div>
     </section>
   );

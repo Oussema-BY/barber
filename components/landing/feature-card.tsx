@@ -19,15 +19,15 @@ export function FeatureCard({ icon: Icon, title, description, className = "", in
   return (
     <div
       className={cn(
-        "feature-card group relative p-8 sm:p-10 rounded-4xl border transition-all duration-500",
+        "feature-card group relative p-8 sm:p-10 rounded-4xl border md:transition-all md:duration-500",
         isDark
-          ? "bg-white/2 border-white/5 hover:border-[#5E84F2]/30 hover:bg-white/4"
-          : "bg-slate-50 border-slate-200/80 hover:border-[#5E84F2]/30 hover:bg-white shadow-sm hover:shadow-md",
+          ? "bg-white/2 border-white/5 md:hover:border-[#5E84F2]/30 md:hover:bg-white/4"
+          : "bg-slate-50 border-slate-200/80 md:hover:border-[#5E84F2]/30 md:hover:bg-white shadow-sm md:hover:shadow-md",
         className
       )}
     >
       <div className="relative z-10 space-y-5">
-        <div className="w-14 h-14 rounded-2xl bg-[#5E84F2]/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+        <div className="w-14 h-14 rounded-2xl bg-[#5E84F2]/10 flex items-center justify-center md:group-hover:scale-110 md:group-hover:rotate-3 md:transition-all md:duration-500">
           <Icon className="w-7 h-7 text-[#5E84F2]" />
         </div>
 
@@ -50,10 +50,10 @@ export function FeatureCard({ icon: Icon, title, description, className = "", in
       {/* Ghost index number */}
       <div
         className={cn(
-          "absolute bottom-4 right-6 text-[5rem] font-black italic leading-none select-none pointer-events-none transition-colors duration-500",
+          "absolute bottom-4 right-6 text-[5rem] font-black italic leading-none select-none pointer-events-none md:transition-colors md:duration-500",
           isDark
-            ? "text-white/2.5 group-hover:text-[#5E84F2]/5"
-            : "text-black/4 group-hover:text-[#5E84F2]/6"
+            ? "text-white/2.5 md:group-hover:text-[#5E84F2]/5"
+            : "text-black/4 md:group-hover:text-[#5E84F2]/6"
         )}
         aria-hidden
       >

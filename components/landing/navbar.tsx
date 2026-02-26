@@ -91,7 +91,7 @@ export function Navbar() {
   return (
     <>
       {/* ── Main navbar bar ── */}
-      <nav className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", navBg)}>
+      <nav className={cn("fixed top-0 left-0 right-0 z-50 md:transition-all md:duration-300", navBg)}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-17 sm:h-20">
 
@@ -101,7 +101,7 @@ export function Navbar() {
               className="flex items-center gap-0 group shrink-0"
               onClick={() => setMenuOpen(false)}
             >
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform duration-300">
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center md:group-hover:rotate-6 md:transition-transform md:duration-300">
                 <Image
                   src="/logo.png"
                   alt="TaktakBeauty Logo"
@@ -110,7 +110,7 @@ export function Navbar() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className={cn("text-xl font-black tracking-tighter transition-colors", logoText)}>
+              <span className={cn("text-xl font-black tracking-tighter md:transition-colors", logoText)}>
                 TAKTAKBEAUTY<span className="text-[#5E84F2]">.</span>
               </span>
             </Link>
@@ -123,7 +123,7 @@ export function Navbar() {
                   href={href}
                   onClick={(e) => handleNavClick(e, href)}
                   className={cn(
-                    "relative text-xs font-black uppercase tracking-[0.2em] py-1 transition-colors duration-200",
+                    "relative text-xs font-black uppercase tracking-[0.2em] py-1 md:transition-colors md:duration-200",
                     activeSection === href ? "text-[#5E84F2]" : linkInactive
                   )}
                 >
@@ -146,7 +146,7 @@ export function Navbar() {
                   onClick={toggleTheme}
                   aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                   className={cn(
-                    "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
+                    "w-9 h-9 rounded-full flex items-center justify-center md:transition-all md:duration-300",
                     isDark
                       ? "bg-white/8 text-slate-300 hover:bg-white/15 hover:text-white"
                       : "bg-black/6 text-slate-600 hover:bg-black/12 hover:text-slate-900"
@@ -163,7 +163,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={cn("rounded-full font-bold transition-colors", signInCls)}
+                  className={cn("rounded-full font-bold md:transition-colors", signInCls)}
                 >
                   {t("signIn")}
                 </Button>
@@ -171,7 +171,7 @@ export function Navbar() {
               <Link href="/sign-up">
                 <Button
                   size="sm"
-                  className="rounded-full px-5 bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-bold shadow-md shadow-[#5E84F2]/20 transition-all hover:scale-[1.03]"
+                  className="rounded-full px-5 bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-bold shadow-md shadow-[#5E84F2]/20 md:transition-all md:hover:scale-[1.03]"
                 >
                   {t("getStarted")}
                 </Button>
@@ -189,7 +189,7 @@ export function Navbar() {
                   onClick={toggleTheme}
                   aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
                   className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center transition-colors border",
+                    "w-10 h-10 rounded-xl flex items-center justify-center md:transition-colors border",
                     hamburgerCls
                   )}
                 >
@@ -205,7 +205,7 @@ export function Navbar() {
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={menuOpen}
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center transition-colors border",
+                  "w-10 h-10 rounded-xl flex items-center justify-center md:transition-colors border",
                   hamburgerCls
                 )}
               >
@@ -220,7 +220,7 @@ export function Navbar() {
       <div
         onClick={() => setMenuOpen(false)}
         className={cn(
-          "fixed inset-0 z-40 backdrop-blur-sm md:hidden transition-opacity duration-300",
+          "fixed inset-0 z-40 backdrop-blur-sm md:hidden md:transition-opacity md:duration-300",
           isDark ? "bg-black/60" : "bg-black/30",
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
@@ -230,7 +230,7 @@ export function Navbar() {
       {/* ── Mobile drawer ── */}
       <div
         className={cn(
-          "fixed top-17 inset-x-0 z-40 md:hidden transition-all duration-300 ease-in-out",
+          "fixed top-17 inset-x-0 z-40 md:hidden md:transition-all md:duration-300 md:ease-in-out",
           menuOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 -translate-y-3 pointer-events-none"
@@ -248,13 +248,13 @@ export function Navbar() {
                 href={href}
                 onClick={(e) => handleNavClick(e, href)}
                 className={cn(
-                  "flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-200",
+                  "flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest md:transition-all md:duration-200",
                   activeSection === href ? mobileLinkActive : mobileLinkInactive
                 )}
               >
                 <div className="flex items-center gap-3">{label}</div>
                 <ArrowRight className={cn(
-                  "w-3.5 h-3.5 transition-colors",
+                  "w-3.5 h-3.5 md:transition-colors",
                   activeSection === href ? "text-[#5E84F2]" : isDark ? "text-slate-700" : "text-slate-300"
                 )} />
               </a>

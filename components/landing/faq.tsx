@@ -19,41 +19,47 @@ export function FAQ() {
   const isDark = resolvedTheme === "dark";
 
   useGSAP(() => {
-    // Animate header badge + title
-    gsap.fromTo(
-      ".faq-header > *",
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1,
-        y: 0,
-        stagger: 0.12,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".faq-header",
-          start: "top 90%",
-        },
-      }
-    );
+    let mm = gsap.matchMedia();
 
-    // Animate each FAQ item individually
-    gsap.utils.toArray<Element>(".faq-item").forEach((el, i) => {
+    mm.add("(min-width: 768px)", () => {
+      // Animate header badge + title
       gsap.fromTo(
-        el,
-        { opacity: 0, y: 20 },
+        ".faq-header > *",
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.75,
-          ease: "power2.out",
+          stagger: 0.12,
+          duration: 1,
+          ease: "power3.out",
           scrollTrigger: {
-            trigger: el,
-            start: "top 92%",
+            trigger: ".faq-header",
+            start: "top 90%",
           },
-          delay: i * 0.08,
         }
       );
+
+      // Animate each FAQ item individually
+      gsap.utils.toArray<Element>(".faq-item").forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.75,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 92%",
+            },
+            delay: i * 0.08,
+          }
+        );
+      });
     });
+
+    return () => mm.revert();
   }, { scope: containerRef });
 
   const faqs = [0, 1, 2].map((i) => ({
@@ -65,7 +71,7 @@ export function FAQ() {
     <section
       ref={containerRef}
       className={cn(
-        "py-16 sm:py-20 relative overflow-hidden transition-colors duration-300",
+        "py-16 sm:py-20 relative overflow-hidden md:transition-colors md:duration-300",
         isDark ? "bg-black" : "bg-white"
       )}
       id="faq"
@@ -87,7 +93,7 @@ export function FAQ() {
             "inline-flex items-center gap-2.5 px-4 py-2 rounded-full border transition-colors",
             isDark ? "bg-[#5E84F2]/12 border-[#5E84F2]/25" : "bg-[#5E84F2]/10 border-[#5E84F2]/20"
           )}>
-            <span className="w-2 h-2 rounded-full bg-[#5E84F2] animate-pulse shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-[#5E84F2] md:animate-pulse shrink-0" />
             <span className="text-[#5E84F2] text-xs font-black uppercase tracking-[0.3em]">
               {t("faqSectionTitle")}
             </span>
@@ -105,7 +111,7 @@ export function FAQ() {
               <div
                 key={i}
                 className={cn(
-                  "faq-item rounded-2xl border transition-all duration-300",
+                  "faq-item rounded-2xl border md:transition-all md:duration-300",
                   isOpen
                     ? isDark 
                       ? "bg-[#5E84F2]/10 border-[#5E84F2]/35 shadow-lg shadow-[#5E84F2]/8" 
@@ -125,7 +131,7 @@ export function FAQ() {
                     {/* Index badge */}
                     <span
                       className={cn(
-                        "shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black tabular-nums transition-all duration-300",
+                        "shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black tabular-nums md:transition-all md:duration-300",
                         isOpen
                           ? "bg-[#5E84F2] text-white shadow-md shadow-[#5E84F2]/40"
                           : isDark 
@@ -138,7 +144,7 @@ export function FAQ() {
                     {/* Question text */}
                     <span
                       className={cn(
-                        "text-sm sm:text-base md:text-lg font-bold leading-snug transition-colors duration-300",
+                        "text-sm sm:text-base md:text-lg font-bold leading-snug md:transition-colors md:duration-300",
                         isOpen 
                           ? isDark ? "text-white" : "text-slate-900" 
                           : isDark ? "text-slate-200 group-hover:text-white" : "text-slate-700 group-hover:text-slate-900"
@@ -151,7 +157,7 @@ export function FAQ() {
                   {/* Chevron */}
                   <span
                     className={cn(
-                      "shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300",
+                      "shrink-0 w-8 h-8 rounded-lg flex items-center justify-center md:transition-all md:duration-300",
                       isOpen
                         ? "bg-[#5E84F2]/20 text-[#5E84F2] rotate-180"
                         : isDark
@@ -166,7 +172,7 @@ export function FAQ() {
                 {/* Answer (CSS grid-rows transition) */}
                 <div
                   className={cn(
-                    "grid transition-all duration-350 ease-in-out",
+                    "grid md:transition-all md:duration-350 md:ease-in-out",
                     isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                   )}
                 >

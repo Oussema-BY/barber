@@ -18,26 +18,32 @@ export function Testimonials() {
   const isDark = resolvedTheme === "dark";
 
   useGSAP(() => {
-    gsap.from(".testimonials-info > *", {
-      scrollTrigger: { trigger: ".testimonials-info", start: "top 85%" },
-      opacity: 0,
-      x: -40,
-      stagger: 0.15,
-      duration: 1,
-      ease: "power3.out",
-    });
+    let mm = gsap.matchMedia();
 
-    const cards = gsap.utils.toArray<Element>(".testimonial-card");
-    cards.forEach((card, i) => {
-      gsap.from(card, {
-        scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none reverse" },
+    mm.add("(min-width: 768px)", () => {
+      gsap.from(".testimonials-info > *", {
+        scrollTrigger: { trigger: ".testimonials-info", start: "top 85%" },
         opacity: 0,
-        y: 50,
-        duration: 0.9,
-        delay: i * 0.15,
+        x: -40,
+        stagger: 0.15,
+        duration: 1,
         ease: "power3.out",
       });
+
+      const cards = gsap.utils.toArray<Element>(".testimonial-card");
+      cards.forEach((card, i) => {
+        gsap.from(card, {
+          scrollTrigger: { trigger: card, start: "top 88%", toggleActions: "play none none reverse" },
+          opacity: 0,
+          y: 50,
+          duration: 0.9,
+          delay: i * 0.15,
+          ease: "power3.out",
+        });
+      });
     });
+
+    return () => mm.revert();
   }, { scope: containerRef });
 
   const testimonials = [
@@ -59,7 +65,7 @@ export function Testimonials() {
     <section
       ref={containerRef}
       className={cn(
-        "py-16 sm:py-20 relative overflow-hidden transition-colors duration-300",
+        "py-16 sm:py-20 relative overflow-hidden md:transition-colors md:duration-300",
         isDark ? "bg-black" : "bg-slate-50"
       )}
     >
@@ -87,13 +93,13 @@ export function Testimonials() {
               <div
                 key={i}
                 className={cn(
-                  "testimonial-card group relative p-8 sm:p-10 rounded-[2.5rem] border transition-all duration-500",
+                  "testimonial-card group relative p-8 sm:p-10 rounded-[2.5rem] border md:transition-all md:duration-500",
                   isDark 
-                    ? "bg-white/3 border-white/5 hover:border-[#5E84F2]/25" 
-                    : "bg-white border-slate-200 shadow-sm hover:border-[#5E84F2]/25 hover:shadow-md"
+                    ? "bg-white/3 border-white/5 md:hover:border-[#5E84F2]/25" 
+                    : "bg-white border-slate-200 shadow-sm md:hover:border-[#5E84F2]/25 md:hover:shadow-md"
                 )}
               >
-                <Quote className={cn("absolute top-6 right-8 w-12 h-12 transition-colors", isDark ? "text-white/4 group-hover:text-[#5E84F2]/8" : "text-black/3 group-hover:text-[#5E84F2]/6")} />
+                <Quote className={cn("absolute top-6 right-8 w-12 h-12 md:transition-colors", isDark ? "text-white/4 md:group-hover:text-[#5E84F2]/8" : "text-black/3 md:group-hover:text-[#5E84F2]/6")} />
                 <div className="relative z-10 flex flex-col gap-6">
                   <p className={cn("text-lg sm:text-xl font-medium italic leading-relaxed", isDark ? "text-slate-300" : "text-slate-700")}>
                     &ldquo;{testi.content}&rdquo;
@@ -104,7 +110,7 @@ export function Testimonials() {
                       alt={testi.name}
                       width={56}
                       height={56}
-                      className="w-14 h-14 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                      className="w-14 h-14 rounded-2xl object-cover grayscale md:group-hover:grayscale-0 md:transition-all md:duration-500"
                     />
                     <div>
                       <h4 className={cn("font-bold", isDark ? "text-white" : "text-slate-900")}>{testi.name}</h4>

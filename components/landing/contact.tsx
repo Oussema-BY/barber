@@ -19,27 +19,33 @@ export function Contact() {
   const isDark = resolvedTheme === "dark";
 
   useGSAP(() => {
-    gsap.from(".contact-info > *", {
-      scrollTrigger: { trigger: ".contact-info", start: "top 85%" },
-      opacity: 0,
-      x: -40,
-      stagger: 0.15,
-      duration: 1,
-      ease: "power3.out",
+    let mm = gsap.matchMedia();
+
+    mm.add("(min-width: 768px)", () => {
+      gsap.from(".contact-info > *", {
+        scrollTrigger: { trigger: ".contact-info", start: "top 85%" },
+        opacity: 0,
+        x: -40,
+        stagger: 0.15,
+        duration: 1,
+        ease: "power3.out",
+      });
+
+      gsap.from(".contact-form", {
+        scrollTrigger: { trigger: ".contact-form", start: "top 85%" },
+        opacity: 0,
+        y: 40,
+        duration: 1,
+        delay: 0.2,
+        ease: "power3.out",
+      });
     });
 
-    gsap.from(".contact-form", {
-      scrollTrigger: { trigger: ".contact-form", start: "top 85%" },
-      opacity: 0,
-      y: 40,
-      duration: 1,
-      delay: 0.2,
-      ease: "power3.out",
-    });
+    return () => mm.revert();
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className={cn("py-16 sm:py-20 relative transition-colors duration-300", isDark ? "bg-black" : "bg-slate-50")} id="contact">
+    <section ref={containerRef} className={cn("py-16 sm:py-20 relative md:transition-colors md:duration-300", isDark ? "bg-black" : "bg-slate-50")} id="contact">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
@@ -57,8 +63,8 @@ export function Contact() {
             <div className="space-y-6">
               <div className="flex items-center gap-5 group">
                 <div className={cn(
-                  "w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center transition-all duration-400",
-                  isDark ? "bg-white/5 border-white/8 group-hover:border-[#5E84F2]/40" : "bg-white border-slate-200 group-hover:border-[#5E84F2]/30 shadow-sm"
+                  "w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center md:transition-all md:duration-400",
+                  isDark ? "bg-white/5 border-white/8 md:group-hover:border-[#5E84F2]/40" : "bg-white border-slate-200 md:group-hover:border-[#5E84F2]/30 shadow-sm"
                 )}>
                   <Mail className="w-5 h-5 text-[#5E84F2]" />
                 </div>
@@ -70,8 +76,8 @@ export function Contact() {
 
               <div className="flex items-center gap-5 group">
                 <div className={cn(
-                  "w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center transition-all duration-400",
-                  isDark ? "bg-white/5 border-white/8 group-hover:border-[#5E84F2]/40" : "bg-white border-slate-200 group-hover:border-[#5E84F2]/30 shadow-sm"
+                  "w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center md:transition-all md:duration-400",
+                  isDark ? "bg-white/5 border-white/8 md:group-hover:border-[#5E84F2]/40" : "bg-white border-slate-200 md:group-hover:border-[#5E84F2]/30 shadow-sm"
                 )}>
                   <MapPin className="w-5 h-5 text-[#5E84F2]" />
                 </div>
@@ -87,7 +93,7 @@ export function Contact() {
           <div className="relative contact-form">
             <div className={cn("absolute -inset-4 blur-[120px] rounded-full pointer-events-none", isDark ? "bg-[#5E84F2]/5" : "bg-[#5E84F2]/4")} aria-hidden />
             <form className={cn(
-              "relative space-y-5 border p-8 sm:p-12 rounded-[2.5rem] backdrop-blur-xl transition-all",
+              "relative space-y-5 border p-8 sm:p-12 rounded-[2.5rem] backdrop-blur-xl md:transition-all",
               isDark 
                 ? "bg-white/3 border-white/5" 
                 : "bg-white border-slate-200 shadow-xl shadow-black/5"
@@ -96,7 +102,7 @@ export function Contact() {
                 type="text"
                 placeholder={t("contactPlaceholderName")}
                 className={cn(
-                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 transition-all font-semibold text-sm tracking-tight",
+                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight",
                   isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
                 )}
               />
@@ -104,7 +110,7 @@ export function Contact() {
                 type="email"
                 placeholder={t("contactPlaceholderEmail")}
                 className={cn(
-                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 transition-all font-semibold text-sm tracking-tight",
+                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight",
                   isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
                 )}
               />
@@ -112,13 +118,13 @@ export function Contact() {
                 rows={4}
                 placeholder={t("contactPlaceholderMessage")}
                 className={cn(
-                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 transition-all font-semibold text-sm tracking-tight resize-none",
+                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight resize-none",
                   isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
                 )}
               />
               <Button className="w-full py-5 rounded-2xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-black tracking-tight shadow-2xl shadow-[#5E84F2]/20 group text-sm sm:text-base">
                 {t("contactSubmit")}
-                <Send className="ml-2 w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
+                <Send className="ml-2 w-4 h-4 md:group-hover:translate-x-1 md:group-hover:-translate-y-0.5 md:transition-transform" />
               </Button>
             </form>
           </div>

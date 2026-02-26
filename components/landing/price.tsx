@@ -38,37 +38,42 @@ export function Prive() {
 
   useGSAP(
     () => {
-      // Header fade-up
-      gsap.from(".prive-header > *", {
-        scrollTrigger: {
-          trigger: ".prive-header",
-          start: "top 90%",
-          toggleActions: "play none none none",
-        },
-        immediateRender: false,
-        opacity: 0,
-        y: 50,
-        stagger: 0.18,
-        duration: 1.1,
-        ease: "expo.out",
+      let mm = gsap.matchMedia();
+
+      mm.add("(min-width: 768px)", () => {
+        // Header fade-up
+        gsap.from(".prive-header > *", {
+          scrollTrigger: {
+            trigger: ".prive-header",
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+          immediateRender: false,
+          opacity: 0,
+          y: 50,
+          stagger: 0.18,
+          duration: 1.1,
+          ease: "expo.out",
+        });
+
+        // Cards stagger entrance
+        const cards = gsap.utils.toArray<Element>(".pricing-card");
+        gsap.from(cards, {
+          scrollTrigger: {
+            trigger: ".pricing-grid",
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+          immediateRender: false,
+          opacity: 0,
+          y: 60,
+          stagger: 0.2,
+          duration: 1,
+          ease: "power4.out",
+        });
       });
 
-      // Cards stagger entrance
-      const cards = gsap.utils.toArray<Element>(".pricing-card");
-      gsap.from(cards, {
-        scrollTrigger: {
-          trigger: ".pricing-grid",
-          start: "top 90%",
-          toggleActions: "play none none none",
-        },
-        immediateRender: false,
-        opacity: 0,
-        y: 60,
-        stagger: 0.2,
-        duration: 1,
-        ease: "power4.out",
-      });
-
+      return () => mm.revert();
     },
     { scope: containerRef }
   );
@@ -78,7 +83,7 @@ export function Prive() {
       ref={containerRef}
       id="pricing"
       className={cn(
-        "relative py-16 sm:py-20 overflow-hidden transition-colors duration-300",
+        "relative py-16 sm:py-20 overflow-hidden md:transition-colors md:duration-300",
         isDark ? "bg-black" : "bg-white"
       )}
     >
@@ -178,7 +183,7 @@ function PricingCard({
 
         {/* Card surface */}
         <div className={cn(
-          "relative rounded-3xl border overflow-hidden transition-transform duration-300 ease-out hover:scale-[1.02]",
+          "relative rounded-3xl border overflow-hidden md:transition-transform md:duration-300 md:ease-out md:hover:scale-[1.02]",
           isDark 
             ? "border-[#5E84F2]/40 bg-linear-to-b from-[#0f1629] to-[#080d1a] shadow-2xl shadow-[#5E84F2]/20" 
             : "border-[#5E84F2]/30 bg-white shadow-xl shadow-[#5E84F2]/10"
@@ -215,7 +220,7 @@ function PricingCard({
             <p className={cn("text-sm leading-relaxed mb-8", isDark ? "text-slate-400" : "text-slate-500")}>{description}</p>
 
             {/* CTA */}
-            <button className="w-full h-12 rounded-xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-bold text-sm shadow-lg shadow-[#5E84F2]/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-[#5E84F2]/40 active:scale-[0.98]">
+            <button className="w-full h-12 rounded-xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-bold text-sm shadow-lg shadow-[#5E84F2]/30 md:transition-all md:duration-300 md:hover:scale-[1.02] md:hover:shadow-xl md:hover:shadow-[#5E84F2]/40 md:active:scale-[0.98]">
               {cta}
             </button>
 
@@ -242,7 +247,7 @@ function PricingCard({
   // ── Standard card ────────────────────────────────────────────────────────────
   return (
     <div className={cn(
-      "pricing-card relative rounded-3xl border transition-all duration-300 ease-out hover:scale-[1.02] overflow-hidden",
+      "pricing-card relative rounded-3xl border md:transition-all md:duration-300 md:ease-out md:hover:scale-[1.02] overflow-hidden",
       isDark 
         ? "border-white/10 bg-[#0d0d14] hover:border-white/20 hover:bg-[#111120] shadow-xl shadow-black/40" 
         : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white shadow-sm"
@@ -267,10 +272,10 @@ function PricingCard({
 
         {/* CTA */}
         <button className={cn(
-          "w-full h-12 rounded-xl border text-bold text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]",
+          "w-full h-12 rounded-xl border text-bold text-sm md:transition-all md:duration-300 md:hover:scale-[1.02] md:active:scale-[0.98]",
           isDark 
-            ? "border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/20" 
-            : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400"
+            ? "border-white/10 bg-white/5 text-white md:hover:bg-white/10 md:hover:border-white/20" 
+            : "border-slate-300 bg-white text-slate-800 md:hover:bg-slate-50 md:hover:border-slate-400"
         )}>
           {cta}
         </button>
