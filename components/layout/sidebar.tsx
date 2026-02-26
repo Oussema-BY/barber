@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Scissors } from 'lucide-react';
 import { MAIN_NAV } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/user-context';
@@ -31,17 +31,30 @@ export function Sidebar() {
   const filteredNav = MAIN_NAV.filter(
     (item) => shopRole && (item.roles as readonly string[]).includes(shopRole)
   );
+  
 
   return (
-    <aside className="hidden md:fixed md:left-0 rtl:md:left-auto rtl:md:right-0 md:top-0 md:h-screen md:w-64 md:flex md:flex-col bg-sidebar-background border-r rtl:border-r-0 rtl:border-l border-sidebar-border">
+    <aside className="hidden md:fixed md:left-0 rtl:md:left-auto rtl:md:right-0 md:top-0 md:h-screen md:w-64 md:flex md:flex-col bg-sidebar-background border-r rtl:border-r-0 rtl:border-l border-sidebar-border shadow-[0_0_20px_rgba(0,0,0,0.02)] transition-all duration-300">
       {/* Logo Section */}
-      <div className="px-6 py-5 border-b border-sidebar-border">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
-            <Scissors className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="text-xl font-bold text-foreground">{tTopbar('brandName')}</span>
-        </Link>
+      <div className="px-3 py-3 border-b border-sidebar-border/50">
+        <Link
+              href="/"
+              className="flex items-center gap-0 group shrink-0"
+              
+            >
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform duration-300">
+                <Image
+                  src="/logo.png"
+                  alt="TaktakBeauty Logo"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className={cn("text-xl font-black tracking-tighter transition-colors")}>
+                TAKTAKBEAUTY<span className="text-[#5E84F2]">.</span>
+              </span>
+            </Link>
       </div>
 
       {/* Navigation */}

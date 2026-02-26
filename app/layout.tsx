@@ -17,12 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BarberPro - Barber Shop Management",
+  title: "TakTakBeauty - Barber Shop Management",
   description: "Professional barber shop management system",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "BarberPro",
+    title: "TakTakBeauty",
   },
   formatDetection: {
     telephone: false,
@@ -58,7 +58,7 @@ export default async function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('barberpro-theme');
+                  var theme = localStorage.getItem('taktakbeauty-theme');
                   if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                     document.documentElement.classList.add('dark');
                   } else {

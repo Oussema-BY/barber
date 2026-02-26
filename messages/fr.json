@@ -34,7 +34,7 @@
   },
   "topbar": {
     "search": "Rechercher rendez-vous, clients...",
-    "brandName": "BarberPro",
+    "brandName": "TakTakBeauty",
     "appointment": "Rendez-vous",
     "service": "Service",
     "product": "Produit"
@@ -42,7 +42,7 @@
   "auth": {
     "signIn": "Se connecter",
     "signUp": "S'inscrire",
-    "signInSubtitle": "Bon retour sur BarberPro",
+    "signInSubtitle": "Bon retour sur TakTakBeauty",
     "signUpSubtitle": "Créez votre compte",
     "email": "Email",
     "password": "Mot de passe",
@@ -55,7 +55,7 @@
     "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer."
   },
   "onboarding": {
-    "welcome": "Bienvenue sur BarberPro !",
+    "welcome": "Bienvenue sur TakTakBeauty !",
     "letsGetStarted": "Configurons votre salon",
     "shopNameLabel": "Nom du salon",
     "shopNameDescription": "Comment s'appelle votre salon de coiffure ?",
@@ -331,7 +331,7 @@
   },
   "landing": {
     "heroTag": "L'avenir de la gestion professionnelle",
-    "heroTag-title": "Élevez votre entreprise avec BarberPro. Une plateforme transparente et performante conçue pour l'élite moderne.",
+    "heroTag-title": "Élevez votre entreprise avec TaktakBeauty. Une plateforme transparente et performante conçue pour l'élite moderne.",
     "watchDemo": "Voir la démo",
     "featuresSectionTitle": "Infrastructure de base",
     "featuresSectionSubtitle": "Conçu pour ceux qui en demandent plus.",
@@ -340,14 +340,14 @@
     "rating": "Note de 5.0 / 5.0",
     "getStarted": "Commencer",
     "signIn": "Se connecter",
-    "footerTitle": "SYSTÈME BARBERPRO",
-    "footerDescription": "Autonomiser la prochaine génération de talents professionnels avec les solutions numériques de précision de BarberPro.",
+    "footerTitle": "SYSTÈME TAKTAKBEAUTY",
+    "footerDescription": "Autonomiser la prochaine génération de talents professionnels avec les solutions numériques de précision de TaktakBeauty.",
     "footerProtocol": "Protocole",
     "footerNetwork": "Réseau",
-    "footerCopyright": "© 2026 BARBERPRO. TOUS DROITS RÉSERVÉS.",
+    "footerCopyright": "© 2026 TAKTAKBEAUTY. TOUS DROITS RÉSERVÉS.",
     "featureList": {
       "performance": "Hyper-Performance",
-      "performanceDesc": "Faites l'expérience d'un traitement ultra-rapide avec notre moteur exclusif BarberPro. L'efficacité redéfinie.",
+      "performanceDesc": "Faites l'expérience d'un traitement ultra-rapide avec notre moteur exclusif TaktakBeauty. L'efficacité redéfinie.",
       "security": "Bouclier de sécurité",
       "securityDesc": "Cryptage de niveau militaire pour toutes vos données. Votre sécurité est notre priorité absolue, toujours.",
       "analytics": "Analyses avancées",
@@ -363,7 +363,7 @@
       {
         "name": "Marcus Aurelius",
         "role": "PDG CHEZ ROMAN CAPITAL",
-        "content": "BarberPro a complètement transformé notre flux de travail opérationnel. La rapidité et la précision sont inégalées sur le marché actuel."
+        "content": "TaktakBeauty a complètement transformé notre flux de travail opérationnel. La rapidité et la précision sont inégalées sur le marché actuel."
       },
       {
         "name": "Elara Vance",
@@ -414,14 +414,14 @@
     "faqList": [
       {
         "q": "Mes données sont-elles sécurisées ?",
-        "a": "BarberPro utilise un cryptage de niveau militaire AES-256 pour toutes les données sensibles et effectue des audits de sécurité réguliers."
+        "a": "TaktakBeauty utilise un cryptage de niveau militaire AES-256 pour toutes les données sensibles et effectue des audits de sécurité réguliers."
       },
       {
         "q": "Puis-je migrer depuis une autre plateforme ?",
         "a": "Oui. Notre équipe d'ingénieurs propose un service de migration haut de gamme pour déplacer vos rendez-vous et vos clients sans interruption."
       },
       {
-        "q": "BarberPro supporte-t-il plusieurs emplacements ?",
+        "q": "TaktakBeauty supporte-t-il plusieurs emplacements ?",
         "a": "Absolument. Notre offre entreprise est conçue spécifiquement pour les franchises avec un contrôle centralisé."
       }
     ],
@@ -442,7 +442,7 @@
       "plans": {
         "mensuelle": {
           "title": "Mensuelle",
-          "price": "29",
+          "price": "49",
           "period": "/ mois",
           "description": "Idéal pour démarrer et gérer votre activité au quotidien sans engagement.",
           "features": [
@@ -456,7 +456,7 @@
         },
         "annuelle": {
           "title": "Annuelle",
-          "price": "19",
+          "price": "39",
           "period": "/ mois",
           "description": "La formule la plus rentable avec 2 mois offerts. Pour les pros ambitieux.",
           "features": [
@@ -470,7 +470,7 @@
         },
         "semestrielle": {
           "title": "Semestrielle",
-          "price": "24",
+          "price": "44",
           "period": "/ mois",
           "description": "Le bon équilibre entre flexibilité et économies pour votre salon.",
           "features": [

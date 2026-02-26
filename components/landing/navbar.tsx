@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
-import { Scissors, Menu, X, ArrowRight, Sun, Moon } from "lucide-react";
+import Image from "next/image";
+import { Menu, X, ArrowRight, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { cn } from "@/lib/utils";
@@ -97,14 +98,20 @@ export function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2.5 group shrink-0"
+              className="flex items-center gap-0 group shrink-0"
               onClick={() => setMenuOpen(false)}
             >
-              <div className="w-9 h-9 rounded-xl bg-[#5E84F2] flex items-center justify-center shadow-lg shadow-[#5E84F2]/25 group-hover:rotate-6 transition-transform duration-300">
-                <Scissors className="w-5 h-5 text-white" />
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform duration-300">
+                <Image
+                  src="/logo.png"
+                  alt="TaktakBeauty Logo"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className={cn("text-xl font-black tracking-tighter transition-colors", logoText)}>
-                BARBERPRO<span className="text-[#5E84F2]">.</span>
+                TAKTAKBEAUTY<span className="text-[#5E84F2]">.</span>
               </span>
             </Link>
 

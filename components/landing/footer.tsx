@@ -34,7 +34,7 @@ export function Footer() {
                 <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <span className={cn("text-xl sm:text-2xl font-black tracking-tighter uppercase italic", isDark ? "text-white" : "text-slate-900")}>
-                BARBERPRO<span className={cn("not-italic text-[#5E84F2] text-xs tracking-widest pl-1.5", isDark ? "" : "text-[#5E84F2]")}>SYSTEM</span>
+                TAKTAKBEAUTY<span className={cn("not-italic text-[#5E84F2] text-xs tracking-widest pl-1.5", isDark ? "" : "text-[#5E84F2]")}>SYSTEM</span>
               </span>
             </Link>
             <p className={cn("font-medium leading-relaxed text-sm sm:text-base", isDark ? "text-slate-400" : "text-slate-500")}>

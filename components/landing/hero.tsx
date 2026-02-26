@@ -130,8 +130,8 @@ export function Hero() {
     >
       {/* ── Ambient blobs ── */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div className={cn("bg-blob absolute top-1/4 -left-48 w-[500px] h-[500px] blur-[110px] rounded-full", blobBlue)} />
-        <div className={cn("bg-blob absolute bottom-1/4 -right-48 w-[500px] h-[500px] blur-[130px] rounded-full", blobPurple)} />
+        <div className={cn("bg-blob absolute top-1/4 -left-48 w-125 h-125 blur-[110px] rounded-full", blobBlue)} />
+        <div className={cn("bg-blob absolute bottom-1/4 -right-48 w-125 h-125 blur-[130px] rounded-full", blobPurple)} />
         <div className={cn("bg-blob absolute top-3/4 left-1/3 w-64 h-64 blur-[90px] rounded-full", isDark ? "bg-indigo-400/8" : "bg-indigo-400/4")} />
         <div className={cn("bg-blob absolute -top-20 right-1/3 w-80 h-80 blur-[100px] rounded-full", isDark ? "bg-[#5E84F2]/6" : "bg-[#5E84F2]/4")} />
       </div>
@@ -185,7 +185,7 @@ export function Hero() {
           </div>
         </div>
         <div className={cn("mt-3 h-1.5 rounded-full overflow-hidden", isDark ? "bg-white/5" : "bg-black/5")}>
-          <div className="h-full w-3/5 rounded-full bg-gradient-to-r from-[#5E84F2] to-purple-500" />
+          <div className="h-full w-3/5 rounded-full bg-linear-to-r from-[#5E84F2] to-purple-500" />
         </div>
         <p className={cn("text-xs mt-1", isDark ? "text-slate-500" : "text-slate-400")}>60% of day filled</p>
       </div>
@@ -247,10 +247,10 @@ export function Hero() {
         {/* Title */}
         <h1
           ref={titleRef}
-          className={cn("text-[clamp(3.5rem,13vw,9rem)] font-black tracking-tighter leading-[0.88] mb-2", titleColor)}
+          className={cn("text-[clamp(2.5rem,11vw,7rem)] font-black tracking-tighter leading-[0.88] mb-2", titleColor)}
           style={{ perspective: "800px" }}
         >
-          {"BARBERPRO".split("").map((char, i) => (
+          {"TAKTAKBEAUTY".split("").map((char, i) => (
             <span key={i} className="char inline-block">{char}</span>
           ))}
           <span className="text-[#5E84F2]">.</span>

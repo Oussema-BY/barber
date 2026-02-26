@@ -64,7 +64,7 @@ export function Contact() {
                 </div>
                 <div>
                   <p className={cn("text-[10px] font-black uppercase tracking-widest mb-0.5", isDark ? "text-slate-500" : "text-slate-400")}>Protocol Email</p>
-                  <p className={cn("font-bold", isDark ? "text-white" : "text-slate-900")}>elite@barberpro.system</p>
+                  <p className={cn("font-bold", isDark ? "text-white" : "text-slate-900")}>elite@taktakbeauty.system</p>
                 </div>
               </div>
 

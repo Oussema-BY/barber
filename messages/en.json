@@ -34,7 +34,7 @@
   },
   "topbar": {
     "search": "Search appointments, clients...",
-    "brandName": "BarberPro",
+    "brandName": "TakTakBeauty",
     "appointment": "Appointment",
     "service": "Service",
     "product": "Product"
@@ -42,7 +42,7 @@
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "signInSubtitle": "Welcome back to BarberPro",
+    "signInSubtitle": "Welcome back to TakTakBeauty",
     "signUpSubtitle": "Create your account",
     "email": "Email",
     "password": "Password",
@@ -55,7 +55,7 @@
     "somethingWentWrong": "Something went wrong. Please try again."
   },
   "onboarding": {
-    "welcome": "Welcome to BarberPro!",
+    "welcome": "Welcome to TakTakBeauty!",
     "letsGetStarted": "Let's set up your shop",
     "shopNameLabel": "Shop Name",
     "shopNameDescription": "What's the name of your barber shop?",
@@ -331,7 +331,7 @@
   },
   "landing": {
     "heroTag": "The Future of Professional Management",
-    "heroTag-title": "Elevate your business with BarberPro. A seamless, high-performance platform designed for the modern elite.",
+    "heroTag-title": "Elevate your business with TaktakBeauty. A seamless, high-performance platform designed for the modern elite.",
     "watchDemo": "Watch Demo",
     "featuresSectionTitle": "Core Infrastructure",
     "featuresSectionSubtitle": "Built for those who demand more.",
@@ -340,14 +340,14 @@
     "rating": "5.0 / 5.0 Rating",
     "getStarted": "Get Started",
     "signIn": "Sign In",
-    "footerTitle": "BARBERPRO SYSTEM",
-    "footerDescription": "Empowering the next generation of professional talent with BarberPro's precision digital solutions.",
+    "footerTitle": "TAKTAKBEAUTY SYSTEM",
+    "footerDescription": "Empowering the next generation of professional talent with TaktakBeauty's precision digital solutions.",
     "footerProtocol": "Protocol",
     "footerNetwork": "Network",
-    "footerCopyright": "© 2026 BARBERPRO. ALL RIGHTS RESERVED.",
+    "footerCopyright": "© 2026 TAKTAKBEAUTY. ALL RIGHTS RESERVED.",
     "featureList": {
       "performance": "Hyper-Performance",
-      "performanceDesc": "Experience lightning-fast processing with our proprietary BarberPro engine. Efficiency redefined.",
+      "performanceDesc": "Experience lightning-fast processing with our proprietary TaktakBeauty engine. Efficiency redefined.",
       "security": "Security Shield",
       "securityDesc": "Military-grade encryption for all your data. Your security is our highest priority, always.",
       "analytics": "Advanced Analytics",
@@ -363,7 +363,7 @@
       {
         "name": "Marcus Aurelius",
         "role": "CEO AT ROMAN CAPITAL",
-        "content": "BarberPro has completely transformed our operational workflow. The speed and precision are unmatched in the current market."
+        "content": "TaktakBeauty has completely transformed our operational workflow. The speed and precision are unmatched in the current market."
       },
       {
         "name": "Elara Vance",
@@ -414,14 +414,14 @@
     "faqList": [
       {
         "q": "How secure is my business data?",
-        "a": "BarberPro uses AES-256 military-grade encryption for all sensitive data and performs regular security audits to ensure your business remains bulletproof."
+        "a": "taktakbeauty uses AES-256 military-grade encryption for all sensitive data and performs regular security audits to ensure your business remains bulletproof."
       },
       {
         "q": "Can I migrate from another platform?",
         "a": "Yes. Our engineering team provides a white-glove migration service to move your appointments, clients, and history with zero downtime."
       },
       {
-        "q": "Does BarberPro support multiple locations?",
+        "q": "Does TaktakBeauty support multiple locations?",
         "a": "Absolutely. Our enterprise tier is designed specifically for franchises and multi-location empires with centralized command and control."
       }
     ],
@@ -442,7 +442,7 @@
       "plans": {
         "mensuelle": {
           "title": "Monthly",
-          "price": "150",
+          "price": "49",
           "period": "/ month",
           "description": "Ideal for getting started and managing your activity day-to-day, with no commitment.",
           "features": [
@@ -456,7 +456,7 @@
         },
         "annuelle": {
           "title": "Annual",
-          "price": "100",
+          "price": "39",
           "period": "/ month",
           "description": "The most cost-effective plan with 2 months free. For ambitious pros.",
           "features": [
@@ -470,7 +470,7 @@
         },
         "semestrielle": {
           "title": "Semi-Annual",
-          "price": "130",
+          "price": "44",
           "period": "/ month",
           "description": "The right balance between flexibility and savings for your salon.",
           "features": [

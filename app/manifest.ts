@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'BarberPro',
-    short_name: 'BarberPro',
+    name: 'TaktakBeauty',
+    short_name: 'TaktakBeauty',
     description: 'Professional barber shop management system',
     start_url: '/dashboard',
     display: 'standalone',
