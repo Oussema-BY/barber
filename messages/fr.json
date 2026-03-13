@@ -52,7 +52,10 @@
     "enterName": "Entrez votre nom",
     "noAccount": "Pas encore de compte ?",
     "haveAccount": "Déjà un compte ?",
-    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer."
+    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer.",
+    "invalidCredentials": "Email ou mot de passe invalide.",
+    "accountDeactivated": "Votre compte a été désactivé. Veuillez contacter le propriétaire du salon.",
+    "shopSuspended": "Votre salon a été suspendu par l'administrateur. Veuillez contacter le support."
   },
   "onboarding": {
     "welcome": "Bienvenue sur TakTakBeauty !",
@@ -82,7 +85,8 @@
     "inviteCodeDescription": "Demandez le code à 8 caractères au propriétaire",
     "inviteCodePlaceholder": "ABCD1234",
     "joinShop": "Rejoindre le salon",
-    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer."
+    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer.",
+    "backToHome": "Retour à l'accueil"
   },
   "profile": {
     "title": "Mon Profil",
@@ -280,8 +284,21 @@
     "multiMode": "Multi-fauteuils",
     "staff": "Équipe",
     "addBarber": "Ajouter Coiffeur",
+    "addStaff": "Ajouter Personnel",
     "barberName": "Nom du coiffeur",
-    "noStaff": "Aucun membre de l'équipe"
+    "noStaff": "Aucun membre de l'équipe",
+    "newStaffAccount": "Nouveau Compte Personnel",
+    "staffName": "Nom complet",
+    "staffEmail": "Adresse email",
+    "staffPassword": "Mot de passe (min. 6 caractères)",
+    "staffPasswordHint": "Le membre du personnel utilisera ces identifiants pour se connecter.",
+    "createStaffAccount": "Créer le compte",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "youOwner": "Vous (Propriétaire)",
+    "cannotDeactivateSelf": "Vous ne pouvez pas désactiver votre propre compte"
   },
   "inventory": {
     "title": "Inventaire",
@@ -340,6 +357,7 @@
     "rating": "Note de 5.0 / 5.0",
     "getStarted": "Commencer",
     "signIn": "Se connecter",
+    "goToDashboard": "Tableau de bord",
     "footerTitle": "SYSTÈME TAKTAKBEAUTY",
     "footerDescription": "Autonomiser la prochaine génération de talents professionnels avec les solutions numériques de précision de TaktakBeauty.",
     "footerProtocol": "Protocole",
@@ -431,6 +449,8 @@
     "contactPlaceholderEmail": "ADRESSE E-MAIL",
     "contactPlaceholderMessage": "VOTRE MESSAGE",
     "contactSubmit": "ENVOYER LE PROTOCOLE",
+    "contactSuccessTitle": "Message Reçu",
+    "contactSuccessMessage": "Nous avons bien reçu votre demande et nous vous répondrons dans les plus brefs délais.",
     "prive": {
       "label": "Tarification",
       "title": "Choisissez",

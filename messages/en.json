@@ -52,7 +52,10 @@
     "enterName": "Enter your name",
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "invalidCredentials": "Invalid email or password.",
+    "accountDeactivated": "Your account has been deactivated. Please contact the shop owner.",
+    "shopSuspended": "Your shop has been suspended by the administrator. Please contact support."
   },
   "onboarding": {
     "welcome": "Welcome to TakTakBeauty!",
@@ -82,7 +85,8 @@
     "inviteCodeDescription": "Ask your shop owner for the 8-character code",
     "inviteCodePlaceholder": "ABCD1234",
     "joinShop": "Join Shop",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "backToHome": "Back to Home"
   },
   "profile": {
     "title": "My Profile",
@@ -280,8 +284,21 @@
     "multiMode": "Multi-Chair",
     "staff": "Staff",
     "addBarber": "Add Barber",
+    "addStaff": "Add Staff",
     "barberName": "Barber name",
-    "noStaff": "No staff members yet"
+    "noStaff": "No staff members yet",
+    "newStaffAccount": "New Staff Account",
+    "staffName": "Full name",
+    "staffEmail": "Email address",
+    "staffPassword": "Password (min. 6 characters)",
+    "staffPasswordHint": "The staff member will use these credentials to sign in.",
+    "createStaffAccount": "Create Account",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "youOwner": "You (Owner)",
+    "cannotDeactivateSelf": "You cannot deactivate your own account"
   },
   "inventory": {
     "title": "Inventory",
@@ -340,6 +357,7 @@
     "rating": "5.0 / 5.0 Rating",
     "getStarted": "Get Started",
     "signIn": "Sign In",
+    "goToDashboard": "Go to Dashboard",
     "footerTitle": "TAKTAKBEAUTY SYSTEM",
     "footerDescription": "Empowering the next generation of professional talent with TaktakBeauty's precision digital solutions.",
     "footerProtocol": "Protocol",
@@ -431,6 +449,8 @@
     "contactPlaceholderEmail": "EMAIL ADDRESS",
     "contactPlaceholderMessage": "YOUR MESSAGE",
     "contactSubmit": "SEND PROTOCOL",
+    "contactSuccessTitle": "Message Received",
+    "contactSuccessMessage": "We've received your request and will get back to you as soon as possible.",
     "prive": {
       "label": "Pricing",
       "title": "Choose Your",

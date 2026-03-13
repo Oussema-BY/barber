@@ -71,9 +71,9 @@ export default async function ProtectedLayout({
     shopName,
   };
 
-  // No shop membership → onboarding (staff join via invite code)
   // Owner with un-onboarded shop → onboarding (configure shop)
-  const needsOnboarding = !shopId || (shopRole === 'owner' && !isOnboarded);
+  // Staff without shop → they should be added by the owner in settings
+  const needsOnboarding = shopRole === 'owner' && !isOnboarded;
 
   if (needsOnboarding) {
     return (

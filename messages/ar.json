@@ -52,7 +52,10 @@
     "enterName": "أدخل اسمك",
     "noAccount": "ليس لديك حساب؟",
     "haveAccount": "لديك حساب بالفعل؟",
-    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "accountDeactivated": "لقد تم تعطيل حسابك. يرجى الاتصال بصاحب الصالون.",
+    "shopSuspended": "تم تعليق صالونك من قبل المسؤول. يرجى التواصل مع الدعم."
   },
   "onboarding": {
     "welcome": "مرحباً بك في TakTakBeauty!",
@@ -82,7 +85,8 @@
     "inviteCodeDescription": "اطلب الرمز المكون من 8 أحرف من صاحب الصالون",
     "inviteCodePlaceholder": "ABCD1234",
     "joinShop": "انضم للصالون",
-    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "backToHome": "العودة إلى الرئيسية"
   },
   "profile": {
     "title": "ملفي الشخصي",
@@ -280,8 +284,21 @@
     "multiMode": "متعدد الكراسي",
     "staff": "الفريق",
     "addBarber": "إضافة حلاق",
+    "addStaff": "إضافة موظف",
     "barberName": "اسم الحلاق",
-    "noStaff": "لا يوجد أعضاء فريق بعد"
+    "noStaff": "لا يوجد أعضاء فريق بعد",
+    "newStaffAccount": "حساب موظف جديد",
+    "staffName": "الاسم الكامل",
+    "staffEmail": "البريد الإلكتروني",
+    "staffPassword": "كلمة المرور (حد أدنى 6 أحرف)",
+    "staffPasswordHint": "سيستخدم الموظف هذه البيانات لتسجيل الدخول.",
+    "createStaffAccount": "إنشاء الحساب",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "youOwner": "أنت (المالك)",
+    "cannotDeactivateSelf": "لا يمكنك تعطيل حسابك الخاص"
   },
   "inventory": {
     "title": "المخزون",
@@ -340,6 +357,7 @@
     "rating": "تقييم 5.0 / 5.0",
     "getStarted": "ابدأ الآن",
     "signIn": "تسجيل الدخول",
+    "goToDashboard": "لوحة التحكم",
     "footerTitle": "نظام TakTakBeauty",
     "footerDescription": "تمكين الجيل القادم من المواهب الاحترافية بحلول TakTakBeauty الرقمية الدقيقة.",
     "footerProtocol": "البروتوكول",
@@ -431,6 +449,8 @@
     "contactPlaceholderEmail": "البريد الإلكتروني",
     "contactPlaceholderMessage": "رسالتك",
     "contactSubmit": "إرسال البروتوكول",
+    "contactSuccessTitle": "تم استلام الرسالة",
+    "contactSuccessMessage": "لقد تلقينا طلبك وسنعاود الاتصال بك في أقرب وقت ممكن.",
     "prive": {
       "label": "الأسعار",
       "title": "اختر",

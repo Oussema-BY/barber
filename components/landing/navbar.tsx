@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ArrowRight, Sun, Moon } from "lucide-react";
+import { Menu, X, ArrowRight, Sun, Moon, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
+import { authClient } from "@/lib/auth-client";
 
 const scrollToSection = (id: string) => {
   const el = document.querySelector(id);
@@ -22,6 +23,8 @@ export function Navbar() {
   const locale = useLocale();
   const { resolvedTheme, setTheme, mounted } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const { data: session } = authClient.useSession();
+  const isSignedIn = !!session?.user;
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -101,7 +104,7 @@ export function Navbar() {
               className="flex items-center gap-0 group shrink-0"
               onClick={() => setMenuOpen(false)}
             >
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center md:group-hover:rotate-6 md:transition-transform md:duration-300">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center md:group-hover:rotate-6 md:transition-transform md:duration-300">
                 <Image
                   src="/logo.png"
                   alt="TaktakBeauty Logo"
@@ -159,23 +162,27 @@ export function Navbar() {
                 </button>
               )}
 
-              <Link href="/sign-in">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn("rounded-full font-bold md:transition-colors", signInCls)}
-                >
-                  {t("signIn")}
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button
-                  size="sm"
-                  className="rounded-full px-5 bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-bold shadow-md shadow-[#5E84F2]/20 md:transition-all md:hover:scale-[1.03]"
-                >
-                  {t("getStarted")}
-                </Button>
-              </Link>
+              {isSignedIn ? (
+                <Link href="/dashboard">
+                  <Button
+                    size="sm"
+                    className="rounded-full font-bold bg-[#5E84F2] hover:bg-[#4a6cd9] text-white shadow-md shadow-[#5E84F2]/25 transition-all"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
+                    {t("goToDashboard")}
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/sign-in">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn("rounded-full font-bold md:transition-colors", signInCls)}
+                  >
+                    {t("signIn")}
+                  </Button>
+                </Link>
+              )}
             </div>
 
             {/* Mobile: lang + theme + hamburger */}
@@ -266,12 +273,21 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="px-4 py-4 flex flex-col gap-3">
-            <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
-              <Button className="w-full h-12 rounded-xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-black text-sm shadow-lg shadow-[#5E84F2]/20">
-                {t("signIn")}
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
+            {isSignedIn ? (
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full h-12 rounded-xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-black text-sm shadow-lg shadow-[#5E84F2]/20">
+                  <LayoutDashboard className="mr-2 w-4 h-4" />
+                  {t("goToDashboard")}
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
+                <Button className="w-full h-12 rounded-xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-black text-sm shadow-lg shadow-[#5E84F2]/20">
+                  {t("signIn")}
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

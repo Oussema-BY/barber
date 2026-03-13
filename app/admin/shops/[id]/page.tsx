@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ArrowLeft, Users } from 'lucide-react';
 import { getShopDetails } from '@/lib/actions/admin.actions';
 import { ShopStatusToggle } from './status-toggle';
-import { CopyButton } from './copy-button';
 
 interface ShopDetailPageProps {
   params: Promise<{ id: string }>;
@@ -40,7 +39,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
       </div>
 
       {/* Shop Info Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Status */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <p className="text-sm font-medium text-slate-500 mb-2">Status</p>
@@ -53,19 +52,6 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
           >
             {shop.status === 'active' ? 'Active' : 'Suspended'}
           </span>
-        </div>
-
-        {/* Invite Code */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-500 mb-2">
-            Invite Code
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="text-lg font-mono font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-              {shop.inviteCode}
-            </code>
-            <CopyButton text={shop.inviteCode} />
-          </div>
         </div>
 
         {/* Members Count */}

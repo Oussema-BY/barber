@@ -22,6 +22,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 /* ─── tiny stat pill ─── */
 function StatPill({
@@ -64,6 +65,8 @@ export function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const { data: session } = authClient.useSession();
+  const isSignedIn = !!session?.user;
 
   useGSAP(
     () => {
@@ -281,12 +284,12 @@ export function Hero() {
 
         {/* CTAs */}
         <div className="hero-ctas flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
-          <Link href="/#features">
+          <Link href={isSignedIn ? "/dashboard" : "/#features"}>
             <Button
               size="lg"
               className="h-14 px-8 sm:px-10 text-base sm:text-lg rounded-2xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white border-0 shadow-2xl shadow-[#5E84F2]/30 group md:transition-all md:duration-300 md:hover:scale-[1.04] md:hover:shadow-[#5E84F2]/40"
             >
-              {t("getStarted")}
+              {isSignedIn ? t("goToDashboard") : t("getStarted")}
               <ArrowRight className="ml-2 w-5 h-5 md:group-hover:translate-x-1 md:transition-transform" />
             </Button>
           </Link>

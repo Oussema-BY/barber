@@ -4,12 +4,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, Search, Calendar, Zap, Package, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { ProfileDropdown } from './profile-dropdown';
 import { useUser } from '@/lib/user-context';
 import { cn } from '@/lib/utils';
 import { globalSearch, type SearchResult } from '@/lib/actions/search.actions';
+import Image from 'next/image';
 
 const TYPE_ICONS = {
   appointment: Calendar,
@@ -89,7 +91,20 @@ export function Topbar() {
       <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 md:px-6">
         {/* Mobile: Page title area */}
         <div className="md:hidden flex-1">
-          <h1 className="text-lg font-bold text-foreground">{t('brandName')}</h1>
+          <Link href="/" className="flex items-center gap-0">
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+              />
+            </div>
+            <span className="text-sm font-black tracking-tighter uppercase whitespace-nowrap">
+              TAKTAKBEAUTY<span className="text-[#5E84F2]">.</span>
+            </span>
+          </Link>
         </div>
 
         {/* Search Bar - Desktop */}

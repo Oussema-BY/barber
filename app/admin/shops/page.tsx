@@ -43,9 +43,6 @@ export default async function AdminShopsPage() {
                   Staff
                 </th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Invite Code
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Created
                 </th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -57,7 +54,7 @@ export default async function AdminShopsPage() {
               {shops.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className="px-6 py-12 text-center text-slate-400"
                   >
                     No shops found. Create one to get started.
@@ -72,7 +69,6 @@ export default async function AdminShopsPage() {
                     ownerEmail: string;
                     status: string;
                     staffCount: number;
-                    inviteCode: string;
                     createdAt: string;
                   }) => (
                     <tr key={shop.id} className="hover:bg-slate-50">
@@ -95,9 +91,6 @@ export default async function AdminShopsPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-500">
                         {shop.staffCount.toLocaleString('en-US')}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-500 font-mono">
-                        {shop.inviteCode}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-500">
                         {new Date(shop.createdAt).toLocaleDateString('en-US', {

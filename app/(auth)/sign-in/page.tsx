@@ -36,9 +36,10 @@ export default function SignInPage() {
 
       if (authError) {
         setError(authError.message || t('invalidCredentials'));
-      } else {
-        router.push('/dashboard');
+        return;
       }
+
+      router.push('/dashboard');
     } catch {
       setError(t('somethingWentWrong'));
     } finally {
@@ -246,16 +247,6 @@ export default function SignInPage() {
           </button>
         </form>
 
-        {/* ── Footer link ── */}
-        <div className={cn('mt-6 text-center text-sm', isDark ? 'text-slate-400' : 'text-slate-500')}>
-          {t('noAccount')}{' '}
-          <Link
-            href="/sign-up"
-            className="font-bold text-[#5E84F2] hover:text-[#4a6cd9] transition-colors duration-200 hover:underline underline-offset-2"
-          >
-            {t('signUp')}
-          </Link>
-        </div>
       </div>
     </div>
   );

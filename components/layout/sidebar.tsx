@@ -42,7 +42,7 @@ export function Sidebar() {
               className="flex items-center gap-0 group shrink-0"
               
             >
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform duration-300">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform duration-300">
                 <Image
                   src="/logo.png"
                   alt="TaktakBeauty Logo"

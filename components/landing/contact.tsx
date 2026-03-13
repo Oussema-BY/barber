@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Send, MapPin, Mail } from "lucide-react";
+import { Send, MapPin, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -12,11 +12,37 @@ import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface FormState {
+  success: boolean;
+  error?: string | {
+    name?: string[];
+    email?: string[];
+    message?: string[];
+  };
+  message?: string;
+}
+
 export function Contact() {
   const t = useTranslations("landing");
   const containerRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+
+  const [state, setState] = useState<FormState>({ success: false });
+  const [isPending, setIsPending] = useState(false);
+
+  useEffect(() => {
+    if (state.success && formRef.current) {
+      formRef.current.reset();
+      
+      // Success animation
+      gsap.fromTo(".success-message", 
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+      );
+    }
+  }, [state.success]);
 
   useGSAP(() => {
     let mm = gsap.matchMedia();
@@ -43,6 +69,39 @@ export function Contact() {
 
     return () => mm.revert();
   }, { scope: containerRef });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsPending(true);
+    setState({ success: false });
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data = {
+        name: formData.get("name"),
+        email: formData.get("email"),
+        message: formData.get("message"),
+      };
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      setState(result);
+    } catch (err) {
+      setState({ 
+        success: false, 
+        error: "An unexpected error occurred. Please try again." 
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const errors = typeof state.error === "object" ? state.error : {};
 
   return (
     <section ref={containerRef} className={cn("py-16 sm:py-20 relative md:transition-colors md:duration-300", isDark ? "bg-black" : "bg-slate-50")} id="contact">
@@ -92,41 +151,115 @@ export function Contact() {
           {/* Form */}
           <div className="relative contact-form">
             <div className={cn("absolute -inset-4 blur-[120px] rounded-full pointer-events-none", isDark ? "bg-[#5E84F2]/5" : "bg-[#5E84F2]/4")} aria-hidden />
-            <form className={cn(
-              "relative space-y-5 border p-8 sm:p-12 rounded-[2.5rem] backdrop-blur-xl md:transition-all",
-              isDark 
-                ? "bg-white/3 border-white/5" 
-                : "bg-white border-slate-200 shadow-xl shadow-black/5"
-            )}>
-              <input
-                type="text"
-                placeholder={t("contactPlaceholderName")}
+            
+            {state.success ? (
+              <div className="relative bg-white/5 border border-white/10 backdrop-blur-xl p-8 sm:p-12 rounded-[2.5rem] flex flex-col items-center text-center space-y-6 success-message">
+                <div className="w-20 h-20 rounded-full bg-[#5E84F2]/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-10 h-10 text-[#5E84F2]" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className={cn("text-2xl font-black tracking-tight", isDark ? "text-white" : "text-slate-900")}>
+                    {t("contactSuccessTitle")}
+                  </h3>
+                  <p className={cn("text-sm font-medium", isDark ? "text-slate-400" : "text-slate-600")}>
+                    {t("contactSuccessMessage")}
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => window.location.reload()}
+                  className="bg-[#5E84F2] hover:bg-[#4a6cd9] text-white px-8 rounded-xl font-bold"
+                >
+                  Send another message
+                </Button>
+              </div>
+            ) : (
+              <form 
+                ref={formRef}
+                onSubmit={handleSubmit}
                 className={cn(
-                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight",
-                  isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                  "relative space-y-5 border p-8 sm:p-12 rounded-[2.5rem] backdrop-blur-xl md:transition-all",
+                  isDark 
+                    ? "bg-white/3 border-white/5" 
+                    : "bg-white border-slate-200 shadow-xl shadow-black/5"
                 )}
-              />
-              <input
-                type="email"
-                placeholder={t("contactPlaceholderEmail")}
-                className={cn(
-                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight",
-                  isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+              >
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <input
+                      name="name"
+                      type="text"
+                      required
+                      placeholder={t("contactPlaceholderName")}
+                      className={cn(
+                        "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight",
+                        isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900",
+                        errors.name && "border-red-500/50"
+                      )}
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-[10px] font-bold ml-4 uppercase tracking-wider">{errors.name[0]}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      placeholder={t("contactPlaceholderEmail")}
+                      className={cn(
+                        "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight",
+                        isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900",
+                        errors.email && "border-red-500/50"
+                      )}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-[10px] font-bold ml-4 uppercase tracking-wider">{errors.email[0]}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <textarea
+                      name="message"
+                      rows={4}
+                      required
+                      placeholder={t("contactPlaceholderMessage")}
+                      className={cn(
+                        "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight resize-none",
+                        isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900",
+                        errors.message && "border-red-500/50"
+                      )}
+                    />
+                    {errors.message && (
+                      <p className="text-red-500 text-[10px] font-bold ml-4 uppercase tracking-wider">{errors.message[0]}</p>
+                    )}
+                  </div>
+                </div>
+
+                {typeof state.error === "string" && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-500 text-xs font-bold text-center">
+                    {state.error}
+                  </div>
                 )}
-              />
-              <textarea
-                rows={4}
-                placeholder={t("contactPlaceholderMessage")}
-                className={cn(
-                  "w-full border rounded-2xl px-5 py-4 placeholder:text-slate-600 focus:outline-none focus:border-[#5E84F2]/50 md:transition-all font-semibold text-sm tracking-tight resize-none",
-                  isDark ? "bg-white/5 border-white/8 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
-                )}
-              />
-              <Button className="w-full py-5 rounded-2xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-black tracking-tight shadow-2xl shadow-[#5E84F2]/20 group text-sm sm:text-base">
-                {t("contactSubmit")}
-                <Send className="ml-2 w-4 h-4 md:group-hover:translate-x-1 md:group-hover:-translate-y-0.5 md:transition-transform" />
-              </Button>
-            </form>
+
+                <Button 
+                  disabled={isPending}
+                  className="w-full py-5 h-auto rounded-2xl bg-[#5E84F2] hover:bg-[#4a6cd9] text-white font-black tracking-tight shadow-2xl shadow-[#5E84F2]/20 group text-sm sm:text-base disabled:opacity-70"
+                >
+                  {isPending ? (
+                    <>
+                      Sending...
+                      <Loader2 className="ml-2 w-4 h-4 animate-spin" />
+                    </>
+                  ) : (
+                    <>
+                      {t("contactSubmit")}
+                      <Send className="ml-2 w-4 h-4 md:group-hover:translate-x-1 md:group-hover:-translate-y-0.5 md:transition-transform" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            )}
           </div>
         </div>
       </div>

@@ -79,9 +79,6 @@ export default async function AdminDashboardPage() {
                   Status
                 </th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Invite Code
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Created
                 </th>
               </tr>
@@ -90,7 +87,7 @@ export default async function AdminDashboardPage() {
               {stats.recentShops.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={3}
                     className="px-6 py-8 text-center text-slate-400"
                   >
                     No shops created yet.
@@ -99,13 +96,14 @@ export default async function AdminDashboardPage() {
               ) : (
                 stats.recentShops.map(
                   (shop: {
+                    id: string;
                     _id: string;
                     name: string;
                     status: string;
                     inviteCode: string;
                     createdAt: string;
-                  }) => (
-                    <tr key={shop._id} className="hover:bg-slate-50">
+                  }, index: number) => (
+                    <tr key={shop.id || shop._id || index} className="hover:bg-slate-50">
                       <td className="px-6 py-4 text-sm font-medium text-slate-900">
                         {shop.name}
                       </td>
@@ -119,9 +117,6 @@ export default async function AdminDashboardPage() {
                         >
                           {shop.status === 'active' ? 'Active' : 'Suspended'}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-500 font-mono">
-                        {shop.inviteCode}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-500">
                         {new Date(shop.createdAt).toLocaleDateString('en-US', {
