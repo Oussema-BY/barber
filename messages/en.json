@@ -403,16 +403,16 @@
     "functionalitySectionSubtitle": "Precision tools for elite shops.",
     "functionalityList": [
       {
+        "title": "Master Dashboard",
+        "desc": "Holistic view of your business performance and daily operations."
+      },
+      {
         "title": "Smart Scheduling",
         "desc": "Advanced calendar engine with AI-conflict resolution and automated client reminders."
       },
       {
         "title": "Service Catalog",
         "desc": "Dynamic management of service categories, custom durations, and tiered pricing models."
-      },
-      {
-        "title": "Premium Packages",
-        "desc": "Create high-value service bundles and membership protocols for recurring revenue."
       },
       {
         "title": "Inventory Control",

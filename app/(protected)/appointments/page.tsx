@@ -371,16 +371,10 @@ export default function AppointmentsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="secondary" className="gap-2" onClick={openAllScheduled}>
+          <Button variant="secondary" className="w-full sm:w-auto" onClick={openAllScheduled}>
             <List className="w-4 h-4" />
             <span>{t('viewAll')}</span>
           </Button>
-          <Link href="/packages">
-            <Button variant="secondary" className="gap-2">
-              <CalendarDays className="w-4 h-4" />
-              <span>{tPkg('title')}</span>
-            </Button>
-          </Link>
           {!isBooking && (
             <Button onClick={() => setIsBooking(true)} className="w-full sm:w-auto">
               <Plus className="w-5 h-5" />
@@ -520,11 +514,11 @@ export default function AppointmentsPage() {
           </div>
 
           {/* Barber Selection (multi mode only) */}
-          {salonMode === 'multi' && staffMembers.length > 0 && (
+          {salonMode === 'multi' && staffMembers.filter(m => m.isActive).length > 0 && (
             <div>
               <label className="text-sm font-medium text-foreground-secondary block mb-2">{t('selectBarber')}</label>
               <div className="flex flex-wrap gap-2">
-                {staffMembers.map((member) => {
+                {staffMembers.filter(m => m.isActive).map((member) => {
                   const hasPackage = !!staffPackageStatuses[member.id];
 
                   return (

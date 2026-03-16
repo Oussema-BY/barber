@@ -403,16 +403,16 @@
     "functionalitySectionSubtitle": "Outils de précision pour les salons d'élite.",
     "functionalityList": [
       {
+        "title": "Tableau de Bord",
+        "desc": "Vue d'ensemble de la performance de votre entreprise et des opérations quotidiennes."
+      },
+      {
         "title": "Planification intelligente",
         "desc": "Moteur de calendrier avancé avec résolution de conflits par IA et rappels automatisés."
       },
       {
         "title": "Catalogue de services",
         "desc": "Gestion dynamique des catégories, durées personnalisées et modèles de tarification."
-      },
-      {
-        "title": "Forfaits Premium",
-        "desc": "Créez des forfaits de services et des protocoles d'adhésion pour des revenus récurrents."
       },
       {
         "title": "Contrôle des stocks",
