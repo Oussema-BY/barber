@@ -3,6 +3,7 @@ import { Clock, User, Phone, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Appointment } from '@/lib/types';
 import { formatTime, formatCurrency } from '@/lib/utils';
+import { useLocale } from 'next-intl';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -22,6 +23,7 @@ export function AppointmentCard({
   onDelete,
 }: AppointmentCardProps) {
   const statusVariant = statusVariants[appointment.status] || 'default';
+  const locale = useLocale();
 
   return (
     <div className="p-3 sm:p-4 rounded-xl bg-card border border-border hover:shadow-sm transition-all animate-fade-in">
@@ -80,7 +82,7 @@ export function AppointmentCard({
             )}
 
             <span className="ml-auto font-bold text-foreground text-sm">
-              {formatCurrency(appointment.price)}
+              {formatCurrency(appointment.price, locale)}
             </span>
           </div>
 

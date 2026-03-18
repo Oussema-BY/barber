@@ -20,7 +20,8 @@
     "price": "Prix",
     "service": "service",
     "description": "Description",
-    "notAvailable": "Non disponible"
+    "notAvailable": "Non disponible",
+    "currency": "TND"
   },
   "nav": {
     "dashboard": "Tableau de bord",

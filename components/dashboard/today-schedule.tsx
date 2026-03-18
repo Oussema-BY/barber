@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Clock, Phone } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Appointment } from '@/lib/types';
@@ -14,6 +14,7 @@ interface TodayScheduleProps {
 
 export function TodaySchedule({ appointments }: TodayScheduleProps) {
   const t = useTranslations('dashboard');
+  const locale = useLocale();
   const todayAppointments = appointments.slice(0, 5);
 
   return (
@@ -71,7 +72,7 @@ export function TodaySchedule({ appointments }: TodayScheduleProps) {
                     {appointment.status}
                   </Badge>
                   <p className="text-sm font-bold text-foreground">
-                    {formatCurrency(appointment.price)}
+                    {formatCurrency(appointment.price, locale)}
                   </p>
                 </div>
               </div>

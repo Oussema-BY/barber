@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Calendar, DollarSign, AlertCircle, TrendingUp, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { KPICard } from '@/components/dashboard/kpi-card';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { TodaySchedule } from '@/components/dashboard/today-schedule';
@@ -14,6 +14,7 @@ import { getAppointmentsByDate, getUpcomingScheduledAppointments } from '@/lib/a
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const locale = useLocale();
   const [stats, setStats] = useState({
     todayAppointments: 0,
     dailyRevenue: 0,
@@ -76,7 +77,7 @@ export default function DashboardPage() {
         />
         <KPICard
           title={t('dailyRevenue')}
-          value={formatCurrency(stats.dailyRevenue)}
+          value={formatCurrency(stats.dailyRevenue, locale)}
           icon={DollarSign}
           color="emerald"
         />
@@ -88,7 +89,7 @@ export default function DashboardPage() {
         />
         <KPICard
           title={t('monthRevenue')}
-          value={formatCurrency(stats.monthRevenue)}
+          value={formatCurrency(stats.monthRevenue, locale)}
           icon={TrendingUp}
           color="purple"
         />

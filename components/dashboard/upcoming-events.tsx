@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CalendarDays, Package as PackageIcon } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Appointment } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
@@ -15,6 +15,7 @@ interface UpcomingEventsProps {
 export function UpcomingEvents({ appointments }: UpcomingEventsProps) {
   const t = useTranslations('dashboard');
   const tPkg = useTranslations('packages');
+  const locale = useLocale();
 
   return (
     <Card>
@@ -66,7 +67,7 @@ export function UpcomingEvents({ appointments }: UpcomingEventsProps) {
                         </span>
                         {(apt.advance != null && apt.advance > 0) && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-600">
-                            {tPkg('advance')}: {formatCurrency(apt.advance)}
+                            {tPkg('advance')}: {formatCurrency(apt.advance, locale)}
                           </span>
                         )}
                         {apt.staffMemberName && (
@@ -77,7 +78,7 @@ export function UpcomingEvents({ appointments }: UpcomingEventsProps) {
                       </div>
                     </div>
                     <span className="text-sm font-bold text-foreground shrink-0">
-                      {formatCurrency(apt.price)}
+                      {formatCurrency(apt.price, locale)}
                     </span>
                   </div>
                 </Link>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/user-context';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Minus, Plus, AlertCircle, Package, Loader2, Trash2, Edit2, ShoppingCart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ export default function InventoryPage() {
   const router = useRouter();
   const { shopRole } = useUser();
   const t = useTranslations('inventory');
+  const locale = useLocale();
 
   useEffect(() => {
     if (shopRole && shopRole !== 'owner') {
@@ -108,7 +109,7 @@ export default function InventoryPage() {
           <CardContent className="pt-5 pb-5">
             <p className="text-sm font-medium text-foreground-secondary">{t('inventoryValue')}</p>
             <p className="text-xl md:text-2xl font-bold text-foreground mt-2">
-              {formatCurrency(totalInventoryValue)}
+              {formatCurrency(totalInventoryValue, locale)}
             </p>
           </CardContent>
         </Card>
@@ -168,7 +169,7 @@ export default function InventoryPage() {
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-foreground">{product.name}</p>
                         <p className="text-xs text-foreground-tertiary">{product.supplier}</p>
-                        <p className="font-bold text-foreground mt-2">{formatCurrency(product.salePrice)}</p>
+                        <p className="font-bold text-foreground mt-2">{formatCurrency(product.salePrice, locale)}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <div className="flex items-center gap-2">
@@ -268,10 +269,10 @@ export default function InventoryPage() {
                             <p className="text-xs text-foreground-tertiary">{product.supplier}</p>
                           </td>
                           <td className="py-3 px-3 text-right text-foreground-secondary">
-                            {formatCurrency(product.costPrice)}
+                            {formatCurrency(product.costPrice, locale)}
                           </td>
                           <td className="py-3 px-3 text-right font-semibold text-foreground">
-                            {formatCurrency(product.salePrice)}
+                            {formatCurrency(product.salePrice, locale)}
                           </td>
                           <td className="py-3 px-3">
                             <div className="flex items-center justify-center gap-2">

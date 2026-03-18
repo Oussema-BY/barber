@@ -2,6 +2,7 @@ import React from 'react';
 import { Scissors, Trash2 } from 'lucide-react';
 import { Service } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+import { useLocale } from 'next-intl';
 
 interface ServiceCardProps {
   service: Service;
@@ -9,6 +10,7 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, onDelete }: ServiceCardProps) {
+  const locale = useLocale();
   return (
     <div className="group relative bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-200">
       {/* Accent bar */}
@@ -35,7 +37,7 @@ export function ServiceCard({ service, onDelete }: ServiceCardProps) {
         {/* Price */}
         <div className="mt-4 flex items-center justify-between">
           <span className="text-2xl font-bold text-foreground">
-            {formatCurrency(service.price)}
+            {formatCurrency(service.price, locale)}
           </span>
 
           {onDelete && (

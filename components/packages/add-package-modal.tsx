@@ -169,7 +169,7 @@ export function AddPackageModal({
             />
 
             <Input
-              label={tCommon("price") + " (د.ت) *"}
+              label={tCommon("price") + " (" + tCommon("currency") + ") *"}
               type="number"
               min="0"
               step="0.01"
@@ -214,7 +214,7 @@ export function AddPackageModal({
                   type="number"
                   min="0"
                   step="0.01"
-                  placeholder={tCommon("price") + " (د.ت)"}
+                  placeholder={tCommon("price") + " (" + tCommon("currency") + ")"}
                   value={newService.price}
                   onChange={(e) =>
                     setNewService({ ...newService, price: e.target.value })
@@ -245,7 +245,7 @@ export function AddPackageModal({
               </div>
             )}
 
-            <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+            <div className="max-h-75 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
               {services.map((service) => {
                 const isSelected = formData.selectedServices.includes(
                   service.id,

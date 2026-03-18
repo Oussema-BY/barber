@@ -20,7 +20,8 @@
     "price": "السعر",
     "service": "خدمة",
     "description": "الوصف",
-    "notAvailable": "غير متاح"
+    "notAvailable": "غير متاح",
+    "currency": "د.ت"
   },
   "nav": {
     "dashboard": "الرئيسية",

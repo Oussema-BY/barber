@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -84,6 +84,7 @@ export default function FinancePage() {
   const router = useRouter();
   const { shopRole, shopName } = useUser();
   const t = useTranslations("finance");
+  const locale = useLocale();
 
   useEffect(() => {
     if (shopRole && shopRole !== "owner") {
@@ -236,7 +237,7 @@ export default function FinancePage() {
                   {t("totalRevenue")}
                 </p>
                 <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(report.totalRevenue)}
+                  {formatCurrency(report.totalRevenue, locale)}
                 </p>
                 <p className="text-xs text-foreground-tertiary mt-1">
                   {report.transactionCount} {t("transactions")}
@@ -258,7 +259,7 @@ export default function FinancePage() {
                   {t("totalExpenses")}
                 </p>
                 <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(report.totalExpenses)}
+                  {formatCurrency(report.totalExpenses, locale)}
                 </p>
               </div>
               <div className="p-2 bg-destructive-light rounded-lg hidden sm:block">
@@ -279,7 +280,7 @@ export default function FinancePage() {
                 <p
                   className={`text-lg md:text-2xl font-bold mt-1 ${report.netProfit >= 0 ? "text-success" : "text-destructive"}`}
                 >
-                  {formatCurrency(report.netProfit)}
+                  {formatCurrency(report.netProfit, locale)}
                 </p>
                 <p className="text-xs text-foreground-tertiary mt-1">
                   {profitMargin}% {t("margin")}
@@ -301,7 +302,7 @@ export default function FinancePage() {
                   {t("inventoryValue")}
                 </p>
                 <p className="text-lg md:text-2xl font-bold text-foreground mt-1">
-                  {formatCurrency(report.inventoryValue)}
+                  {formatCurrency(report.inventoryValue, locale)}
                 </p>
                 <p className="text-xs text-foreground-tertiary mt-1">
                   {report.productCount} {t("products")}
@@ -327,7 +328,7 @@ export default function FinancePage() {
                 {t(pm.method as "cash" | "card" | "transfer")}
               </span>
               <span className="text-sm font-bold text-foreground">
-                {formatCurrency(pm.total)}
+                {formatCurrency(pm.total, locale)}
               </span>
               <span className="text-xs text-foreground-tertiary">
                 ({pm.count})
@@ -376,7 +377,7 @@ export default function FinancePage() {
                           className="fill-foreground-secondary"
                         />
                         <Tooltip
-                          formatter={(value) => formatCurrency(value as number)}
+                          formatter={(value) => formatCurrency(value as number, locale)}
                           contentStyle={{
                             backgroundColor: "var(--card)",
                             border: "1px solid var(--border)",
@@ -427,7 +428,7 @@ export default function FinancePage() {
                           ))}
                         </Pie>
                         <Tooltip
-                          formatter={(value) => formatCurrency(value as number)}
+                          formatter={(value) => formatCurrency(value as number, locale)}
                           contentStyle={{
                             backgroundColor: "var(--card)",
                             border: "1px solid var(--border)",
@@ -466,7 +467,7 @@ export default function FinancePage() {
                         className="fill-foreground-secondary"
                       />
                       <Tooltip
-                        formatter={(value) => formatCurrency(value as number)}
+                        formatter={(value) => formatCurrency(value as number, locale)}
                         contentStyle={{
                           backgroundColor: "var(--card)",
                           border: "1px solid var(--border)",
@@ -528,7 +529,7 @@ export default function FinancePage() {
                     </div>
                   </div>
                   <p className="text-base md:text-lg font-bold text-foreground ml-4">
-                    {formatCurrency(expense.amount)}
+                    {formatCurrency(expense.amount, locale)}
                   </p>
                 </div>
               ))}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Check, RotateCcw, Scissors, Loader2, Clock, Receipt, Package as PackageIcon } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { CATEGORY_COLORS } from '@/lib/constants';
@@ -16,6 +16,7 @@ import { useUser } from '@/lib/user-context';
 export default function POSPage() {
   const t = useTranslations('pos');
   const tServices = useTranslations('services');
+  const locale = useLocale();
   const { name: userName } = useUser();
 
   const [services, setServices] = useState<Service[]>([]);
@@ -147,10 +148,10 @@ export default function POSPage() {
             <Check className="w-10 h-10 text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">{t('saleComplete')}</h1>
-          <p className="text-foreground-secondary">{t('total')}: {formatCurrency(total)}</p>
+          <p className="text-foreground-secondary">{t('total')}: {formatCurrency(total, locale)}</p>
           {change > 0 && (
             <p className="text-lg font-semibold text-emerald-600">
-              {t('change')}: {formatCurrency(change)}
+              {t('change')}: {formatCurrency(change, locale)}
             </p>
           )}
           <Button onClick={handleNewSale} size="lg" className="mt-6">
@@ -240,7 +241,7 @@ export default function POSPage() {
                     )}
                   </div>
                   <p className="font-bold text-primary text-lg mt-3">
-                    {formatCurrency(service.price)}
+                    {formatCurrency(service.price, locale)}
                   </p>
                 </button>
               );
@@ -289,7 +290,7 @@ export default function POSPage() {
                   </div>
                   <div className="mt-3">
                     <p className="font-bold text-primary text-lg">
-                      {formatCurrency(pkg.price)}
+                      {formatCurrency(pkg.price, locale)}
                     </p>
                   </div>
                 </button>
@@ -304,7 +305,7 @@ export default function POSPage() {
         open={historyOpen}
         onOpenChange={setHistoryOpen}
         title={t('todaySales')}
-        description={`${todaySales.length} ${t('transactions')} — ${formatCurrency(todayRevenue)}`}
+        description={`${todaySales.length} ${t('transactions')} — ${formatCurrency(todayRevenue, locale)}`}
         size="md"
       >
         {todaySales.length === 0 ? (
@@ -329,7 +330,7 @@ export default function POSPage() {
                   )}
                 </div>
                 <span className="font-bold text-foreground shrink-0">
-                  {formatCurrency(tx.total)}
+                  {formatCurrency(tx.total, locale)}
                 </span>
               </div>
             ))}
@@ -368,7 +369,7 @@ export default function POSPage() {
             {/* Total Display */}
             <div className="flex-1 flex sm:flex-col items-center sm:items-start justify-between sm:justify-start bg-secondary/30 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none">
               <p className="text-[10px] sm:text-sm text-foreground-secondary uppercase tracking-tight font-medium sm:normal-case">{t('total')}</p>
-              <p className="text-xl sm:text-3xl font-bold text-foreground">{formatCurrency(total)}</p>
+              <p className="text-xl sm:text-3xl font-bold text-foreground">{formatCurrency(total, locale)}</p>
             </div>
 
             {/* Cash Received Input (Optional) */}
@@ -392,7 +393,7 @@ export default function POSPage() {
               <div className="flex-1 flex sm:flex-col items-center sm:items-start justify-between sm:justify-start bg-emerald-50 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none">
                 <p className="text-[10px] sm:text-sm text-foreground-secondary uppercase tracking-tight font-medium sm:normal-case">{t('change')}</p>
                 <p className={`text-lg sm:text-2xl font-bold ${change >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
-                  {formatCurrency(Math.abs(change))}
+                  {formatCurrency(Math.abs(change), locale)}
                 </p>
               </div>
             )}
@@ -413,7 +414,7 @@ export default function POSPage() {
             ) : (
               <>
                 <Check className="w-5 h-5 mr-2" />
-                {t('completeSale')} - {formatCurrency(total)}
+                {t('completeSale')} - {formatCurrency(total, locale)}
               </>
             )}
           </Button>

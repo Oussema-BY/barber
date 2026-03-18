@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BasketItem } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { useLocale } from "next-intl";
 
 interface BasketProps {
   items: BasketItem[];
@@ -22,6 +23,7 @@ export function Basket({
   tax,
   total,
 }: BasketProps) {
+  const locale = useLocale();
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3 sm:pb-4">
@@ -58,10 +60,10 @@ export function Basket({
                   </div>
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="text-foreground-secondary">
-                      {formatCurrency(item.price)} × {item.quantity}
+                      {formatCurrency(item.price, locale)} × {item.quantity}
                     </span>
                     <span className="font-semibold text-foreground">
-                      {formatCurrency(item.price * item.quantity)}
+                      {formatCurrency(item.price * item.quantity, locale)}
                     </span>
                   </div>
                   {/* Quantity Controls - Always show for touch-friendly interaction */}
@@ -106,15 +108,15 @@ export function Basket({
         <div className="border-t border-border pt-3 sm:pt-4 space-y-1.5 sm:space-y-2 mt-auto">
           <div className="flex justify-between text-xs sm:text-sm">
             <span className="text-foreground-secondary">Subtotal</span>
-            <span className="text-foreground">{formatCurrency(subtotal)}</span>
+            <span className="text-foreground">{formatCurrency(subtotal, locale)}</span>
           </div>
           <div className="flex justify-between text-xs sm:text-sm">
             <span className="text-foreground-secondary">Tax (19%)</span>
-            <span className="text-foreground">{formatCurrency(tax)}</span>
+            <span className="text-foreground">{formatCurrency(tax, locale)}</span>
           </div>
           <div className="flex justify-between text-base sm:text-lg font-bold bg-primary/10 text-primary p-2.5 sm:p-3 rounded-xl mt-2">
             <span>Total</span>
-            <span>{formatCurrency(total)}</span>
+            <span>{formatCurrency(total, locale)}</span>
           </div>
         </div>
       </CardContent>

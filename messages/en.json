@@ -20,7 +20,8 @@
     "price": "Price",
     "description": "Description",
     "service": "Service",
-    "notAvailable": "Not Available"
+    "notAvailable": "Not Available",
+    "currency": "TND"
   },
   "nav": {
     "dashboard": "Dashboard",

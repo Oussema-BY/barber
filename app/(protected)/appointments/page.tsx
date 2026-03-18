@@ -566,7 +566,7 @@ export default function AppointmentsPage() {
                           }`}
                       >
                         <p className="font-semibold text-foreground text-sm line-clamp-1">{service.name}</p>
-                        <p className="font-bold text-primary text-sm mt-1">{formatCurrency(service.price)}</p>
+                        <p className="font-bold text-primary text-sm mt-1">{formatCurrency(service.price, locale)}</p>
                       </button>
                     );
                   })}
@@ -620,7 +620,7 @@ export default function AppointmentsPage() {
                       >
                         <div className="flex items-center justify-between">
                           <p className="font-bold text-foreground font-title">{pkg.name}</p>
-                          <p className="font-black text-violet-600 font-mono tracking-tighter">{formatCurrency(pkg.price)}</p>
+                          <p className="font-black text-violet-600 font-mono tracking-tighter">{formatCurrency(pkg.price, locale)}</p>
                         </div>
                         {pkg.description && (
                           <p className="text-xs text-foreground-secondary mt-1 line-clamp-1">{pkg.description}</p>
@@ -801,7 +801,7 @@ export default function AppointmentsPage() {
                           </div>
                         </div>
                         <span className="font-bold text-foreground text-sm shrink-0">
-                          {formatCurrency(apt.price)}
+                          {formatCurrency(apt.price, locale)}
                         </span>
                       </div>
                     ))}
@@ -851,7 +851,7 @@ export default function AppointmentsPage() {
                         <Clock className="w-3 h-3" />
                         {appointment.duration}{tCommon('minutes')}
                       </span>
-                      <span className="font-bold text-foreground">{formatCurrency(appointment.price)}</span>
+                      <span className="font-bold text-foreground">{formatCurrency(appointment.price, locale)}</span>
                       {appointment.staffMemberName && (
                         <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                           {appointment.staffMemberName}
@@ -891,7 +891,7 @@ export default function AppointmentsPage() {
                     </span>
                     {(apt.advance != null && apt.advance > 0) && (
                       <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-600">
-                        {tPkg('advance')}: {formatCurrency(apt.advance)}
+                        {tPkg('advance')}: {formatCurrency(apt.advance, locale)}
                       </span>
                     )}
                     {apt.eventDate && (
@@ -909,11 +909,11 @@ export default function AppointmentsPage() {
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <div className="text-end">
                     <span className="text-lg font-black text-foreground">
-                      {formatCurrency(apt.price)}
+                      {formatCurrency(apt.price, locale)}
                     </span>
                     {(apt.advance != null && apt.advance > 0) && (
                       <p className="text-xs text-foreground-muted">
-                        {tPkg('remaining')}: {formatCurrency(apt.price - apt.advance)}
+                        {tPkg('remaining')}: {formatCurrency(apt.price - apt.advance, locale)}
                       </p>
                     )}
                   </div>

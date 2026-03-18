@@ -1,10 +1,14 @@
 import { CURRENCY } from './constants';
 
 /**
- * Format a number as currency
+ * Format a number as currency.
+ * Pass the active locale ('en', 'fr', 'ar') to get the correct symbol:
+ *   'ar'  → د.ت  (uses ar-TN Intl locale)
+ *   other → TND  (uses fr-TN Intl locale)
  */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat(CURRENCY.locale, {
+export function formatCurrency(amount: number, locale?: string): string {
+  const intlLocale = locale === 'ar' ? 'ar-TN' : 'fr-TN';
+  return new Intl.NumberFormat(intlLocale, {
     style: 'currency',
     currency: CURRENCY.code,
     minimumFractionDigits: 2,

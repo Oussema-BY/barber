@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { createService } from '@/lib/actions/service.actions';
+import { useTranslations } from 'next-intl';
 
 interface AddServiceModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ export function AddServiceModal({
   onOpenChange,
   onServiceAdded,
 }: AddServiceModalProps) {
+  const tCommon = useTranslations('common');
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -71,7 +73,7 @@ export function AddServiceModal({
 
         {/* Price */}
         <Input
-          label="Price (€) *"
+          label={`Price (${tCommon('currency')}) *`}
           type="number"
           min="0"
           step="0.01"

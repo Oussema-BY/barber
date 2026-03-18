@@ -2,7 +2,7 @@ import React from 'react';
 import { Package as PackageIcon, Trash2, CalendarDays, Layers, Banknote, Pencil } from 'lucide-react';
 import { Package } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface PackageCardProps {
     packageData: Package;
@@ -12,6 +12,7 @@ interface PackageCardProps {
 
 export function PackageCard({ packageData, onEdit, onDelete }: PackageCardProps) {
     const t = useTranslations('packages');
+    const locale = useLocale();
 
     return (
         <div className="group relative bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-200">
@@ -47,7 +48,7 @@ export function PackageCard({ packageData, onEdit, onDelete }: PackageCardProps)
                 {/* Price & Actions */}
                 <div className="mt-5 flex items-center justify-between">
                     <span className="text-2xl font-black text-foreground">
-                        {formatCurrency(packageData.price)}
+                        {formatCurrency(packageData.price, locale)}
                     </span>
 
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
